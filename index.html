@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>VILAX — система управления сетью ресторанов</title>
-<meta name="description" content="Выручка, план-факт, фудкост и потери всех точек сети — в одном окне. Подключение к iiko и Quick Resto, 1С и МойСклад, сводки по сети в Telegram. От 2 точек.">
+<meta name="description" content="Выручка, план-факт, фудкост и потери всех точек сети — в одном окне. Подключение к iiko и Quick Resto, 1С и МойСклад, сводки по сети в Telegram. Для сетей от 10 точек.">
 <meta name="theme-color" content="#020817">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -73,7 +73,7 @@ main,footer{position:relative;z-index:2}
 section{position:relative}
 .kicker{display:inline-flex;align-items:center;gap:8px;height:28px;padding:0 12px;border-radius:99px;background:rgba(245,247,250,.04);border:1px solid var(--line);color:var(--faint)}
 .kicker .dot{width:5px;height:5px}
-.h2{font-size:clamp(34px,4.4vw,64px);line-height:1.04;letter-spacing:-.03em;font-weight:620;margin-top:18px}
+.h2{text-wrap:balance;font-size:clamp(34px,4.4vw,64px);line-height:1.04;letter-spacing:-.03em;font-weight:620;margin-top:18px}
 .sec-head{display:grid;grid-template-columns:1.3fr 1fr;gap:40px;align-items:end;margin-bottom:56px}
 .sec-head p{color:var(--muted);max-width:440px;justify-self:end;font-size:clamp(16px,1.2vw,18px)}
 .glass{position:relative;background:var(--glass);border:1px solid var(--line);border-radius:var(--radius);backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);box-shadow:inset 0 1px 0 rgba(245,247,250,.07),0 40px 80px -30px rgba(0,0,0,.75)}
@@ -132,7 +132,7 @@ section{position:relative}
 .merge-glow{position:absolute;left:50%;top:58%;width:min(1100px,120vw);aspect-ratio:1;translate:-50% -50%;border-radius:50%;
   background:radial-gradient(closest-side,rgba(24,242,223,.32),rgba(34,151,255,.14) 45%,transparent 70%);opacity:0;pointer-events:none;filter:blur(10px)}
 .merge-titles{position:absolute;left:0;right:0;top:12%;height:2.4em;z-index:4;pointer-events:none;font-size:clamp(28px,3.8vw,56px)}
-.mt{position:absolute;left:50%;top:0;translate:-50% 0;width:min(940px,90vw);text-align:center;font-size:1em;line-height:1.06;letter-spacing:-.035em;font-weight:620}
+.mt{text-wrap:balance;position:absolute;left:50%;top:0;translate:-50% 0;width:min(940px,90vw);text-align:center;font-size:1em;line-height:1.06;letter-spacing:-.035em;font-weight:620}
 .mt2{opacity:0}
 .chaos-layer{position:absolute;inset:0;z-index:2;pointer-events:none}
 .ch{--w:clamp(220px,18vw,280px);position:absolute;left:50%;top:58%;width:var(--w);margin:-50px 0 0 calc(var(--w) / -2);will-change:transform}
@@ -154,6 +154,11 @@ section{position:relative}
 .file{display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:14px;background:rgba(15,28,51,.92);border:1px solid var(--line-2);box-shadow:0 20px 40px -18px rgba(0,0,0,.8)}
 .file i{flex:none;width:34px;height:40px;border-radius:6px;display:grid;place-items:center;font-style:normal;font-family:var(--mono);font-size:10px;font-weight:600;color:#fff;background:#1f7a46}
 .file i.pdf{background:#c2413b}
+.file>div{min-width:0}
+.ch .f{overflow:hidden}
+.xls table{table-layout:fixed}
+.xls td{overflow:hidden;text-overflow:ellipsis}
+.onec .h{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .file b{display:block;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .file small{font-family:var(--mono);font-size:11px;color:var(--ghost)}
 .onec{border-radius:10px;overflow:hidden;background:#fffbe6;color:#2a2410;box-shadow:0 20px 40px -18px rgba(0,0,0,.8)}
@@ -161,12 +166,12 @@ section{position:relative}
 .onec p{padding:10px;font-size:13px}
 .note{padding:16px 16px 18px;background:#ffe27a;color:#3a3000;font-size:15px;font-weight:600;line-height:1.3;border-radius:3px;box-shadow:0 18px 30px -14px rgba(0,0,0,.7);font-family:"Segoe Print","Comic Sans MS",var(--sans)}
 /* одно окно */
-.one{position:absolute;left:50%;top:58%;z-index:3;width:min(780px,80vw);translate:-50% -50%;opacity:0}
+.one{position:absolute;left:50%;top:58%;z-index:3;width:min(780px,80vw);opacity:0}
 .one .frame{position:relative;overflow:hidden}
 .one .frame img{width:100%;aspect-ratio:2/1;object-fit:cover;object-position:top left}
 .one .frame-bar b{font-size:12px;font-weight:600;margin-left:8px;color:var(--text)}
 .sweep{position:absolute;inset:0;pointer-events:none;background:linear-gradient(100deg,transparent 35%,rgba(255,255,255,.18) 50%,transparent 65%);transform:translateX(-120%)}
-.one-badge{position:absolute;left:50%;top:-22px;translate:-50% 0;z-index:2;display:flex;align-items:center;gap:10px;padding:8px 16px 8px 10px;border-radius:99px;
+.one-badge{position:absolute;left:50%;top:-22px;width:max-content;translate:-50% 0;z-index:2;display:flex;align-items:center;gap:10px;padding:8px 16px 8px 10px;border-radius:99px;
   background:rgba(2,8,23,.85);border:1px solid rgba(24,242,223,.5);box-shadow:0 0 30px -6px rgba(24,242,223,.6);opacity:0;white-space:nowrap}
 .one-badge img{height:22px}
 .one-badge span{font-family:var(--mono);font-size:12px;color:var(--accent)}
@@ -176,6 +181,7 @@ section{position:relative}
 .merge-count .to{color:var(--accent)}
 .merge-count .arrow{width:60px;height:1px;background:linear-gradient(90deg,var(--line-2),var(--accent))}
 .merge.static .ch,.merge.static .mt1{display:none}
+.merge.static .one{translate:-50% -50%}
 .merge.static .mt2,.merge.static .one,.merge.static .one-badge,.merge.static .merge-glow{opacity:1}
 
 /* ============ ВИТРИНА: ФИНАНСЫ И КОНТРОЛЬ ============ */
@@ -187,6 +193,10 @@ section{position:relative}
 .feat h3{font-size:clamp(24px,2.4vw,32px);font-weight:600;letter-spacing:-.025em;margin:10px 0 12px;line-height:1.15}
 .feat p{color:var(--muted);max-width:400px}
 .feat .zoom{display:none}
+.hero-phone,.fphone{display:none}
+.hero-app{position:relative;width:100%;height:100%}
+.hero-app img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;opacity:0;transition:opacity .9s var(--ease-out)}
+.hero-app img.on{opacity:1}
 .feat .zoom .label{display:block;margin-top:8px}
 .stage{position:sticky;top:calc(50vh - min(26vw,300px));height:max-content}
 .stage .frame{position:relative}
@@ -209,7 +219,7 @@ section{position:relative}
 .losses .card{padding:32px 34px;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.5fr);gap:36px;align-items:center}
 .losses .frame img{width:100%;aspect-ratio:2/1;object-fit:cover;object-position:top left}
 .losses .frame .fadeb{position:absolute;left:0;right:0;bottom:0;height:24%;background:linear-gradient(rgba(3,10,26,0),rgba(3,10,26,.96));pointer-events:none}
-.losses h3{font-size:24px;font-weight:600;letter-spacing:-.02em;margin:10px 0 10px}
+.losses h3{line-height:1.2;font-size:24px;font-weight:600;letter-spacing:-.02em;margin:10px 0 10px}
 .losses ul{list-style:none;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .losses li{display:flex;gap:10px;align-items:flex-start;padding:14px 16px;line-height:1.35;border-radius:12px;border:1px solid var(--line);background:rgba(2,8,23,.4);font-size:14px;color:var(--muted)}
 .losses li b{font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:500;min-width:18px;line-height:1.6}
@@ -218,7 +228,7 @@ section{position:relative}
 .ai{padding:120px 0 60px}
 .ai-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 .ai-card{padding:30px;display:flex;flex-direction:column;gap:14px}
-.ai-card h3{font-size:26px;font-weight:600;letter-spacing:-.02em}
+.ai-card h3{font-size:26px;font-weight:600;letter-spacing:-.02em;line-height:1.15}
 .ai-card p{color:var(--muted)}
 .badge{display:inline-flex;width:max-content;font-family:var(--mono);font-size:11px;color:var(--on-accent);background:var(--accent);padding:3px 8px;border-radius:6px}
 .badge.b2{background:rgba(122,92,199,.25);color:#cdbcf5;border:1px solid rgba(122,92,199,.5)}
@@ -392,13 +402,36 @@ section{position:relative}
   .f-cta{padding:36px 28px}
 }
 @media (max-width:600px){
+  /* телефон: экраны приложения в iPhone вместо мелких десктопных скриншотов */
+  .hero-media .frame{display:none}
+  .hero-phone{display:block;width:min(240px,62vw);margin:4px auto 0}
+  .feat .zoom{display:none}
+  .feat .fphone{display:block;width:min(230px,60vw);margin:22px auto 0}
+  .feat .fphone img{aspect-ratio:auto;height:100%;border:0;border-radius:0;margin:0}
+  .losses .frame{display:none}
+  /* короче провалы между разделами */
+  .today,.show,.metrics,.ai,.blocks,.trust,.pricing,.faq-sec{padding:72px 0 16px}
+  .final{padding:48px 0 32px}
+  .integr{padding:0 0 8px}
+  .hero{padding:96px 0 40px;min-height:auto}
+  .sec-head{margin-bottom:32px;gap:16px}
+  .feat{padding:0 0 44px}
+  .steps{margin-top:48px}
+  /* блок слияния: iPhone помещается по высоте, плашка над ним, а не на «чёлке» */
+  .one{width:min(205px,52vw)}
+  .hero .ctas{display:grid;grid-template-columns:1fr;gap:10px}
+  .hero .ctas .btn{width:100%;height:50px}
+  .tiers div{padding:8px 1px}.tiers b{font-size:11.5px}
+  .sw{width:52px;height:32px}.sw::after{width:24px;height:24px}.sw[aria-checked="true"]::after{transform:translateX(20px)}
+  .foot>div:last-child{grid-column:span 2}
+  .faq summary{align-items:center}
   .ch{--w:168px}
   .ch:nth-child(n+7){display:none}
   .bub p{font-size:12px}.note{font-size:13px;padding:12px}
-  .one{width:min(250px,64vw);top:60%}
+  .one{top:55%}
   .one .frame{display:none}
   .one .ip{display:block}
-  .one-badge{top:-18px}
+  .one-badge{position:relative;left:auto;top:auto;translate:none;display:flex;margin:0 auto 12px}
   .merge-count{display:none}
   .merge-titles{top:11%}
   .brand img.word{display:none}
@@ -463,6 +496,7 @@ section{position:relative}
         </div>
         <div class="stage-foot"><span class="label" id="heroName">выручка сети сегодня</span><div class="ticks2" id="heroTicks"><i class="on"></i><i></i><i></i><i></i></div></div>
       </div>
+      <div class="ip hero-phone"><div class="ip__lid"><span class="ip__keys" aria-hidden="true"><i></i><i></i><i></i><i></i></span><div class="ip__glass"><span class="ip__island" aria-hidden="true"></span><span class="ip__bar" aria-hidden="true"><svg class="ip__clock" viewBox="0 0 26 12"><text x="13" y="10.5" text-anchor="middle">9:41</text></svg><svg class="ip__ico" viewBox="0 0 64 12"><rect x="0" y="8" width="3" height="4" rx=".8"/><rect x="4.5" y="6" width="3" height="6" rx=".8"/><rect x="9" y="3.5" width="3" height="8.5" rx=".8"/><rect x="13.5" y="1" width="3" height="11" rx=".8"/><rect x="38.5" y="1.5" width="21" height="9" rx="2.6" fill="none" stroke="currentColor" stroke-opacity=".4"/><rect x="40.5" y="3.5" width="17" height="5" rx="1.3"/></svg></span><div class="ip__screen"><div class="hero-app" id="heroApp"><img class="on" src="shots-app/t001.webp" alt="Выручка сети сегодня"><img src="shots-app/t018.webp" alt="План-факт" loading="lazy"><img src="shots-app/t020.webp" alt="Рейтинг точек" loading="lazy"><img src="shots-app/t046.webp" alt="Потери по шести каналам" loading="lazy"></div></div><span class="ip__home" aria-hidden="true"></span></div></div></div>
     </div>
   </div>
 </section>
@@ -531,13 +565,13 @@ section{position:relative}
     </div>
     <div class="show-grid">
       <div class="feats" id="feats">
-        <div class="feat" data-i="0"><span class="n">01 · Основа</span><h3>Выручка и чеки в течение дня</h3><p>Выручка сети по часам с прогнозом к закрытию дня и сравнением с обычным таким же днём.</p><a class="zoom" href="shots/t001.webp" target="_blank" rel="noopener"><img src="shots/t001.webp" alt="Экран «Центр управления»: выручка сети сегодня" loading="lazy"><span class="label">открыть экран целиком ↗</span></a></div>
-        <div class="feat" data-i="1"><span class="n">02 · Основа</span><h3>План-факт</h3><p>План на каждый день с учётом дней недели и сезонности, отставание и прогноз закрытия месяца по каждой точке.</p><a class="zoom" href="shots/t018.webp" target="_blank" rel="noopener"><img src="shots/t018.webp" alt="Экран «План-факт»" loading="lazy"><span class="label">открыть экран целиком ↗</span></a></div>
-        <div class="feat" data-i="2"><span class="n">03 · Основа</span><h3>Рейтинг точек</h3><p>Точки по зонам «норма», «внимание», «риск»: выручка, динамика, фудкост, скидки и средний чек.</p><a class="zoom" href="shots/t020.webp" target="_blank" rel="noopener"><img src="shots/t020.webp" alt="Экран «Рейтинг точек»" loading="lazy"><span class="label">открыть экран целиком ↗</span></a></div>
-        <div class="feat" data-i="3"><span class="n">04</span><h3>Разбор смены</h3><p>Вчерашняя смена против плана, обычного дня и потенциала при обычной выручке на гостя.</p><a class="zoom" href="shots/y004.webp" target="_blank" rel="noopener"><img src="shots/y004.webp" alt="Экран «Разбор смены»" loading="lazy"><span class="label">открыть экран целиком ↗</span></a></div>
-        <div class="feat" data-i="4"><span class="n">05 · Финансы и контроль</span><h3>Потери по шести каналам</h3><p>Удаления после пречека, отмены, возвраты, скидки и списания — с разбором по сотрудникам.</p><a class="zoom" href="shots/t046.webp" target="_blank" rel="noopener"><img src="shots/t046.webp" alt="Экран «Потери»" loading="lazy"><span class="label">открыть экран целиком ↗</span></a></div>
-        <div class="feat" data-i="5"><span class="n">06 · Финансы и контроль</span><h3>P&amp;L и движение денег</h3><p>Отчёт о прибылях и убытках по сети и по каждой точке за неделю, месяц или квартал.</p><a class="zoom" href="shots/t035.webp" target="_blank" rel="noopener"><img src="shots/t035.webp" alt="Экран «P&amp;L»" loading="lazy"><span class="label">открыть экран целиком ↗</span></a></div>
-        <div class="feat" data-i="6"><span class="n">07 · Финансы и контроль</span><h3>Матрица меню и фудкост</h3><p>Блюда по продажам и марже: что продвигать, что пересчитать, что убрать. Фудкост по группам меню против нормы сети.</p><a class="zoom" href="shots/t040.webp" target="_blank" rel="noopener"><img src="shots/t040.webp" alt="Экран «Матрица меню»" loading="lazy"><span class="label">открыть экран целиком ↗</span></a></div>
+        <div class="feat" data-i="0"><span class="n">01 · Основа</span><h3>Выручка и чеки в течение дня</h3><p>Выручка сети по часам с прогнозом к закрытию дня и сравнением с обычным таким же днём.</p><a class="zoom" href="shots/t001.webp" target="_blank" rel="noopener"><img src="shots/t001.webp" alt="Экран «Центр управления»: выручка сети сегодня" loading="lazy"><span class="label">открыть экран целиком ↗</span></a><div class="ip fphone"><div class="ip__lid"><span class="ip__keys" aria-hidden="true"><i></i><i></i><i></i><i></i></span><div class="ip__glass"><span class="ip__island" aria-hidden="true"></span><span class="ip__bar" aria-hidden="true"><svg class="ip__clock" viewBox="0 0 26 12"><text x="13" y="10.5" text-anchor="middle">9:41</text></svg><svg class="ip__ico" viewBox="0 0 64 12"><rect x="0" y="8" width="3" height="4" rx=".8"/><rect x="4.5" y="6" width="3" height="6" rx=".8"/><rect x="9" y="3.5" width="3" height="8.5" rx=".8"/><rect x="13.5" y="1" width="3" height="11" rx=".8"/><rect x="38.5" y="1.5" width="21" height="9" rx="2.6" fill="none" stroke="currentColor" stroke-opacity=".4"/><rect x="40.5" y="3.5" width="17" height="5" rx="1.3"/></svg></span><div class="ip__screen"><img src="shots-app/t001.webp" alt="Экран «Центр управления»: выручка сети сегодня — приложение" loading="lazy"></div><span class="ip__home" aria-hidden="true"></span></div></div></div></div>
+        <div class="feat" data-i="1"><span class="n">02 · Основа</span><h3>План-факт</h3><p>План на каждый день с учётом дней недели и сезонности, отставание и прогноз закрытия месяца по каждой точке.</p><a class="zoom" href="shots/t018.webp" target="_blank" rel="noopener"><img src="shots/t018.webp" alt="Экран «План-факт»" loading="lazy"><span class="label">открыть экран целиком ↗</span></a><div class="ip fphone"><div class="ip__lid"><span class="ip__keys" aria-hidden="true"><i></i><i></i><i></i><i></i></span><div class="ip__glass"><span class="ip__island" aria-hidden="true"></span><span class="ip__bar" aria-hidden="true"><svg class="ip__clock" viewBox="0 0 26 12"><text x="13" y="10.5" text-anchor="middle">9:41</text></svg><svg class="ip__ico" viewBox="0 0 64 12"><rect x="0" y="8" width="3" height="4" rx=".8"/><rect x="4.5" y="6" width="3" height="6" rx=".8"/><rect x="9" y="3.5" width="3" height="8.5" rx=".8"/><rect x="13.5" y="1" width="3" height="11" rx=".8"/><rect x="38.5" y="1.5" width="21" height="9" rx="2.6" fill="none" stroke="currentColor" stroke-opacity=".4"/><rect x="40.5" y="3.5" width="17" height="5" rx="1.3"/></svg></span><div class="ip__screen"><img src="shots-app/t018.webp" alt="Экран «План-факт» — приложение" loading="lazy"></div><span class="ip__home" aria-hidden="true"></span></div></div></div></div>
+        <div class="feat" data-i="2"><span class="n">03 · Основа</span><h3>Рейтинг точек</h3><p>Точки по зонам «норма», «внимание», «риск»: выручка, динамика, фудкост, скидки и средний чек.</p><a class="zoom" href="shots/t020.webp" target="_blank" rel="noopener"><img src="shots/t020.webp" alt="Экран «Рейтинг точек»" loading="lazy"><span class="label">открыть экран целиком ↗</span></a><div class="ip fphone"><div class="ip__lid"><span class="ip__keys" aria-hidden="true"><i></i><i></i><i></i><i></i></span><div class="ip__glass"><span class="ip__island" aria-hidden="true"></span><span class="ip__bar" aria-hidden="true"><svg class="ip__clock" viewBox="0 0 26 12"><text x="13" y="10.5" text-anchor="middle">9:41</text></svg><svg class="ip__ico" viewBox="0 0 64 12"><rect x="0" y="8" width="3" height="4" rx=".8"/><rect x="4.5" y="6" width="3" height="6" rx=".8"/><rect x="9" y="3.5" width="3" height="8.5" rx=".8"/><rect x="13.5" y="1" width="3" height="11" rx=".8"/><rect x="38.5" y="1.5" width="21" height="9" rx="2.6" fill="none" stroke="currentColor" stroke-opacity=".4"/><rect x="40.5" y="3.5" width="17" height="5" rx="1.3"/></svg></span><div class="ip__screen"><img src="shots-app/t020.webp" alt="Экран «Рейтинг точек» — приложение" loading="lazy"></div><span class="ip__home" aria-hidden="true"></span></div></div></div></div>
+        <div class="feat" data-i="3"><span class="n">04 · Смена</span><h3>Разбор смены</h3><p>Вчерашняя смена против плана, обычного дня и потенциала при обычной выручке на гостя.</p><a class="zoom" href="shots/y004.webp" target="_blank" rel="noopener"><img src="shots/y004.webp" alt="Экран «Разбор смены»" loading="lazy"><span class="label">открыть экран целиком ↗</span></a><div class="ip fphone"><div class="ip__lid"><span class="ip__keys" aria-hidden="true"><i></i><i></i><i></i><i></i></span><div class="ip__glass"><span class="ip__island" aria-hidden="true"></span><span class="ip__bar" aria-hidden="true"><svg class="ip__clock" viewBox="0 0 26 12"><text x="13" y="10.5" text-anchor="middle">9:41</text></svg><svg class="ip__ico" viewBox="0 0 64 12"><rect x="0" y="8" width="3" height="4" rx=".8"/><rect x="4.5" y="6" width="3" height="6" rx=".8"/><rect x="9" y="3.5" width="3" height="8.5" rx=".8"/><rect x="13.5" y="1" width="3" height="11" rx=".8"/><rect x="38.5" y="1.5" width="21" height="9" rx="2.6" fill="none" stroke="currentColor" stroke-opacity=".4"/><rect x="40.5" y="3.5" width="17" height="5" rx="1.3"/></svg></span><div class="ip__screen"><img src="shots-app/y004.webp" alt="Экран «Разбор смены» — приложение" loading="lazy"></div><span class="ip__home" aria-hidden="true"></span></div></div></div></div>
+        <div class="feat" data-i="4"><span class="n">05 · Финансы и контроль</span><h3>Потери по шести каналам</h3><p>Удаления после пречека, отмены, возвраты, скидки и списания — с разбором по сотрудникам.</p><a class="zoom" href="shots/t046.webp" target="_blank" rel="noopener"><img src="shots/t046.webp" alt="Экран «Потери»" loading="lazy"><span class="label">открыть экран целиком ↗</span></a><div class="ip fphone"><div class="ip__lid"><span class="ip__keys" aria-hidden="true"><i></i><i></i><i></i><i></i></span><div class="ip__glass"><span class="ip__island" aria-hidden="true"></span><span class="ip__bar" aria-hidden="true"><svg class="ip__clock" viewBox="0 0 26 12"><text x="13" y="10.5" text-anchor="middle">9:41</text></svg><svg class="ip__ico" viewBox="0 0 64 12"><rect x="0" y="8" width="3" height="4" rx=".8"/><rect x="4.5" y="6" width="3" height="6" rx=".8"/><rect x="9" y="3.5" width="3" height="8.5" rx=".8"/><rect x="13.5" y="1" width="3" height="11" rx=".8"/><rect x="38.5" y="1.5" width="21" height="9" rx="2.6" fill="none" stroke="currentColor" stroke-opacity=".4"/><rect x="40.5" y="3.5" width="17" height="5" rx="1.3"/></svg></span><div class="ip__screen"><img src="shots-app/t046.webp" alt="Экран «Потери» — приложение" loading="lazy"></div><span class="ip__home" aria-hidden="true"></span></div></div></div></div>
+        <div class="feat" data-i="5"><span class="n">06 · Финансы и контроль</span><h3>P&amp;L и движение денег</h3><p>Отчёт о прибылях и убытках по сети и по каждой точке за неделю, месяц или квартал.</p><a class="zoom" href="shots/t035.webp" target="_blank" rel="noopener"><img src="shots/t035.webp" alt="Экран «P&amp;L»" loading="lazy"><span class="label">открыть экран целиком ↗</span></a><div class="ip fphone"><div class="ip__lid"><span class="ip__keys" aria-hidden="true"><i></i><i></i><i></i><i></i></span><div class="ip__glass"><span class="ip__island" aria-hidden="true"></span><span class="ip__bar" aria-hidden="true"><svg class="ip__clock" viewBox="0 0 26 12"><text x="13" y="10.5" text-anchor="middle">9:41</text></svg><svg class="ip__ico" viewBox="0 0 64 12"><rect x="0" y="8" width="3" height="4" rx=".8"/><rect x="4.5" y="6" width="3" height="6" rx=".8"/><rect x="9" y="3.5" width="3" height="8.5" rx=".8"/><rect x="13.5" y="1" width="3" height="11" rx=".8"/><rect x="38.5" y="1.5" width="21" height="9" rx="2.6" fill="none" stroke="currentColor" stroke-opacity=".4"/><rect x="40.5" y="3.5" width="17" height="5" rx="1.3"/></svg></span><div class="ip__screen"><img src="shots-app/t035.webp" alt="Экран «P&amp;L» — приложение" loading="lazy"></div><span class="ip__home" aria-hidden="true"></span></div></div></div></div>
+        <div class="feat" data-i="6"><span class="n">07 · Финансы и контроль</span><h3>Матрица меню и фудкост</h3><p>Блюда по продажам и марже: что продвигать, что пересчитать, что убрать. Фудкост по группам меню против нормы сети.</p><a class="zoom" href="shots/t040.webp" target="_blank" rel="noopener"><img src="shots/t040.webp" alt="Экран «Матрица меню»" loading="lazy"><span class="label">открыть экран целиком ↗</span></a><div class="ip fphone"><div class="ip__lid"><span class="ip__keys" aria-hidden="true"><i></i><i></i><i></i><i></i></span><div class="ip__glass"><span class="ip__island" aria-hidden="true"></span><span class="ip__bar" aria-hidden="true"><svg class="ip__clock" viewBox="0 0 26 12"><text x="13" y="10.5" text-anchor="middle">9:41</text></svg><svg class="ip__ico" viewBox="0 0 64 12"><rect x="0" y="8" width="3" height="4" rx=".8"/><rect x="4.5" y="6" width="3" height="6" rx=".8"/><rect x="9" y="3.5" width="3" height="8.5" rx=".8"/><rect x="13.5" y="1" width="3" height="11" rx=".8"/><rect x="38.5" y="1.5" width="21" height="9" rx="2.6" fill="none" stroke="currentColor" stroke-opacity=".4"/><rect x="40.5" y="3.5" width="17" height="5" rx="1.3"/></svg></span><div class="ip__screen"><img src="shots-app/t040.webp" alt="Экран «Матрица меню» — приложение" loading="lazy"></div><span class="ip__home" aria-hidden="true"></span></div></div></div></div>
       </div>
       <div class="stage">
         <div class="glass frame">
@@ -565,7 +599,7 @@ section{position:relative}
     <div class="mgrid" id="mgrid">
       <div class="glass metric reveal"><div class="label">выручка дня из iiko</div><div class="v" data-count="15">15<small> мин</small></div><p>примерно так часто обновляется выручка — не ждёте вечернего отчёта</p></div>
       <div class="glass metric reveal"><div class="label">каналов потерь</div><div class="v" data-count="6">6</div><p>каждый день — сумма и сотрудник, который провёл операцию</p></div>
-      <div class="glass metric reveal"><div class="label">минимум для подключения</div><div class="v" data-count="2">2<small> точки</small></div><p>цена за локацию одна для всех точек и снижается с ростом сети</p></div>
+      <div class="glass metric reveal"><div class="label">минимум для подключения</div><div class="v" data-count="10">10<small> точек</small></div><p>цена за локацию одна для всех точек и снижается с ростом сети</p></div>
       <div class="glass metric reveal"><div class="label">скидка при оплате за год</div><div class="v" data-count="16.7" data-dec="1">16,7<small> %</small></div><p>и стандартный онбординг входит в цену</p></div>
     </div>
     <div class="losses">
@@ -653,9 +687,9 @@ section{position:relative}
       <div class="est-l">
         <div class="label">ваша сеть</div>
         <h3>Сколько локаций в сети?</h3>
-        <div class="range"><input id="locRange" type="range" min="0" max="100" value="45" aria-label="Количество локаций"><span class="rail2"></span><span class="fill2" id="fill2"></span><span class="knob" id="knob"></span></div>
-        <div class="ticks"><span>2</span><b id="locVal">8 локаций</b><span>200+</span></div>
-        <div class="base-price"><div><span class="label">Основа для вашей сети</span><b id="basePrice">2 190 ₽</b><small>за локацию в месяц, без НДС</small></div><div class="tiers" id="tiers"><div data-t="0"><span>2–10</span><b>2 190 ₽</b></div><div data-t="1"><span>11–25</span><b>1 590 ₽</b></div><div data-t="2"><span>26–100</span><b>1 150 ₽</b></div><div data-t="3"><span>101+</span><b>970 ₽</b></div></div></div>
+        <div class="range"><input id="locRange" type="range" min="0" max="100" value="16" aria-label="Количество локаций"><span class="rail2"></span><span class="fill2" id="fill2"></span><span class="knob" id="knob"></span></div>
+        <div class="ticks"><span>10</span><b id="locVal">16 локаций</b><span>200+</span></div>
+        <div class="base-price"><div><span class="label">Основа для вашей сети</span><b id="basePrice">2 190 ₽</b><small>за локацию в месяц, без НДС</small></div><div class="tiers" id="tiers"><div data-t="0"><span>10</span><b>2 190 ₽</b></div><div data-t="1"><span>11–25</span><b>1 590 ₽</b></div><div data-t="2"><span>26–100</span><b>1 150 ₽</b></div><div data-t="3"><span>101+</span><b>970 ₽</b></div></div></div>
         <div class="pick">
           <div class="pick-row"><div><b>Основа <span class="req">обязательна</span></b><small>выручка, KPI, план-факт, рейтинг точек, Координатор</small></div><button class="sw" role="switch" aria-checked="true" disabled aria-label="Основа — обязательна" data-name="Основа"></button></div>
           <div class="pick-row"><div><b>Финансы и контроль</b><small>P&amp;L и движение денег, фудкост, меню, потери</small></div><button class="sw" role="switch" aria-checked="false" aria-label="Финансы и контроль" data-name="Финансы и контроль"></button></div>
@@ -666,7 +700,7 @@ section{position:relative}
         <ul class="terms"><li>Помесячно или за год вперёд: за год — скидка 16,7 %, стандартный онбординг входит в цену</li><li>Координатор (AI-отчёты по сети) входит в Основу без доплаты</li><li>Цены без НДС, НДС 22 % начисляется сверху</li></ul>
       </div>
       <div class="est-r">
-        <div class="summary" id="summary">Расчёт для <b>8 локаций</b>: Основа</div>
+        <div class="summary" id="summary">Расчёт для <b>16 локаций</b>: Основа</div>
         <form class="form" id="leadForm" novalidate>
           <label class="field"><span>Имя</span><input name="name" required autocomplete="name"></label>
           <label class="field"><span>Телефон</span><input name="phone" required type="tel" autocomplete="tel" placeholder="+7 900 000-00-00"></label>
@@ -689,8 +723,8 @@ section{position:relative}
       <details><summary>Сколько длится подключение?</summary><p>Срок зависит от кассы и числа точек — менеджер назовёт его после демо. При оплате за год стандартный онбординг входит в цену: одно подключение, доступы и вводная сессия для команды.</p></details>
       <details><summary>Кто видит данные сети?</summary><p>Только те, кому вы дали доступ. Доступ настраивается ролями и локациями: управляющий точки видит свою точку, владелец — всю сеть.</p></details>
       <details><summary>Можно подключить не все блоки?</summary><p>Да. Блоки выбираете сами — цена за локацию складывается из выбранных и одинакова для всех точек сети. Тариф зависит от того, сколько локаций работает в VILAX.</p></details>
-      <details><summary>С какого размера сети подключается VILAX?</summary><p>От 2 точек. Цена за локацию одна для всех точек сети и снижается с её ростом.</p></details>
-      <details><summary>Сколько стоит VILAX?</summary><p>Основа — от 970 ₽ за локацию в месяц без НДС: 2 190 ₽ для сети 2–10 локаций, 1 590 ₽ — 11–25, 1 150 ₽ — 26–100, 970 ₽ — от 101 локации. Блоки «Финансы и контроль», «Гости 360», «Сотрудники и Академия» и «Лояльность» подключаются по выбору — расчёт пришлёт менеджер.</p></details>
+      <details><summary>С какого размера сети подключается VILAX?</summary><p>От 10 точек. Цена за локацию одна для всех точек сети и снижается с её ростом.</p></details>
+      <details><summary>Сколько стоит VILAX?</summary><p>Основа — от 970 ₽ за локацию в месяц без НДС: 2 190 ₽ для сети из 10 локаций, 1 590 ₽ — 11–25, 1 150 ₽ — 26–100, 970 ₽ — от 101 локации. Блоки «Финансы и контроль», «Гости 360», «Сотрудники и Академия» и «Лояльность» подключаются по выбору — расчёт пришлёт менеджер.</p></details>
       <details><summary>Как устроена оплата?</summary><p>Помесячно или за год вперёд. За год — скидка 16,7 %, а стандартный онбординг входит в цену. Цены без НДС, НДС 22 % начисляется сверху.</p></details>
       <details><summary>Сколько стоит AI?</summary><p>Координатор — AI-отчёты по сети — входит в Основу без доплаты.</p></details>
       <details><summary>Есть ли приложение?</summary><p>Отдельное приложение не нужно: система работает в браузере — на компьютере и на телефоне, а сводки по сети приходят в Telegram.</p></details>
@@ -704,7 +738,7 @@ section{position:relative}
     <div class="f-cta reveal">
       <img class="ghost" src="logo.svg" alt="">
       <div><div class="label">что дальше</div><h2>Посмотрите свою сеть в <b>VILAX.</b></h2><p>Покажем систему на демо-данных и посчитаем стоимость под вашу сеть.</p></div>
-      <div class="side"><a class="btn btn-dark" href="#pricing" data-scroll>Запросить демо</a><small>Покажем систему на демо-данных до покупки</small></div>
+      <div class="side"><a class="btn btn-dark" href="#pricing" data-scroll>Запросить демо</a></div>
     </div>
   </div>
 </section>
@@ -712,7 +746,7 @@ section{position:relative}
 
 <footer data-scene="wave" data-intensity="0.5">
   <div class="wrap">
-    <div class="ticker mono"><span><i class="dot"></i>iiko и Quick Resto</span><span><i class="dot"></i>сводки по сети в Telegram</span><span><i class="dot"></i>от 2 точек</span></div>
+    <div class="ticker mono"><span><i class="dot"></i>iiko и Quick Resto</span><span><i class="dot"></i>сводки по сети в Telegram</span><span><i class="dot"></i>от 10 точек</span></div>
     <div class="foot">
       <div class="about"><a class="brand" href="#top" data-scroll aria-label="VILAX"><img class="mark" src="logo.svg" alt=""><img class="word" src="wordmark.svg" alt="" style="display:block"></a><p>Система управления сетью ресторанов.</p></div>
       <div><h4>платформа</h4><a href="#finance" data-scroll>Финансы и контроль</a><a href="#blocks" data-scroll>Гости 360</a><a href="#blocks" data-scroll>Сотрудники и Академия</a><a href="#blocks" data-scroll>Система лояльности</a></div>
@@ -1058,23 +1092,37 @@ if (renderer) {
   // --- hero: настоящие экраны основы сменяют друг друга (плавно, пауза вне экрана) ---
   const hs = $$('#heroScreens img'), ht = $$('#heroTicks i'), hn = ['выручка сети сегодня', 'план-факт', 'рейтинг точек', 'потери по шести каналам'];
   let hi = 0, heroVisible = true;
-  new IntersectionObserver(([e]) => { heroVisible = e.isIntersecting; }).observe($('#heroScreens'));
+  new IntersectionObserver(es => { heroVisible = es.some(e => e.isIntersecting); }).observe($('#heroMedia'));
   if (!reduce) setInterval(() => {
     if (!heroVisible || document.hidden) return;
     hi = (hi + 1) % hs.length;
     hs.forEach((im, k) => im.classList.toggle('on', k === hi));
+    $$('#heroApp img').forEach((im, k) => im.classList.toggle('on', k === hi));
     ht.forEach((t, k) => t.classList.toggle('on', k === hi));
     $('#heroName').textContent = hn[hi];
   }, 4200);
+
+  // --- типографика: предлоги и союзы не висят в конце строки, тире не начинает строку, число не отрывается от слова ---
+  (function nbsp(root) {
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: n =>
+      n.parentElement.closest('script,style,svg,input,textarea,.ch') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT });
+    const short = /(^|[\s(«])(в|и|к|с|о|у|а|на|по|за|до|от|из|не|но|для|без|при|как|что|или|со|во|об)\s+/giu;
+    for (let n; (n = w.nextNode());) {
+      let t = n.textContent;
+      t = t.replace(short, (m, a, b) => a + b + '\u00a0').replace(short, (m, a, b) => a + b + '\u00a0');
+      t = t.replace(/\s+—/g, '\u00a0—').replace(/(\d)\s+(?=[\p{L}₽%])/gu, '$1\u00a0');
+      if (t !== n.textContent) n.textContent = t;
+    }
+  })(document.body);
 
   // --- разбивка заголовков на слова (акцент <em> — одним куском) ---
   function splitWords(el) {
     const out = [];
     [...el.childNodes].forEach(node => {
       if (node.nodeType === 3) {
-        node.textContent.split(/(\s+)/).forEach(part => {
+        node.textContent.split(/([ \t\n\r]+)/).forEach(part => {
           if (!part) return;
-          if (/^\s+$/.test(part)) { out.push(document.createTextNode(' ')); return; }
+          if (/^[ \t\n\r]+$/.test(part)) { out.push(document.createTextNode(' ')); return; }
           out.push(wrap(document.createTextNode(part)));
         });
       } else out.push(wrap(node.cloneNode(true)));
@@ -1106,7 +1154,7 @@ if (renderer) {
   let locN = 8;
   function upd() {
     const v = +range.value;
-    locN = Math.round(2 * Math.pow(100, v / 100));
+    locN = Math.round(10 * Math.pow(20, v / 100));   // 10…200 локаций
     knob.style.left = v + '%'; fill.style.width = v + '%';
     $('#locVal').textContent = (locN >= 200 ? '200+' : locN) + ' ' + pluralNom(locN);
     // цена Основы по тарифу сети (прайс РФ от 12.10.2026)
@@ -1138,7 +1186,7 @@ if (renderer) {
 
   // --- построчное появление: строки текста и числа выезжают снизу ---
   const LINE_SEL = ['.sec-head p', '.hero .lead', '.pain h3', '.pain p', '.feat h3', '.feat p', '.metric p', '.losses h3', '.losses .card > p',
-    '.losses li span', '.ai-card h3', '.ai-card > p', '.ask', '.blk h3', '.blk .task', '.blk li', '.tcard h3', '.tcard p', '.step h4', '.step p',
+    '.losses li span', '.ai-card h3', '.ai-card > p', '.blk h3', '.blk .task', '.blk li', '.tcard h3', '.tcard p', '.step h4', '.step p',
     '.steps-note', '.terms li', '.points li', '.f-cta h2', '.f-cta p', '.foot .about p', '.pick-row small', '.est h3', '.merge-count'].join(',');
   const SELF_SEL = ['.metric .v', '.blk .price b', '.blk .price span', '#basePrice', '.base-price small', '.tiers b', '.ticks b'].join(',');
   const skip = el => el.closest('.ch, .one, .ip, .screens, .stage, nav, form, details, .zoom');
@@ -1150,10 +1198,10 @@ if (renderer) {
     if (el._orig == null) el._orig = el.innerHTML; else el.innerHTML = el._orig;
     const units = [];
     [...el.childNodes].forEach(n => {
-      if (n.nodeType === 3) n.textContent.split(/(\s+)/).forEach(part => {
+      if (n.nodeType === 3) n.textContent.split(/([ \t\n\r]+)/).forEach(part => {
         if (!part) return;
-        if (/^\s+$/.test(part)) { units.push(document.createTextNode(' ')); return; }
-        const w = document.createElement('span'); w.textContent = part; units.push(w);
+        if (/^[ \t\n\r]+$/.test(part)) { units.push(document.createTextNode(' ')); return; }
+        const w = document.createElement('span'); w.textContent = part; w.style.whiteSpace = 'nowrap'; units.push(w);
       });
       else if (n.nodeType === 1) units.push(n);                // <b>, <a>, <span> — одним куском
     });
@@ -1187,7 +1235,7 @@ if (renderer) {
     gsap.set(ins, { yPercent: 110, opacity: 0 });
     if (el._st) el._st.kill();
     // end: 'max' — активен до конца страницы, поэтому срабатывает и при загрузке ниже элемента: строки не остаются спрятанными
-    el._st = ScrollTrigger.create({ trigger: el, start: 'top 92%', end: 'max', once: true, onEnter: () => {
+    el._st = ScrollTrigger.create({ trigger: el, start: 'top 98%', end: 'max', once: true, onEnter: () => {
       el._done = true;
       gsap.to(ins, { yPercent: 0, opacity: 1, duration: 1.2, ease: 'expo.out', stagger: .085, overwrite: true });
     }});
@@ -1211,7 +1259,7 @@ if (renderer) {
   }));
   $$('.reveal').forEach(el => gsap.from(el, {
     y: 30, opacity: 0, filter: 'blur(6px)', duration: 1.3, ease: 'expo.out',
-    scrollTrigger: { trigger: el, start: 'top 92%' }
+    scrollTrigger: { trigger: el, start: 'top 98%' }
   }));
   gsap.from('#heroFrame', { opacity: 0, x: 60, rotateY: -12, transformPerspective: 1400, duration: 1.8, ease: 'expo.out', delay: .25 });
   // уход — на обёртке: у #heroFrame своё появление, иначе скраб запомнит opacity 0 и блок пропадёт навсегда
@@ -1225,16 +1273,19 @@ if (renderer) {
     const W = innerWidth, H = innerHeight, k = ctx.conditions.phone ? { x: .62, y: .78 } : { x: 1, y: 1 };
     const items = $$('#merge .ch').filter(el => getComputedStyle(el).display !== 'none');
     // разброс: x/y — доля экрана от центра, поворот — в градусах
-    items.forEach(el => gsap.set(el, { x: +el.dataset.x / 100 * W * k.x, y: +el.dataset.y / 100 * H * k.y, rotation: +el.dataset.r }));
+    const lim = el => Math.max(0, W / 2 - el.offsetWidth / 2 - 10);             // карточка целиком в экране
+    items.forEach(el => gsap.set(el, { x: gsap.utils.clamp(-lim(el), lim(el), +el.dataset.x / 100 * W * k.x), y: +el.dataset.y / 100 * H * k.y, rotation: +el.dataset.r }));
     // вход до закрепления: обрывки вылетают из глубины (анимируется .ch-in — у .ch свой таймлайн слияния)
     gsap.fromTo(items.map(el => el.querySelector('.ch-in')),
       { opacity: 0, scale: .55, z: -400, filter: 'blur(14px)' },
       { opacity: 1, scale: 1, z: 0, filter: 'blur(0px)', ease: 'power2.out', stagger: { each: .06, from: 'random' },
         scrollTrigger: { trigger: '#merge', start: 'top 85%', end: 'top 5%', scrub: 1.2 } });
-    gsap.fromTo('.mt1', { opacity: 0, y: 40, filter: 'blur(10px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', ease: 'power2.out',
+    // вход заголовка — на обёртке: у .mt1 своё затухание в таймлайне, два скраба на одном свойстве спорят
+    gsap.fromTo('.merge-titles', { opacity: 0, y: 40, filter: 'blur(10px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', ease: 'power2.out',
       scrollTrigger: { trigger: '#merge', start: 'top 70%', end: 'top 15%', scrub: 1.2 } });
 
-    const tl = gsap.timeline({ scrollTrigger: { trigger: '#merge', start: 'top top', end: '+=240%', scrub: 1.4, pin: true, anticipatePin: 1 } });
+    gsap.set('#oneWin', { xPercent: -50, yPercent: -50 });                      // центр в процентах — пересчитывается при загрузке картинок
+    const tl = gsap.timeline({ scrollTrigger: { trigger: '#merge', start: 'top top', end: ctx.conditions.phone ? '+=170%' : '+=240%', scrub: 1.4, pin: true, anticipatePin: 1 } });
     tl.to(items, { x: '+=0', duration: .25 })                                     // пауза: хаос плавает
       .to(items, { x: 0, y: 0, rotation: 0, scale: .2, opacity: 0, filter: 'blur(8px)', ease: 'power3.in',
                    duration: .5, stagger: { each: .03, from: 'random' } }, .25)    // затягивает в центр
@@ -1246,8 +1297,9 @@ if (renderer) {
       .fromTo('.one-badge', { opacity: 0, y: 14, scale: .85 }, { opacity: 1, y: 0, scale: 1, duration: .2, ease: 'back.out(2)' }, .9)
       .fromTo('#oneWin .sweep', { xPercent: -120 }, { xPercent: 120, duration: .35, ease: 'power1.inOut' }, .95)
       .fromTo('.merge-count .to', { opacity: .3 }, { opacity: 1, duration: .2 }, .95)
-      .to({}, { duration: .3 })                                                     // пауза: смотрим на окно
-      .to('#mergeStage', { opacity: 0, scale: .94, y: -40, filter: 'blur(6px)', duration: .35, ease: 'power2.in' }); // уход
+      .to({}, { duration: .3 });                                                    // пауза: смотрим на окно
+    // уход: на десктопе сцена отъезжает и гаснет; на телефоне окно просто уезжает вверх вместе со страницей
+    if (!ctx.conditions.phone) tl.to('#mergeStage', { opacity: 0, scale: .94, y: -40, filter: 'blur(6px)', duration: .35, ease: 'power2.in' });
   });
 
   // показатели: счёт от нуля только в момент появления (в разметке — итоговые числа)
@@ -1261,7 +1313,7 @@ if (renderer) {
   $$('.step').forEach((s, i) => gsap.to(s, { '--p': '100%', ease: 'none',
     scrollTrigger: { trigger: '#steps', start: `top ${82 - i * 5}%`, end: `top ${62 - i * 5}%`, scrub: 1.2 } }));
   // экраны блоков: лёгкий параллакс
-  $$('.blk .ip').forEach(ph => gsap.fromTo(ph, { y: 50 }, { y: -10, ease: 'none',
+  if (matchMedia('(min-width: 601px)').matches) $$('.blk .ip').forEach(ph => gsap.fromTo(ph, { y: 50 }, { y: -10, ease: 'none',
     scrollTrigger: { trigger: ph.parentElement, start: 'top bottom', end: 'bottom top', scrub: 1.5 } }));
 })();
 </script>
