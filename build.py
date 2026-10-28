@@ -21,7 +21,7 @@ sub("uLime: { value: new THREE.Color('#c8f25a') },", "uLime: { value: new THREE.
 sub("uTeal: { value: new THREE.Color('#5fb7d4') },",
     "uTeal: { value: new THREE.Color('#2297ff') },\n"
     "    uViolet: { value: new THREE.Color('#7a5cc7') },\n"
-    "    uBase: { value: new THREE.Color('#0b1c42') }, // фон VILAX ближе к синему логотипа: прибавляется к чёрной очистке, чтобы не попасть на двойной sRGB")
+    "    uBase: { value: new THREE.Color('#081532') }, // фон VILAX (синий логотипа, потемнее): прибавляется к чёрной очистке, чтобы не попасть на двойной sRGB")
 sub("uniform vec3 uLime; uniform vec3 uTeal;\n", "uniform vec3 uLime; uniform vec3 uTeal; uniform vec3 uBase;\n")
 sub("gl_FragColor = vec4(min(col, vec3(1.2)) * amount, 1.0);", "gl_FragColor = vec4(min(col, vec3(1.2)) * amount + uBase, 1.0);")
 sub("uniform float uIntensity; uniform vec3 uLime; uniform vec3 uTeal;",
