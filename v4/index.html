@@ -1339,10 +1339,11 @@ if (renderer) {
     if (wasJump && !jump) {                         // конец перехода по якорю — фон сразу в итоговом состоянии (пока он притушен)
       story = tgt; uniforms.uW.value.copy(target.w); inten = target.intensity;
       uniforms.uShiftX.value = target.shift; uniforms.uDrift.value = target.drift; uniforms.uLeave.value = leaveTarget();
+      if (tgt < 0.3 && !reduce) uniforms.uGrow.value = 0.2;   // наверх — знак коротко вырастает из узла заново
     }
     wasJump = jump;
     jumpDim += ((jump ? 0.35 : 1) - jumpDim) * (1 - Math.exp(-dt / (jump ? 0.08 : 0.18)));
-    if (!reduce) story += (tgt - story) * (1 - Math.exp(-dt / 0.3));   // сюжет держится за скроллом, как карточки пина
+    if (!reduce && !jump) story += (tgt - story) * (1 - Math.exp(-dt / 0.3));   // сюжет держится за скроллом; во время перехода по якорю стоит
     else {                                                // reduced-motion: без морфа — гаснет до 0.25, смена формы, проявляется
       if (Math.abs(tgt - story) > 0.001) { dip = Math.max(0.25, dip - dt / 0.3 * 0.75); if (dip <= 0.25) story = tgt; }
       else dip = Math.min(1, dip + dt / 0.4 * 0.75);
@@ -1355,7 +1356,7 @@ if (renderer) {
       const y = scrollY;
       uniforms.uFrame.value.set(frameRect.l / cw * 2 - 1, 1 - 2 * (frameRect.b - y) / ch, frameRect.r / cw * 2 - 1, 1 - 2 * (frameRect.t - y) / ch);
     }
-    const k = 1 - Math.exp(-dt / 1.4);             // догоняем цель с постоянной времени 1.4 с — не зависит от FPS и частоты скролла
+    const k = jump ? 0 : 1 - Math.exp(-dt / 1.4);  // догоняем цель с постоянной времени 1.4 с — не зависит от FPS и частоты скролла; на переходе по якорю фон стоит
     uniforms.uW.value.lerp(target.w, k);
     uniforms.uShiftX.value += (target.shift - uniforms.uShiftX.value) * k;
     inten += (target.intensity - inten) * k;
