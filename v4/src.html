@@ -13,8 +13,8 @@
 <style>
 /* ============ ТОКЕНЫ VILAX (дизайн-система сайта vilax.ai, тёмная тема) ============ */
 :root{
-  --bg:#020817;--surf:#0b1528;--surf-2:#0f1c33;
-  --accent:#18f2df;--accent-h:#5ff6ea;--on-accent:#020817;
+  --bg:#0b1c42;--surf:#13264f;--surf-2:#182c58;
+  --accent:#18f2df;--accent-h:#5ff6ea;--on-accent:#06152e;
   --blue:#2297ff;--sky:#56b5e6;--violet:#5b3f99;
   --text:#f5f7fa;--muted:#c3ccda;--faint:#91a0b7;--ghost:rgba(145,160,183,.7);
   --line:rgba(145,160,183,.16);--line-2:rgba(145,160,183,.3);
@@ -30,7 +30,7 @@
 /* ============ СВЕТЛАЯ ТЕМА (переключатель в шапке) ============ */
 :root[data-theme="light"]{
   color-scheme:light;
-  --bg:#eef2f8;--surf:#ffffff;--surf-2:#e7edf6;
+  --bg:#e8edfa;--surf:#ffffff;--surf-2:#e0e8f6;
   --accent:#12cdbb;--accent-h:#0fb7a7;--on-accent:#032b27;
   --text:#0c1a2e;--muted:#45586f;--faint:#63748c;--ghost:rgba(60,76,100,.62);
   --line:rgba(18,38,66,.12);--line-2:rgba(18,38,66,.22);
@@ -70,7 +70,7 @@ main,footer{position:relative;z-index:2}
 
 /* ============ ШАПКА ============ */
 .nav{position:fixed;top:0;left:0;right:0;z-index:50}
-.nav::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(2,8,23,.86),rgba(2,8,23,.6));backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);opacity:0;transition:opacity .5s;border-bottom:1px solid var(--line)}
+.nav::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,28,66,.86),rgba(11,28,66,.6));backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);opacity:0;transition:opacity .5s;border-bottom:1px solid var(--line)}
 .nav.scrolled::before{opacity:1}
 .nav .wrap{position:relative;display:flex;align-items:center;gap:24px;height:64px}
 .brand{display:flex;align-items:center;gap:10px}
@@ -815,7 +815,7 @@ section{position:relative}
   // --- плавный скролл: каждое движение колеса/пальца сглаживается одинаково ---
   let lenis = null;
   if (window.Lenis && !reduce) {
-    lenis = new Lenis({ lerp: 0.06, smoothWheel: true, wheelMultiplier: 0.85, touchMultiplier: 1.1, syncTouch: true, syncTouchLerp: 0.07 });
+    lenis = new Lenis({ duration: 1.2, easing: t => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t)), smoothWheel: true, wheelMultiplier: 0.9, touchMultiplier: 1.25, syncTouch: true, syncTouchLerp: 0.08 });
     window.__lenis = lenis; // для скриптов проверки
     if (hasGsap) {
       lenis.on('scroll', ScrollTrigger.update);
@@ -831,7 +831,7 @@ section{position:relative}
     if (!id || id === '#') return;
     const el = $(id); if (!el) return;
     e.preventDefault();
-    lenis ? lenis.scrollTo(el, { offset: -20, duration: 1.8 }) : el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
+    lenis ? lenis.scrollTo(el, { offset: -20, duration: 2, easing: t => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t)) }) : el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
   }));
 
   const nav = $('#nav');
