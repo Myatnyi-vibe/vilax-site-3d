@@ -1,0 +1,638 @@
+<!-- ============ WEBGL: СВЕТЯЩИЕСЯ НИТИ ============ -->
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+const canvas = document.getElementById('gl');
+const mobile = matchMedia('(max-width: 760px)').matches;
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance' });   // сцена рисуется в буферы композера — MSAA холста не нужен
+} catch (e) {
+  document.documentElement.classList.add('no-webgl');
+  canvas.remove();
+}
+
+if (renderer) {
+  const DPR = Math.min(devicePixelRatio, mobile ? 1.5 : 1.75);
+  renderer.setPixelRatio(DPR);
+  // чистый чёрный: ненулевой цвет очистки в композере проходит sRGB дважды и даёт серый фон (5 → 38)
+  renderer.setClearColor(0x000000, 1);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 50);
+  camera.position.set(0, 0, 4);
+
+  // Песочные часы сюжета знака — общие для нитей и свечения: горловина у точки C, веера к краям экрана.
+  const HOUR = /* glsl */`
+    // st 3 — пережим в точку C, 4 — горловина на 45 % высоты, 5 — «молния» закрыта: одна нить
+    vec3 hourParams(float st){
+      float h = clamp(st - 3.0, 0.0, 2.0);
+      float neck = h < 1.0 ? 0.45*smoothstep(0.0, 1.0, h) : mix(0.45, 1.25, smoothstep(0.0, 1.0, h - 1.0));
+      float wt = h < 1.0 ? mix(0.84, 0.64, smoothstep(0.0, 1.0, h)) : mix(0.64, 0.40, smoothstep(0.0, 0.5, h - 1.0));   // угол знака держится, пока видно окно
+      return vec3(neck, wt, wt / 1.6);                        // верхний веер шире нижнего
+    }
+    // ширина веера на высоте y (доли полуэкрана); в горловину нити входят по касательной
+    float hourW(float y, vec3 hp, vec3 c){
+      float dy = y - c.y;
+      float D = dy > 0.0 ? 1.08 - c.y : 1.08 + c.y;
+      float d = clamp((abs(dy) - hp.x) / max(0.05, D - hp.x), 0.0, 1.0);
+      return c.z + ((dy > 0.0 ? hp.y : hp.z) - c.z) * d*d*(3.0 - 2.0*d);
+    }
+  `;
+
+  // Общая GLSL-часть: четыре формы нитей, которые смешиваются по весам uW.
+  // arc — «комета», aurora — вертикальные занавесы, wave — горизонтальные волны, logo — знак V из логотипа VILAX.
+  const CURVES = HOUR + /* glsl */`
+    uniform float uTime;
+    uniform vec4  uW;       // веса форм: arc, aurora, wave, logo
+    uniform vec3  uVPos;    // знак в hero: центр (x, y — доли полуэкрана) и масштаб (доля полувысоты экрана на единицу знака)
+    uniform float uStory;   // сюжет знака: 0 знак V · 1 расплетён · 2 две завесы · 3 пережим в точке C · 4 горловина · 5 одна нить
+    uniform vec3  uC;       // точка схождения — центр «одного окна» (x, y — доли полуэкрана), z — ширина горловины (3–4 px)
+    uniform float uGrow;    // появление при загрузке: секунды от старта; 99 — знак уже собран
+    uniform vec4  uText;    // текст поверх знака на экране (x0, y0, x1, y1 в долях полуэкрана): заголовок hero, на телефоне — подпись ленты интеграций
+    uniform vec4  uTitle;   // заголовок пина на экране: под ним веер и нить тише
+    uniform float uVGain;   // яркость знака: на телефоне нитей вдвое меньше и bloom слабее
+    uniform float uLeave;   // hero уходит (0…1): узел и сетка тише под въезжающим текстом
+    uniform vec4  uFrame;   // окно продукта в hero на экране (x0, y0, x1, y1 в долях полуэкрана): под стеклом знак тише
+    uniform vec2  uHalf;    // половина видимой области в мировых единицах
+    uniform float uShiftX;  // сдвиг авроры по X (-1..1)
+    uniform float uDrift;   // параллакс от скролла
+
+    vec3 arcP(float s, float k, float seed){
+      float fan = k - 0.5;
+      vec2 V = vec2(-0.06 + fan*0.16, -0.40);
+      vec2 A = vec2(0.30, 1.18) * (1.0 + fan*0.40);
+      vec2 B = vec2(1.08, 0.24) * (1.0 + fan*1.10);
+      vec2 p = V + A*s + B*s*s;
+      float amp = 0.015 + 0.07*abs(s);
+      p.x += sin(s*4.0 + uTime*0.45 + seed*6.283)*amp;
+      p.y += cos(s*3.0 + uTime*0.38 + seed*4.0)*amp*0.6;
+      return vec3(p, fan*0.9);
+    }
+    vec3 auroraP(float s, float k, float seed){
+      float fan = k - 0.5;
+      float y = s*1.35;
+      float x = uShiftX + fan*0.85
+              + 0.24*sin(y*1.5 + uTime*0.22 + fan*3.0)
+              + 0.05*sin(y*4.2 - uTime*0.5 + seed*6.283);
+      return vec3(x, y, -0.7 + fan*0.7);
+    }
+    vec3 waveP(float s, float k, float seed){
+      float fan = k - 0.5;
+      float x = s*1.4;
+      float y = 0.28 + fan*0.6 + x*0.22
+              + 0.16*sin(x*2.1 + uTime*0.33 + fan*1.8)
+              + 0.045*sin(x*6.0 - uTime*0.7 + seed*6.283);
+      return vec3(x, y, fan*0.8);
+    }
+    // --- знак V: два зеркальных крыла по 8 нитей, кубические Безье, снятые с logo.svg ---
+    // координаты знака: X — от оси симметрии (концы крыла ≈ ±1.16), Y = -1 у вершины V, +1 у верха.
+    // нить 0 — внешний край V, 7 — внутренняя; нити пересекают ось и плетут сетку у вершины, как в знаке.
+    const vec2 VB0[8] = vec2[8](vec2(-1.067, 0.276), vec2(-1.129, 0.477), vec2(-1.145, 0.648), vec2(-1.162, 0.845), vec2(-1.129, 0.980), vec2(-1.003, 0.882), vec2(-0.882, 0.842), vec2(-0.727, 0.770));
+    const vec2 VB1[8] = vec2[8](vec2(-0.651, -0.112), vec2(-0.767, -0.018), vec2(-0.811, 0.080), vec2(-0.853, 0.199), vec2(-0.849, 0.291), vec2(-0.632, 0.320), vec2(-0.475, 0.362), vec2(-0.319, 0.372));
+    const vec2 VB2[8] = vec2[8](vec2(-0.196, -0.465), vec2(-0.120, -0.298), vec2(-0.104, -0.203), vec2(-0.083, -0.106), vec2(-0.043, -0.040), vec2(-0.005, -0.075), vec2(-0.015, -0.071), vec2(-0.009, -0.089));
+    const vec2 VB3[8] = vec2[8](vec2(-0.001, -0.993), vec2(0.014, -0.961), vec2(0.033, -0.921), vec2(0.055, -0.878), vec2(0.074, -0.839), vec2(0.095, -0.796), vec2(0.147, -0.709), vec2(0.199, -0.622));
+    // drain — расплетение: конец нити стекает по оси в вершину, нить подходит к ней со своей стороны и больше не пересекает ось
+    vec2 vBez(int i, float u, float drain){
+      float a = 1.0 - u;
+      vec2 p2 = mix(VB2[i], mix(VB2[i], vec2(-0.12, -0.55), 0.5), drain);
+      vec2 p3 = mix(VB3[i], vec2(0.0, -0.993), drain);
+      return a*a*a*VB0[i] + 3.0*a*a*u*VB1[i] + 3.0*a*u*u*p2 + u*u*u*p3;
+    }
+    // нить с дробным номером q: между соседними — интерполяция, за крайними — продолжение
+    vec2 vStrand(float q, float u, float drain){
+      int i = int(clamp(floor(q), 0.0, 6.0));
+      return mix(vBez(i, u, drain), vBez(i + 1, u, drain), q - float(i));
+    }
+    float gV, gA, gB, gX, gP, gD, gAur;   // узел (вершина V / горловина); видимость при появлении; яркость; x в знаке — для градиента логотипа;
+                                          // доля палитры v3; бег света к вершине и сквозь окно; доля авроры в конце сюжета
+    float p3o(float x){ x = clamp(x, 0.0, 1.0); return 1.0 - (1.0 - x)*(1.0 - x)*(1.0 - x); }   // power3.out
+    // знак V в координатах знака: drain — перекрестья стекают по оси в вершину, fluff — пряди распускаются в ровный веер
+    vec2 vSign(float i, float g, float c, float u, float side, float spread, float drain, float fluff){
+      vec2 q = vStrand(i + mix(c*spread, g, fluff), u, drain);
+      q.x *= -side;
+      return q;
+    }
+    // завеса — как аврора v3, по одной на крыло, у 22 % и 78 % ширины
+    vec3 curtainP(float side, float F, float y, float seed){
+      return vec3(side*0.56 + F*0.62 + 0.22*sin(y*1.5 + uTime*0.22 + side*1.3 + F*3.0) + 0.05*sin(y*4.2 - uTime*0.5 + seed*6.283),
+                  y, -0.5 + F*0.5);
+    }
+    // l — место нити в веере (0…1, равномерно, монотонно по x): левое крыло от внешней пряди к внутренней, правое — обратно
+    vec3 logoP(float s, float k, float seed, float l){
+      float side = l < 0.5 ? -1.0 : 1.0;
+      float m = (side < 0.0 ? l : 1.0 - l) * 16.0;            // 0…8
+      float i = min(floor(m), 7.0), g = m - i - 0.5;          // прядь знака и место нити в ней
+      float fw = m / 8.0;                                     // место в крыле: 0 — снаружи, 1 — у оси
+      float u = 0.5 - s*0.5;                                  // 0 — кончик крыла (верх), 1 — у вершины
+      float taper = sin(3.14159*u);
+      float c = sign(g) * pow(abs(2.0*g), 3.2) * 0.5;         // ядро пряди плотное, волокна расходятся к соседям
+      float st = uStory, y = s*1.3;
+      gA = 1.0; gB = 1.0; gV = 0.0; gX = 0.0; gAur = 0.0;
+      gP = smoothstep(0.2, 1.2, st);                          // знак — в цветах логотипа, расплетаясь — в палитру v3
+      gD = 1.0 - gP;
+      if (st > 5.999) { gAur = 1.0; gB = 1.0 / 1.85; return auroraP(s, k, seed); }   // «Финансы»: ровно аврора v3, без лишних вычислений
+      vec3 p;
+      if (st < 2.0) {
+        // --- появление: нити вырастают из узла в вершине и «хлыстом» ложатся в знак — изнутри наружу, левое крыло чуть раньше;
+        // после появления всё это постоянные — не считаем
+        float gr = 1.0, tight = 0.0, over = 0.0, wq = 0.0, pz = 1.0, tipF = 1.0;
+        if (uGrow < 4.0) {
+          float dl = 0.25 + (7.0 - i)*0.035 + (side > 0.0 ? 0.06 : 0.0) + 0.04*seed;
+          float gt = uGrow - dl;
+          gr = p3o(gt / 1.35);
+          float uf = mix(1.0, -0.05, gr);                     // фронт роста — от вершины к кончику
+          gA = smoothstep(uf - 0.02, uf + 0.06, u) * smoothstep(0.0, 0.3, uGrow) * (0.15 + 0.85 * smoothstep(0.1, 0.7, gr));   // узел в начале — точка, не ярче знака
+          tight = 1.0 - smoothstep(1.2, 1.9, uGrow);          // пряди стягиваются к концу появления
+          float set = gt - 1.35;                              // кончики: перелёт ~2.5 % и одно затухающее колебание
+          over = set > 0.0 ? 0.025 * exp(-set / 0.14) * sin(set * 16.0) : 0.0;
+          float whip = exp(-pow((u - uf) / 0.2, 2.0)) * (1.0 - smoothstep(0.6, 1.5, gt)) * step(0.0, gt);
+          wq = sin(u*11.0 - uGrow*9.0 + seed*3.0) * whip * 0.04 / uVPos.z;
+          pz = 1.0 + 0.1 * sin(3.14159 * smoothstep(1.5, 2.1, uGrow));   // пульс узла в конце появления ≤ +10 %
+          tipF = 1.0 + 0.8 * (1.0 - smoothstep(0.0, 0.2, u)) * smoothstep(1.3, 1.7, uGrow) * (1.0 - smoothstep(1.8, 2.4, uGrow));   // кончики вспыхивают в конце хлыста
+        }
+        // --- 0…1: знак расплетается — перекрестья стекают в вершину, крылья расходятся; волоски — только к концу, 16 прядей держатся
+        float a = smoothstep(0.0, 1.0, clamp(st, 0.0, 1.0));
+        float fl = smoothstep(0.6, 1.4, st);
+        float spread = (0.28 + 0.62 * (1.0 - smoothstep(0.0, 0.4, u))) * (1.0 + 2.0*tight);   // пряди плотные, распушены к кончикам
+        vec2 q = vSign(i, g, c, u, side, spread, a, fl);
+        vec2 v0 = vec2(0.0, -0.993);
+        q = v0 + (q - v0) * (mix(0.04, 1.0, gr) + over * (1.0 - u));   // рост из узла
+        float br = 0.004 / uVPos.z;                           // дыхание 0.4 % высоты, период 8 с
+        q.y += sin(uTime*0.785 + side*0.6) * br;
+        float wa = (0.006 + 0.010*taper) * (1.0 + 2.5*a);     // волна бежит вдоль нити к вершине
+        q.x += sin(u*7.0 - uTime*0.9 + seed*6.283) * wa + wq;
+        q.y += cos(u*5.0 - uTime*0.7 + seed*4.0) * wa * 0.6;
+        gX = q.x / 1.16;
+        vec2 dv = (q - vec2(0.0, -0.86)) * vec2(3.0, 2.3);   // узел компактный, в самой вершине
+        gV = exp(-dot(dv, dv)) * (1.0 - a) * pz;
+        p = vec3(uVPos.xy + vec2(q.x * uHalf.y / uHalf.x, q.y) * uVPos.z, 0.06*c + 0.03*side);
+        p.x += side * 0.03 * a;
+        gB *= tipF;
+        // яркость под текстом: крыло за заголовком ×0.6, сетка без светового пятна (ячейки остаются тёмными), под стеклом окна hero тише;
+        // hero уходит — узел и сетка гаснут; расплетаясь — знак притухает
+        gB *= mix(2.15 * uVGain, 1.0, gP);                    // голубой и фиолетовый логотипа темнее бирюзы — пряди знака ярче (на телефоне ещё ярче: нитей меньше, bloom слабее)
+        gB *= mix(1.0, 0.55, smoothstep(0.12, 0.45, abs(c)));  // волокна между прядями тише ядер — пряди чётче, меньше «волос»
+        if (uText.x < 1.5) {                                  // под текстом (заголовок hero, на телефоне — подпись ленты) — вдвое тише
+          vec2 te = smoothstep(uText.xy - 0.03, uText.xy + 0.03, p.xy) * (1.0 - smoothstep(uText.zw - 0.03, uText.zw + 0.03, p.xy));
+          gB *= 1.0 - 0.5 * (1.0 - a) * te.x * te.y;
+        }
+        gB *= 1.0 - 0.3 * smoothstep(0.72, 0.95, u);
+        if (uFrame.x < 1.5) {
+          vec2 fe = smoothstep(uFrame.xy - 0.02, uFrame.xy + 0.02, p.xy) * (1.0 - smoothstep(uFrame.zw - 0.02, uFrame.zw + 0.02, p.xy));
+          gB *= 1.0 - 0.55 * fe.x * fe.y;
+        }
+        gB *= (1.0 - 0.7 * uLeave * smoothstep(0.5, 0.9, u)) * (1.0 - 0.5 * smoothstep(0.15, 0.8, st));
+        gV *= 1.0 - 0.8 * uLeave;
+        if (st > 1.0) {
+          // --- 1…2: крылья уходят к 22 % и 78 % ширины, выпрямляются и становятся двумя завесами
+          float b = smoothstep(1.0, 2.0, st);
+          p = mix(p, curtainP(side, side * (0.5 - fw), y, seed), b);
+          gV *= 1.0 - b; gB = mix(gB, 0.11, b);               // нити завес тише, как в авроре v3, — не «волосы»
+        }
+      } else {
+        // --- 2…3: завесы съезжаются и пережимаются в точку C; 3…5: горловина вытягивается, «молния» закрывается — одна нить;
+        // 5…6: нить распускается в аврору следующей секции — дальше фон как в v3
+        float ci = (i + 0.5 + c * 0.85) / 8.0;                // 8 лент на крыло с просветами — как пряди знака
+        float Fa = side * (1.0 - ci) * 0.5;                    // место во всём веере −0.5…0.5
+        float W = hourW(y, hourParams(st), uC);
+        float one = smoothstep(4.0, 5.0, st);
+        float hair = step(0.965, fract(seed * 7.7)) * one;     // несколько волосков рядом с одной нитью
+        vec3 hp = vec3(uC.x + Fa*W + (0.015 + 0.012*one)*sin(y*2.3 + uTime*0.35)     // общая S-волна
+                       + 0.0035*sin(y*5.0 - uTime*0.6 + seed*6.283)*smoothstep(0.0, 0.3, W)  // своя дрожь — чуть-чуть: ленты 8+8 видны, горловина 3–4 px
+                       + hair * (seed - 0.5) * 0.06 * (0.6 + 0.4*sin(y*3.0 + uTime*0.5 + seed*9.0)),
+                       y, 0.0);
+        gB = clamp(W / 0.3, 0.095, 0.6) * mix(0.65, 1.0, smoothstep(uC.y - 0.1, uC.y + 0.1, y));   // где нити сходятся, каждая тише — без белой кляксы; нижний веер тише
+        gV = (1.0 - smoothstep(0.0, 0.2, abs(y - uC.y))) * 0.6 * (1.0 - one);
+        if (uTitle.x < 1.5) {                                 // заголовок пина читается поверх веера и нити
+          vec2 ti = smoothstep(uTitle.xy - 0.03, uTitle.xy + 0.03, hp.xy) * (1.0 - smoothstep(uTitle.zw - 0.03, uTitle.zw + 0.03, hp.xy));
+          gB *= 1.0 - 0.6 * smoothstep(3.0, 3.6, st) * ti.x * ti.y;
+        }
+        gX = Fa * 2.0;                                         // веер над окном — в цветах знака, к горловине — бирюза
+        gP = 1.0 - 0.75 * smoothstep(2.4, 3.0, st) * (1.0 - smoothstep(4.0, 4.5, st));
+        gD = smoothstep(2.4, 3.0, st) * (1.0 - smoothstep(5.0, 5.4, st));   // свет бежит по веерам сквозь окно сверху вниз
+        if (st < 3.0) {
+          float b = smoothstep(2.0, 3.0, st);
+          b = b*b*(3.0 - 2.0*b);
+          p = mix(curtainP(side, side * (0.5 - fw), y, seed), hp, b);
+          gB = mix(0.11, gB, b); gV *= b;
+        } else if (st > 5.0) {
+          // пряди авроры выходят из нити по очереди — сначала середина веера
+          float f = clamp((st - 5.0) * 1.6 - abs(l - 0.5) * 0.6, 0.0, 1.0);
+          f = f*f*(3.0 - 2.0*f);
+          p = mix(hp, auroraP(s, k, seed), f);
+          gAur = f; gB = mix(gB, 1.0 / 1.85, f);            // дальше яркость — как у нитей авроры v3
+        } else p = hp;
+      }
+      return p;
+    }
+    vec3 curve(float t, float k, float seed, float l){
+      float s = t*2.0 - 1.0;
+      // формы с нулевым весом не считаем — фон не тяжелее, чем с тремя формами
+      vec3 p = vec3(0.0); gV = 0.0; gA = 1.0; gB = 1.0; gX = 0.0; gP = 1.0; gD = 0.0; gAur = 0.0;
+      if (uW.x > 0.0005) p += arcP(s,k,seed)*uW.x;
+      if (uW.y > 0.0005) p += auroraP(s,k,seed)*uW.y;
+      if (uW.z > 0.0005) p += waveP(s,k,seed)*uW.z;
+      if (uW.w > 0.0005) p += logoP(s,k,seed,l)*uW.w;
+      p.y += uDrift * (1.0 - uW.w * (1.0 - smoothstep(5.0, 6.0, uStory)));   // знак привязан к вёрстке — без параллакса; аврора — как в v3
+      return vec3(p.x*uHalf.x, p.y*uHalf.y, p.z);
+    }
+  `;
+
+  const uniforms = {
+    uTime: { value: 0 },
+    uW: { value: new THREE.Vector4(0, 0, 0, 1) },
+    uVPos: { value: new THREE.Vector3(-0.06, -0.056, 0.87) },
+    uStory: { value: 0 },
+    uC: { value: new THREE.Vector3(0, -0.16, 0.005) },
+    uGrow: { value: 99 },
+    uSG: { value: new THREE.Vector4(0, 0, 0.03, mobile ? 1.35 : 1) },
+    uLeave: { value: 0 },
+    uFrame: { value: new THREE.Vector4(2, 2, 2, 2) },
+    uSky: { value: new THREE.Color('#56b5e6') },          // градиент знака — как --brand-grad сайта
+    uMid: { value: new THREE.Color('#5679bd') },
+    uTip: { value: new THREE.Color('#7a5cc7') },
+    uDip: { value: 1 },
+    uText: { value: new THREE.Vector4(2, 2, 2, 2) },
+    uTitle: { value: new THREE.Vector4(2, 2, 2, 2) },
+    uVGain: { value: mobile ? 1.5 : 1 },
+    uHalf: { value: new THREE.Vector2(1, 1) },
+    uShiftX: { value: 0 },
+    uDrift: { value: 0 },
+    uIntensity: { value: 1 },
+    uDpr: { value: DPR },
+    uRes: { value: new THREE.Vector2(1, 1) },
+    uLime: { value: new THREE.Color('#18f2df') },
+    uTeal: { value: new THREE.Color('#2297ff') },
+    uViolet: { value: new THREE.Color('#7a5cc7') },
+    uBase: { value: new THREE.Color('#020817') }, // фон VILAX: прибавляется к чёрной очистке, чтобы не попасть на двойной sRGB
+  };
+
+  // --- мягкое сияние: полноэкранный шейдер под нитями (главное в сценах aurora) ---
+  {
+    const m = new THREE.ShaderMaterial({
+      uniforms, depthTest: false, depthWrite: false, transparent: true, blending: THREE.AdditiveBlending,
+      vertexShader: `void main(){ gl_Position = vec4(position.xy, 0.0, 1.0); }`,
+      fragmentShader: HOUR + /* glsl */`
+        uniform float uTime; uniform vec4 uW; uniform float uShiftX; uniform vec2 uRes; uniform float uIntensity;
+        uniform vec3 uLime; uniform vec3 uTeal; uniform vec3 uBase;
+        uniform vec4 uSG;       // свечение сюжета: x — ось знака, y — разлёт завес 0…1, z — сила, w — масштаб x (на телефоне форма шире)
+        uniform float uStory; uniform vec3 uC;
+        float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+        float n(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.0-2.0*f);
+          return mix(mix(h(i), h(i+vec2(1,0)), f.x), mix(h(i+vec2(0,1)), h(i+vec2(1,1)), f.x), f.y); }
+        float fbm(vec2 p){ float v = 0.0, a = 0.5; for(int i=0;i<5;i++){ v += a*n(p); p *= 2.03; a *= 0.5; } return v; }
+        // аврора шаблона — как в v3
+        vec3 aurora(vec2 p, float x, float t){
+          vec3 col = vec3(0.0);
+          for (int i = 0; i < 3; i++) {
+            float fi = float(i);
+            float w = fbm(vec2(p.y * 1.3 + t + fi * 3.1, t * 0.7 + fi));
+            float off = (w - 0.5) * 0.9 + (fi - 1.0) * 0.22;
+            float band = exp(-pow((x + off) * (5.5 + fi*1.5), 2.0));
+            band *= 0.55 + 0.45 * fbm(vec2(x * 3.0 + fi, p.y * 6.0 - t * 4.0)); // вертикальные «складки»
+            col += band * mix(uLime, uTeal, smoothstep(0.35, 0.75, fbm(p * 1.5 + fi + t)));
+          }
+          return min(col, vec3(1.2));
+        }
+        // свечение сюжета знака: по полосе на каждое крыло (обе считаются в каждом пикселе — шва на оси нет);
+        // у знака полосы у крыльев, у завес — за самими нитями завес, в пине сходятся к вееру над и под окном
+        vec3 storyGlow(vec2 p, float ar, float t){
+          float xn = 2.0 * p.x / ar / uSG.w, yn = 2.0 * p.y;   // в долях полуэкрана, как координаты нитей
+          float cur = uSG.y, pin = smoothstep(2.0, 3.0, uStory);
+          float g = 0.0;
+          for (int k = 0; k < 2; k++) {
+            float sd = k == 0 ? -1.0 : 1.0;
+            float y = yn / 0.9;                                  // завесы чуть глубже — поправка на перспективу
+            float cx = uSG.x + sd * mix(0.16, 0.5, cur) + cur * 0.2 * sin(y * 1.5 + uTime * 0.22 + sd * 1.3);
+            float band = exp(-pow((xn - cx) / mix(0.2, 0.155, cur), 2.0));
+            band *= 0.5 + 0.5 * fbm(vec2(xn * 2.2 + sd * 3.7, yn * 3.0 - t * 4.0));   // «складки», у каждой полосы свои
+            g += band;
+          }
+          // пин: свечение лежит на веерах песочных часов и гаснет к одной нити
+          float W = hourW(yn, hourParams(uStory), uC);
+          float fan = exp(-pow((xn - uC.x) / (0.5 * W + 0.18), 2.0)) * mix(0.6, 1.0, smoothstep(uC.y - 0.1, uC.y + 0.1, yn));
+          g = mix(g, fan * 1.3, pin) * (1.0 - 0.5 * smoothstep(4.0, 5.0, uStory)) * (1.0 - smoothstep(5.0, 6.0, uStory));   // у одной нити — ореол, дальше аврора
+          vec3 cv = mix(uLime, uTeal, 0.55 + 0.35 * smoothstep(-0.2, 0.4, xn - uSG.x));   // у знака — насыщенные бирюза и синий сайта
+          vec3 c3 = mix(uLime, uTeal, smoothstep(0.35, 0.75, fbm(p * 1.5 + t)));  // у завес и в пине — палитра v3
+          return min(g * mix(cv, c3, smoothstep(0.3, 1.0, cur + pin)), vec3(1.2));
+        }
+        void main(){
+          vec2 uv = gl_FragCoord.xy / uRes;
+          float ar = uRes.x / uRes.y;
+          vec2 p = vec2((uv.x - 0.5) * ar, uv.y - 0.5);
+          float t = uTime * 0.06;
+          float vfade = smoothstep(-0.65, 0.1, p.y) * smoothstep(0.75, 0.15, p.y);
+          float aT = (uW.y * 0.16 + uW.x * 0.025 + uW.z * 0.035 + uW.w * 0.16 * smoothstep(5.0, 6.0, uStory)) * uIntensity * vfade;
+          float aS = uW.w * uW.w * uSG.z * uIntensity * vfade;   // свечение сюжета уходит быстрее, чем вес знака, — без тумана на стыке
+          vec3 col = vec3(0.0);
+          if (aT > 0.0002) col += aurora(p, p.x - uShiftX * 0.5 * ar, t) * aT;
+          if (aS > 0.0002 && uStory < 5.99) col += storyGlow(p, ar, t) * aS;
+          gl_FragColor = vec4(col + uBase, 1.0);
+        }`,
+    });
+    const q = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), m);
+    q.frustumCulled = false; q.renderOrder = -1;
+    scene.add(q);
+  }
+
+  // --- нити: каждая нить = SEG отрезков, позиция считается в шейдере ---
+  const STRANDS = mobile ? 150 : 320;
+  const SEG = mobile ? 90 : 150;
+  {
+    const n = STRANDS * SEG * 2;
+    const aT = new Float32Array(n), aK = new Float32Array(n), aSeed = new Float32Array(n), aL = new Float32Array(n);
+    const ks = Array.from({ length: STRANDS }, Math.random);
+    const rank = new Float32Array(STRANDS);
+    ks.map((k, s) => [k, s]).sort((a, b) => a[0] - b[0]).forEach(([, s], r) => { rank[s] = (r + 0.5) / STRANDS; });
+    let i = 0;
+    for (let s = 0; s < STRANDS; s++) {
+      const k = ks[s], seed = Math.random();
+      for (let j = 0; j < SEG; j++) {
+        for (const d of [0, 1]) { aT[i] = (j + d) / SEG; aK[i] = k; aSeed[i] = seed; aL[i] = rank[s]; i++; }
+      }
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(n * 3), 3));
+    g.setAttribute('aT', new THREE.BufferAttribute(aT, 1));
+    g.setAttribute('aK', new THREE.BufferAttribute(aK, 1));
+    g.setAttribute('aSeed', new THREE.BufferAttribute(aSeed, 1));
+    g.setAttribute('aL', new THREE.BufferAttribute(aL, 1));
+    const m = new THREE.ShaderMaterial({
+      uniforms, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+      vertexShader: CURVES + /* glsl */`
+        attribute float aT; attribute float aK; attribute float aSeed; attribute float aL;
+        uniform float uIntensity; uniform vec3 uLime; uniform vec3 uTeal; uniform vec3 uViolet; uniform float uDip;
+        uniform vec3 uSky; uniform vec3 uMid; uniform vec3 uTip;
+        varying float vA; varying vec3 vC;
+        void main(){
+          vec3 p = curve(aT, aK, aSeed, aL);
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
+          float s = aT*2.0 - 1.0;
+          float edge = smoothstep(0.0, 0.16, aT) * smoothstep(1.0, 0.84, aT);
+          float core = 1.0 + uW.x * 4.5 * exp(-s*s*12.0) + uW.w * 2.0 * gV; // яркий узел «кометы» / вершины V
+          float pulse = smoothstep(0.93, 1.0, fract(aT*1.3 - uTime*0.12 + aSeed*5.0)); // бегущий свет
+          float pulseV = smoothstep(0.93, 1.0, fract(-aT*1.3 - uTime*0.12 + aSeed*5.0)); // в знаке — от кончиков к вершине
+          pulse = mix(pulse, pulseV, uW.w * gD);
+          float shimmer = 0.6 + 0.4*sin(uTime*0.7 + aSeed*40.0 + aT*5.0);
+          vA = edge * core * shimmer * (1.0 + 2.2*pulse) * uIntensity * (0.3 + 0.7*fract(aSeed*7.13)) * (1.0 - 0.72*(uW.y + uW.w*gAur));
+          vA *= mix(1.0, 1.85 * gA * gB * uDip, uW.w);                   // знак: пряди ярче, при появлении — по фронту роста
+          vC = mix(uLime, uTeal, step(0.62, aSeed));
+          vC = mix(vC, uViolet, step(0.9, aSeed));
+          // в знаке — градиент логотипа по x (как --brand-grad): голубой до оси → синий → фиолетовый на правом крыле
+          float gx = gX + (aSeed - 0.5) * 0.2;
+          vec3 cL = mix(mix(uSky, uTeal, 0.3), uMid, smoothstep(-0.05, 0.4, gx));   // голубой знака чуть насыщеннее — ближе к синему сайта
+          cL = mix(cL, uTip, smoothstep(0.4, 0.95, gx));
+          vC = mix(vC, cL, uW.w * (1.0 - gP));
+          vC = mix(vC, vec3(1.0), pulse*0.35);
+        }`,
+      fragmentShader: /* glsl */`
+        varying float vA; varying vec3 vC;
+        void main(){ gl_FragColor = vec4(vC * vA * 0.085, 1.0); }`,
+    });
+    scene.add(new THREE.LineSegments(g, m));
+  }
+
+  // --- пыль: частицы, «прилипшие» к тем же кривым ---
+  {
+    const N = mobile ? 600 : 1500;
+    const aT = new Float32Array(N), aK = new Float32Array(N), aSeed = new Float32Array(N), aOff = new Float32Array(N * 3);
+    for (let i = 0; i < N; i++) {
+      aT[i] = Math.random(); aK[i] = Math.random(); aSeed[i] = Math.random();
+      aOff[i * 3] = (Math.random() - .5) * .22; aOff[i * 3 + 1] = (Math.random() - .5) * .22; aOff[i * 3 + 2] = (Math.random() - .5) * .6;
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(N * 3), 3));
+    g.setAttribute('aT', new THREE.BufferAttribute(aT, 1));
+    g.setAttribute('aK', new THREE.BufferAttribute(aK, 1));
+    g.setAttribute('aSeed', new THREE.BufferAttribute(aSeed, 1));
+    g.setAttribute('aOff', new THREE.BufferAttribute(aOff, 3));
+    const m = new THREE.ShaderMaterial({
+      uniforms, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+      vertexShader: CURVES + /* glsl */`
+        attribute float aT; attribute float aK; attribute float aSeed; attribute vec3 aOff;
+        uniform float uDpr; uniform float uIntensity;
+        varying float vA;
+        void main(){
+          float t = fract(aT + uTime*0.01*(0.5 + aSeed));
+          vec3 p = curve(t, aK, aSeed, aK) + aOff * vec3(uHalf, 1.0);
+          vec4 mv = modelViewMatrix * vec4(p, 1.0);
+          gl_Position = projectionMatrix * mv;
+          gl_PointSize = (1.0 + 2.6*fract(aSeed*13.7)) * uDpr * (3.5 / -mv.z);
+          vA = (0.35 + 0.65*sin(uTime*1.3 + aSeed*60.0)*0.5 + 0.5) * smoothstep(0.0,0.2,t) * smoothstep(1.0,0.8,t) * uIntensity;
+          vA *= mix(1.0, gA, uW.w);
+        }`,
+      fragmentShader: /* glsl */`
+        uniform vec3 uLime; varying float vA;
+        void main(){
+          float d = length(gl_PointCoord - 0.5);
+          float a = smoothstep(0.5, 0.0, d);
+          gl_FragColor = vec4(mix(uLime, vec3(1.0), 0.5) * a * vA * 0.35, 1.0);
+        }`,
+    });
+    scene.add(new THREE.Points(g, m));
+  }
+
+  // --- пост: bloom даёт то самое свечение ---
+  const composer = new EffectComposer(renderer);
+  composer.addPass(new RenderPass(scene, camera));
+  const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), mobile ? 0.75 : 0.95, 0.45, 0.35);
+  composer.addPass(bloom);
+  composer.addPass(new OutputPass());
+  window.__three = { scene, uniforms, bloom, composer }; // для отладки и скриптов проверки
+
+  let cw = 0, ch = 0;
+  function resize() {
+    const w = canvas.clientWidth || innerWidth, h = canvas.clientHeight || innerHeight;
+    if (w === cw && h === ch) return;               // на телефоне панель браузера показалась или спряталась — canvas тот же
+    cw = w; ch = h;
+    renderer.setSize(w, h, false);
+    composer.setSize(w, h);
+    renderer.getDrawingBufferSize(uniforms.uRes.value);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    const halfH = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.position.z;
+    // на узком экране форма уже, чтобы нити не уезжали за край
+    uniforms.uHalf.value.set(halfH * camera.aspect * (mobile ? 1.35 : 1), halfH);
+    placeSign();
+  }
+  // знак в hero: десктоп — ось в зазоре между текстом и окном (на 22 px левее — сетка не под стеклом окна), высота 87 % экрана, вершина на 96 %;
+  // телефон и планшет — 80 % ширины по центру, вершина в зазоре между кнопками и макетом. C — центр «одного окна» в пине.
+  let frameRect = null, textRect = null, titleRect = null, capTop = 0, vyPx = 0;
+  function placeSign() {
+    const w = cw, h = ch, xs = mobile ? 1.35 : 1, y0 = scrollY;
+    const col = document.querySelector('.hero .wrap > div'), media = document.getElementById('heroMedia'), fr = document.getElementById('heroFrame');
+    if (!mobile && col && media && fr && matchMedia('(min-width: 961px)').matches) {
+      const wl = col.parentElement.getBoundingClientRect().left;
+      const axPx = (wl + col.offsetLeft + col.offsetWidth + wl + media.offsetLeft) / 2 - 22;
+      const S = Math.min(0.87, 0.95 * w / (1.16 * h));     // узкий высокий экран — знак по ширине
+      uniforms.uVPos.value.set((axPx / w * 2 - 1) / xs, -0.92 + 0.993 * S, S);
+      const f = fr.getBoundingClientRect();
+      frameRect = { l: f.left, r: f.right, t: f.top + y0, b: f.bottom + y0 };
+      const t = document.querySelector('.hero h1').getBoundingClientRect();   // заголовок + 16 px полей
+      textRect = { l: t.left - 16, r: t.right + 16, t: t.top + y0 - 16, b: t.bottom + y0 + 16 };
+    } else {
+      const ct = document.querySelector('.hero .ctas');
+      const below = [...document.querySelectorAll('.hero-phone, #heroFrame')].find(e => e.offsetParent);
+      const S = Math.min(0.42, 0.8 * w / (1.16 * h));
+      // вершина — у самого макета (за 12 px до его верха): сетка стоит в зазоре, а не под стеклянной кнопкой
+      const vy = below ? below.getBoundingClientRect().top + y0 - 12 : h * 0.58;
+      uniforms.uVPos.value.set(0, 1 - 2 * vy / h + 0.993 * S, S);
+      frameRect = null; vyPx = vy;
+      uniforms.uFrame.value.set(2, 2, 2, 2);
+      // подпись ленты интеграций проезжает по сетке знака — под ней знак тише, сетка гаснет, пока подпись подъезжает к вершине
+      const cap = document.querySelector('.integr .label');
+      if (cap) { const r = cap.getBoundingClientRect(); capTop = r.top + y0; textRect = { l: r.left - 16, r: r.right + 16, t: r.top + y0 - 12, b: r.bottom + y0 + 12 }; }
+    }
+    const stage = document.getElementById('mergeStage'), mt = document.querySelector('.merge-titles');
+    const sh = stage ? stage.offsetHeight : h;              // сцена пина — 100svh от верха экрана, окно на 58 % (телефон — 55 %)
+    if (mt) {                                               // заголовок пина на экране, пока сцена закреплена (по вёрстке, без анимаций)
+      const tw = Math.min(940, w * 0.9), x0 = (w - tw) / 2;
+      uniforms.uTitle.value.set(x0 / w * 2 - 1, 1 - 2 * (mt.offsetTop + mt.offsetHeight + 8) / h, (x0 + tw) / w * 2 - 1, 1 - 2 * (mt.offsetTop - 8) / h);
+      uniforms.uTitle.value.x /= xs; uniforms.uTitle.value.z /= xs;
+    }
+    uniforms.uC.value.set(0, 1 - 2 * sh * (mobile ? 0.55 : 0.58) / h, 3.5 / (w / 2 * xs));
+  }
+  resize();
+  addEventListener('resize', resize);
+
+  // --- режиссёр сцен: секция с data-scene задаёт форму, сдвиг и яркость ---
+  const SHAPES = { arc: [1, 0, 0, 0], aurora: [0, 1, 0, 0], wave: [0, 0, 1, 0], logo: [0, 0, 0, 1] };
+  const sections = [...document.querySelectorAll('[data-scene]')];
+  const target = { w: new THREE.Vector4(1, 0, 0, 0), shift: 0, intensity: 1, drift: 0 };
+  // Сцены смешиваются непрерывно: вес секции = доля экрана, которую она занимает.
+  // Никаких переключений на границе — форма перетекает ровно со скроллом.
+  function pickScene() {
+    const vh = innerHeight, mid = vh * 0.5;
+    const w = new THREE.Vector4(0, 0, 0, 0); let shift = 0, inten = 0, drift = 0, sum = 0;   // у Vector4 по умолчанию w = 1
+    for (const s of sections) {
+      const r = s.getBoundingClientRect();
+      const cover = Math.max(0, Math.min(r.bottom, vh) - Math.max(r.top, 0)) / vh;
+      if (cover <= 0) continue;
+      const c = cover * cover;                         // квадрат — доминирующая секция весомее, но без скачка
+      w.addScaledVector(new THREE.Vector4().fromArray(SHAPES[s.dataset.scene] || SHAPES.arc), c);
+      shift += parseFloat(s.dataset.shift || 0) * c;
+      inten += parseFloat(s.dataset.intensity || 1) * c;
+      const p = Math.min(1, Math.max(0, (mid - r.top) / r.height));
+      drift += (0.5 - p) * 0.3 * c;
+      sum += c;
+    }
+    if (!sum) return;
+    target.w.copy(w.divideScalar(sum));
+    target.shift = shift / sum; target.intensity = inten / sum; target.drift = drift / sum;
+  }
+  addEventListener('scroll', pickScene, { passive: true });
+  pickScene();
+  uniforms.uW.value.copy(target.w);
+
+  // --- сюжет знака по прокрутке: hero 0–25 % — знак, 25–60 % — расплетается, 60 % → верх today — две завесы;
+  // в пине — по времени таймлайна (вход завес, пережим в точку окна, горловина, одна нить), после пина — одна нить
+  const heroEl = document.querySelector('.hero'), todayEl = document.getElementById('today'), mergeEl = document.getElementById('merge');
+  const ease = x => x * x * (3 - 2 * x), seg = (x, a, b) => Math.min(1, Math.max(0, (x - a) / (b - a)));
+  let hh = 1, tTop = 1;                                 // якоря сюжета: высота hero и верх today — без чтения вёрстки в каждом кадре
+  const anchors = () => { if (heroEl && todayEl) { hh = heroEl.offsetHeight; tTop = todayEl.getBoundingClientRect().top + scrollY; } };
+  anchors();
+  addEventListener('resize', anchors);
+  window.ScrollTrigger?.addEventListener('refresh', () => { anchors(); placeSign(); });   // после шрифтов вёрстка hero уточняется
+  // hero уходит — узел и сетка тише (на телефоне позже: сначала знак открывается из-под макета над лентой интеграций)
+  const leaveTarget = () => mobile && capTop ? seg(scrollY, capTop - vyPx - 170, capTop - vyPx - 30) : seg(scrollY, hh * 0.02, hh * 0.3);
+  function storyTarget() {
+    if (!heroEl || !todayEl || !mergeEl) return 0;
+    const y = scrollY, vh = innerHeight;
+    const tl = window.__mergeTl, st = tl && tl.scrollTrigger;
+    if (!st) {                                            // без пина (reduced-motion, без GSAP): состояния по секциям
+      const m = mergeEl.getBoundingClientRect();
+      if (m.bottom < vh * 0.5) return 6;
+      if (m.top < vh * 0.5) return 3.5;
+      return y < hh * 0.4 ? 0 : 2;
+    }
+    if (y < st.start) {
+      const u0 = hh * (mobile ? 0.55 : 0.25), u1 = hh * (mobile ? 0.8 : 0.6);   // расплетание; на телефоне — после «момента знака» над лентой
+      return y < u1 ? ease(seg(y, u0, u1)) : 1 + ease(seg(y, u1, Math.max(u1 + 1, tTop)));
+    }
+    if (y > st.end) { const a = tl.duration() > 1.7 ? 5.45 : 5; return a + (6 - a) * ease(seg(y, st.end, st.end + vh * 0.55)); }   // после пина — аврора «Финансов»
+    const D = tl.duration(), T = st.progress * D, ph = D < 1.7;           // на телефоне у пина нет финального ухода
+    if (T < 0.35) return 2 + 0.12 * seg(T, 0, 0.35);     // хаос: завесы чуть тянутся к центру
+    if (T < 0.75) return 2.12 + 0.88 * ease(seg(T, 0.35, 0.75));         // съезжаются и пережимаются в точку окна — вместе с карточками
+    if (ph) {
+      if (T < 0.95) return 3;
+      if (T < 1.2) return 3 + ease(seg(T, 0.95, 1.2));
+      return 4 + ease(seg(T, 1.2, D));                    // к концу пина — одна нить
+    }
+    if (T < 1.0) return 3;                                // веер держит угол знака, пока появляется окно
+    if (T < 1.33) return 3 + ease(seg(T, 1.0, 1.33));     // горловина вытягивается
+    if (T < 1.6) return 4 + 0.5 * ease(seg(T, 1.33, 1.6)); // веера над и под окном заметно сужаются
+    if (T < 1.75) return 4.5 + 0.5 * ease(seg(T, 1.6, 1.75));   // уход сцены: «молния» закрывается — одна нить
+    return 5 + 0.45 * seg(T, 1.75, D);                    // и сразу начинает распускаться в аврору, пока гаснет окно
+  }
+  let story = storyTarget(), dip = 1, boot = 0, jumpT = -9, wasJump = false, jumpDim = 1, inten = target.intensity, lastY = scrollY;
+  // переход по якорю (меню, кнопки): фон не проигрывает сюжет по пути — гаснет до 35 %, в конце сразу встаёт в итоговое состояние и проявляется
+  addEventListener('click', e => { if (!reduce && e.target.closest && e.target.closest('a[data-scroll]')) jumpT = 1.85; }, true);
+  uniforms.uStory.value = story;
+  // появление знака — только если страница открыта сверху и движение разрешено
+  if (!reduce && scrollY < innerHeight * 0.3) uniforms.uGrow.value = 0;
+  function glowFor(st) {                                // свечение сюжета: у знака — у крыльев, у завес — за ними, в пине — на веерах
+    const cur = seg(st, 0.6, 2) * (1 - seg(st, 2, 3));
+    uniforms.uSG.value.set(uniforms.uVPos.value.x * (1 - seg(st, 1, 2)), seg(st, 0.6, 2), st < 5.99 ? 0.06 + 0.11 * cur + 0.16 * seg(st, 2, 3) : 0, mobile ? 1.35 : 1);
+  }
+
+  const mouse = new THREE.Vector2();
+  addEventListener('pointermove', e => mouse.set(e.clientX / innerWidth - .5, e.clientY / innerHeight - .5), { passive: true });
+
+  const clock = new THREE.Clock();
+  function frame() {
+    requestAnimationFrame(frame);
+    if (document.hidden) return;
+    const dt = Math.min(clock.getDelta(), 0.05);
+    if (!reduce) uniforms.uTime.value += dt;
+    jumpT -= dt;
+    if (jumpT > 0 && jumpT < 1.35 && Math.abs(scrollY - lastY) < 1.5) jumpT = 0;
+    lastY = scrollY;
+    const jump = jumpT > 0;
+    if (uniforms.uGrow.value < 99) uniforms.uGrow.value = uniforms.uGrow.value > 4 ? 99 : uniforms.uGrow.value + dt;
+    // браузер восстановил прокрутку ниже hero — появление не играем, сюжет сразу в нужном состоянии
+    if (boot < 1.5) { boot += dt; if (scrollY > innerHeight * 0.3) { uniforms.uGrow.value = 99; story = storyTarget(); } }
+    const tgt = storyTarget();
+    if (wasJump && !jump) {                         // конец перехода по якорю — фон сразу в итоговом состоянии (пока он притушен)
+      story = tgt; uniforms.uW.value.copy(target.w); inten = target.intensity;
+      uniforms.uShiftX.value = target.shift; uniforms.uDrift.value = target.drift; uniforms.uLeave.value = leaveTarget();
+      if (tgt < 0.3 && !reduce) uniforms.uGrow.value = 0.75;  // наверх — знак коротко дорастает из узла
+    }
+    wasJump = jump;
+    jumpDim += ((jump ? 0.1 : 1) - jumpDim) * (1 - Math.exp(-dt / (jump ? 0.04 : 0.15)));
+    if (!reduce) { if (!jump) story += (tgt - story) * (1 - Math.exp(-dt / 0.3)); }   // сюжет держится за скроллом; во время перехода по якорю стоит
+    else {                                                // reduced-motion: без морфа — гаснет до 0.25, смена формы, проявляется
+      if (Math.abs(tgt - story) > 0.001) { dip = Math.max(0.25, dip - dt / 0.3 * 0.75); if (dip <= 0.25) story = tgt; }
+      else dip = Math.min(1, dip + dt / 0.4 * 0.75);
+      uniforms.uDip.value = dip;
+    }
+    uniforms.uStory.value = story;
+    glowFor(story);
+    uniforms.uLeave.value += (leaveTarget() - uniforms.uLeave.value) * (1 - Math.exp(-dt / 0.4));
+    {                                               // окно и текст hero на экране — под ними знак тише; ушли с экрана — маски не считаются
+      const y = scrollY, xs = mobile ? 1.35 : 1;
+      const r = (o, u) => { if (!o || o.b - y < 0 || o.t - y > ch) { u.set(2, 2, 2, 2); return; }
+        u.set((o.l / cw * 2 - 1) / xs, 1 - 2 * (o.b - y) / ch, (o.r / cw * 2 - 1) / xs, 1 - 2 * (o.t - y) / ch); };
+      r(frameRect, uniforms.uFrame.value); r(textRect, uniforms.uText.value);
+    }
+    const k = jump ? 0 : 1 - Math.exp(-dt / 1.4);  // догоняем цель с постоянной времени 1.4 с — не зависит от FPS и частоты скролла; на переходе по якорю фон стоит
+    uniforms.uW.value.lerp(target.w, k);
+    uniforms.uShiftX.value += (target.shift - uniforms.uShiftX.value) * k;
+    inten += (target.intensity - inten) * k;
+    uniforms.uIntensity.value = inten * jumpDim;
+    uniforms.uDrift.value += (target.drift - uniforms.uDrift.value) * k;
+    const km = 1 - Math.exp(-dt / 0.6);
+    camera.position.x += (mouse.x * 0.14 - camera.position.x) * km;
+    camera.position.y += (-mouse.y * 0.1 - camera.position.y) * km;
+    camera.lookAt(0, 0, 0);
+    composer.render();
+  }
+  frame();
+}
+</script>
