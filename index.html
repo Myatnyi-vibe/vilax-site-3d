@@ -257,7 +257,7 @@ section{position:relative}
 .blk .price span{font-size:13px;color:var(--faint)}
 .req{font-family:var(--mono);font-size:11px;color:var(--on-accent);background:var(--accent);padding:2px 7px;border-radius:6px}
 
-/* iPhone (как на сайте vilax.ai v2): корпус Space Black, Dynamic Island, строка состояния 9:41, полоса «домой» */
+/* iPhone: корпус Space Black, Dynamic Island, строка состояния 9:41, полоса «домой» */
 .ip{--case:#34363b;--case-hi:#5b5e64;--case-lo:#17181b;--ip-bg:#0a0e1b;--ip-ink:#f2f4fa;container-type:inline-size;width:100%}
 .ip__lid{position:relative;box-sizing:border-box;width:100%;padding:3cqw;border:max(1.5px,.9cqw) solid var(--case);border-radius:15.5cqw;background:#060607;
   box-shadow:inset 0 0 0 1px rgb(255 255 255/.06),0 3cqw 8cqw -3cqw rgb(0 0 0/.55),0 30px 60px -20px rgba(24,242,223,.18)}
@@ -1157,7 +1157,7 @@ if (renderer) {
     locN = Math.round(10 * Math.pow(20, v / 100));   // 10…200 локаций
     knob.style.left = v + '%'; fill.style.width = v + '%';
     $('#locVal').textContent = (locN >= 200 ? '200+' : locN) + ' ' + pluralNom(locN);
-    // цена Основы по тарифу сети (прайс РФ от 12.10.2026)
+    // цена Основы по тарифу сети
     const tier = locN <= 10 ? 0 : locN <= 25 ? 1 : locN <= 100 ? 2 : 3;
     $('#basePrice').textContent = ['2 190', '1 590', '1 150', '970'][tier] + ' ₽';
     $$('#tiers div').forEach((d, k) => d.classList.toggle('on', k === tier));
@@ -1168,7 +1168,7 @@ if (renderer) {
   $$('.sw:not([disabled])').forEach(s => s.addEventListener('click', () => { s.setAttribute('aria-checked', s.getAttribute('aria-checked') !== 'true'); upd(); }));
   upd();
 
-  // --- заявка: проверка полей; отправка в CRM на этой версии не подключена ---
+  // --- заявка: проверка полей; отправка на этой версии не подключена ---
   const toast = $('#toast');
   const say = t => { toast.textContent = t; toast.classList.add('show'); clearTimeout(say.t); say.t = setTimeout(() => toast.classList.remove('show'), 3200); };
   $('#leadForm').addEventListener('submit', e => {

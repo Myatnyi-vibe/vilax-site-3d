@@ -1,4 +1,4 @@
 *.py
-src.html
+!build.py
 .impeccable/
 __pycache__/
