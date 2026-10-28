@@ -342,9 +342,11 @@ section{position:relative}
 
 /* ============ ВОПРОСЫ ============ */
 .faq-sec{padding:120px 0 40px}
-.faq-grid{display:grid;grid-template-columns:.8fr 1.4fr;gap:48px}
+/* левая колонка — ровно по ширине заголовка (min-content: «Что спрашивают» держится неразрывным пробелом и не переносится),
+   вопросы — в остатке; зазор растёт с экраном, заголовок никогда не выходит из колонки на вопросы */
+.faq-grid{display:grid;grid-template-columns:min-content minmax(0,1fr);gap:48px clamp(64px,6.5vw,96px)}
 .faq details{border-bottom:1px solid var(--line);padding:18px 0}
-.faq summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:16px;font-size:17px;font-weight:500}
+.faq summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:16px;font-size:17px;font-weight:500}
 .faq summary::-webkit-details-marker{display:none}
 .faq summary::after{content:"+";color:var(--accent);font-family:var(--mono);font-size:18px;line-height:1}
 .faq details[open] summary::after{content:"−"}
@@ -450,6 +452,13 @@ section{position:relative}
   .tiers{gap:4px}.tiers div{padding:8px 2px}.tiers b{font-size:12px}
   .f-cta{padding:30px 22px}
   .faq summary{font-size:16px}
+}
+@media (min-width:961px){
+  /* верхняя линия списка — вровень с плашкой «вопросы»: список читается отдельным блоком, а не продолжением заголовка */
+  .faq{border-top:1px solid var(--line-2)}
+  .faq-grid .kicker{vertical-align:top}
+  /* колонка списка стала уже — ответы без висячих слов в последней строке */
+  .faq details p{text-wrap:pretty}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
