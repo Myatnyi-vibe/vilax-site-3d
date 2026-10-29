@@ -47,6 +47,10 @@
 :root[data-theme="light"] :is(.marquee-track span,.chaos span){background:rgba(34,151,255,.06)}
 :root[data-theme="light"] .losses li{background:rgba(34,151,255,.05)}
 :root[data-theme="light"] .ask{background:rgba(34,151,255,.06)}
+/* тёмные демо-карточки чатов (иллюстрация «как сейчас») остаются тёмными — текст в них делаем светлым, иначе тёмное на тёмном */
+:root[data-theme="light"] .bub p{color:#dfe7f2}
+:root[data-theme="light"] .file b{color:#eef3fa}
+:root[data-theme="light"] :is(.bub span,.file small){color:rgba(220,230,245,.55)}
 :root[data-theme="light"] .field input{background:#ffffff}
 :root[data-theme="light"] .btn-dark{background:#0b1a2f;color:#f5f7fa}
 *{box-sizing:border-box;margin:0;padding:0}
