@@ -56,7 +56,9 @@ if (renderer) {
     uniform vec3  uC;       // точка схождения — центр «одного окна» (x, y — доли полуэкрана), z — ширина горловины (3–4 px)
     uniform float uGrow;    // появление при загрузке: секунды от старта; 99 — знак уже собран
     uniform vec4  uText;    // текст поверх знака на экране (x0, y0, x1, y1 в долях полуэкрана): заголовок hero, на телефоне — подпись ленты интеграций
+    uniform vec4  uHead;    // телефон, светлая тема: заголовок hero — тонкая акцентная строка того же синего, что и нити знака
     uniform vec4  uTitle;   // заголовок пина на экране: под ним веер и нить тише
+    uniform float uLight;   // светлая тема: нити — краской на белом, без вуали и bloom (см. __setLight)
     uniform float uVGain;   // яркость знака: на телефоне нитей вдвое меньше и bloom слабее
     uniform float uLeave;   // hero уходит (0…1): узел и сетка тише под въезжающим текстом
     uniform vec4  uFrame;   // окно продукта в hero на экране (x0, y0, x1, y1 в долях полуэкрана): под стеклом знак тише
@@ -134,6 +136,7 @@ if (renderer) {
       float taper = sin(3.14159*u);
       float c = sign(g) * pow(abs(2.0*g), 3.2) * 0.5;         // ядро пряди плотное, волокна расходятся к соседям
       float st = uStory, y = s*1.3;
+      float cB = mix(0.11, 0.3, uLight);                      // нити завес: на тёмном их держит свечение сюжета, на белом — только краска
       gA = 1.0; gB = 1.0; gV = 0.0; gX = 0.0; gAur = 0.0;
       gP = smoothstep(0.2, 1.2, st);                          // знак — в цветах логотипа, расплетаясь — в палитру v3
       gD = 1.0 - gP;
@@ -183,6 +186,10 @@ if (renderer) {
           vec2 te = smoothstep(uText.xy - 0.03, uText.xy + 0.03, p.xy) * (1.0 - smoothstep(uText.zw - 0.03, uText.zw + 0.03, p.xy));
           gB *= 1.0 - 0.5 * (1.0 - a) * te.x * te.y;
         }
+        if (uLight > 0.5 && uHead.x < 1.5) {                  // телефон, светлая: под заголовком hero знак втрое тише — крыло не сливается с «в одном окне.»
+          vec2 th = smoothstep(uHead.xy - 0.03, uHead.xy + 0.03, p.xy) * (1.0 - smoothstep(uHead.zw - 0.03, uHead.zw + 0.03, p.xy));
+          gB *= 1.0 - 0.67 * (1.0 - a) * th.x * th.y;
+        }
         gB *= 1.0 - 0.3 * smoothstep(0.72, 0.95, u);
         if (uFrame.x < 1.5) {
           vec2 fe = smoothstep(uFrame.xy - 0.02, uFrame.xy + 0.02, p.xy) * (1.0 - smoothstep(uFrame.zw - 0.02, uFrame.zw + 0.02, p.xy));
@@ -194,7 +201,7 @@ if (renderer) {
           // --- 1…2: крылья уходят к 22 % и 78 % ширины, выпрямляются и становятся двумя завесами
           float b = smoothstep(1.0, 2.0, st);
           p = mix(p, curtainP(side, side * (0.5 - fw), y, seed), b);
-          gV *= 1.0 - b; gB = mix(gB, 0.11, b);               // нити завес тише, как в авроре v3, — не «волосы»
+          gV *= 1.0 - b; gB = mix(gB, cB, b);                 // нити завес тише, как в авроре v3, — не «волосы»
         }
       } else {
         // --- 2…3: завесы съезжаются и пережимаются в точку C; 3…5: горловина вытягивается, «молния» закрывается — одна нить;
@@ -221,7 +228,7 @@ if (renderer) {
           float b = smoothstep(2.0, 3.0, st);
           b = b*b*(3.0 - 2.0*b);
           p = mix(curtainP(side, side * (0.5 - fw), y, seed), hp, b);
-          gB = mix(0.11, gB, b); gV *= b;
+          gB = mix(cB, gB, b); gV *= b;
         } else if (st > 5.0) {
           // пряди авроры выходят из нити по очереди — сначала середина веера
           float f = clamp((st - 5.0) * 1.6 - abs(l - 0.5) * 0.6, 0.0, 1.0);
@@ -260,6 +267,7 @@ if (renderer) {
     uTip: { value: new THREE.Color('#7a5cc7') },
     uDip: { value: 1 },
     uText: { value: new THREE.Vector4(2, 2, 2, 2) },
+    uHead: { value: new THREE.Vector4(2, 2, 2, 2) },
     uTitle: { value: new THREE.Vector4(2, 2, 2, 2) },
     uVGain: { value: mobile ? 1.5 : 1 },
     uHalf: { value: new THREE.Vector2(1, 1) },
@@ -272,7 +280,9 @@ if (renderer) {
     uTeal: { value: new THREE.Color('#2297ff') },
     uViolet: { value: new THREE.Color('#7a5cc7') },
     uBase: { value: new THREE.Color('#081532') }, // фон VILAX (синий логотипа, потемнее): прибавляется к чёрной очистке, чтобы не попасть на двойной sRGB
+    uLight: { value: 0 },                         // светлая тема: нити — краской цветов знака на белом, без вуали и bloom (см. __setLight)
   };
+  let veil, lines, dust;                          // слои фона — светлая тема переключает их смешивание и видимость
 
   // --- мягкое сияние: полноэкранный шейдер под нитями (главное в сценах aurora) ---
   {
@@ -337,9 +347,9 @@ if (renderer) {
           gl_FragColor = vec4(col + uBase, 1.0);
         }`,
     });
-    const q = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), m);
-    q.frustumCulled = false; q.renderOrder = -1;
-    scene.add(q);
+    veil = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), m);
+    veil.frustumCulled = false; veil.renderOrder = -1;
+    scene.add(veil);
   }
 
   // --- нити: каждая нить = SEG отрезков, позиция считается в шейдере ---
@@ -381,8 +391,9 @@ if (renderer) {
           float pulseV = smoothstep(0.93, 1.0, fract(-aT*1.3 - uTime*0.12 + aSeed*5.0)); // в знаке — от кончиков к вершине
           pulse = mix(pulse, pulseV, uW.w * gD);
           float shimmer = 0.6 + 0.4*sin(uTime*0.7 + aSeed*40.0 + aT*5.0);
-          vA = edge * core * shimmer * (1.0 + 2.2*pulse) * uIntensity * (0.3 + 0.7*fract(aSeed*7.13)) * (1.0 - 0.72*(uW.y + uW.w*gAur));
+          vA = edge * core * shimmer * (1.0 + 2.2*pulse) * uIntensity * (0.3 + 0.7*fract(aSeed*7.13)) * (1.0 - mix(0.72, 0.4, uLight)*(uW.y + uW.w*gAur));   // на белом вуали нет — нити авроры тушим меньше
           vA *= mix(1.0, 1.85 * gA * gB * uDip, uW.w);                   // знак: пряди ярче, при появлении — по фронту роста
+          vA *= 1.0 + 0.5 * uLight * uW.w * (1.0 - gP);                  // на белом без свечения знак держится только краской — пряди плотнее
           vC = mix(uLime, uTeal, step(0.62, aSeed));
           vC = mix(vC, uViolet, step(0.9, aSeed));
           // в знаке — градиент логотипа по x (как --brand-grad): голубой до оси → синий → фиолетовый на правом крыле
@@ -390,13 +401,17 @@ if (renderer) {
           vec3 cL = mix(mix(uSky, uTeal, 0.3), uMid, smoothstep(-0.05, 0.4, gx));   // голубой знака чуть насыщеннее — ближе к синему сайта
           cL = mix(cL, uTip, smoothstep(0.4, 0.95, gx));
           vC = mix(vC, cL, uW.w * (1.0 - gP));
-          vC = mix(vC, vec3(1.0), pulse*0.35);
+          vC = mix(vC, uLight > 0.5 ? vC * 0.6 : vec3(1.0), pulse*0.35);   // бегущий свет: на тёмном — белее, на белом — гуще краска
         }`,
       fragmentShader: /* glsl */`
+        uniform float uLight;
         varying float vA; varying vec3 vC;
-        void main(){ gl_FragColor = vec4(vC * vA * 0.085, 1.0); }`,
+        // тёмная тема — свет складывается (сияние дорисует bloom); светлая — краска цвета нити, плотность по её яркости:
+        // кривая с насыщением — тусклые нити (их на тёмном держало свечение) заметнее, яркие не заливают пряди
+        void main(){ gl_FragColor = uLight > 0.5 ? vec4(vC, 1.0 - exp(-vA * 0.5)) : vec4(vC * vA * 0.085, 1.0); }`,
     });
-    scene.add(new THREE.LineSegments(g, m));
+    lines = new THREE.LineSegments(g, m);
+    scene.add(lines);
   }
 
   // --- пыль: частицы, «прилипшие» к тем же кривым ---
@@ -429,14 +444,15 @@ if (renderer) {
           vA *= mix(1.0, gA, uW.w);
         }`,
       fragmentShader: /* glsl */`
-        uniform vec3 uLime; varying float vA;
+        uniform vec3 uLime; uniform float uLight; varying float vA;
         void main(){
           float d = length(gl_PointCoord - 0.5);
           float a = smoothstep(0.5, 0.0, d);
-          gl_FragColor = vec4(mix(uLime, vec3(1.0), 0.5) * a * vA * 0.35, 1.0);
+          gl_FragColor = uLight > 0.5 ? vec4(uLime, a * vA * 0.2) : vec4(mix(uLime, vec3(1.0), 0.5) * a * vA * 0.35, 1.0);
         }`,
     });
-    scene.add(new THREE.Points(g, m));
+    dust = new THREE.Points(g, m);
+    scene.add(dust);
   }
 
   // --- пост: bloom даёт то самое свечение ---
@@ -446,6 +462,19 @@ if (renderer) {
   composer.addPass(bloom);
   composer.addPass(new OutputPass());
   window.__three = { scene, uniforms, bloom, composer }; // для отладки и скриптов проверки
+
+  // --- светлая тема (переключатель в шапке): белый фон без вуали и bloom, нити — краской цветов знака (как --brand-grad светлой темы);
+  // краска ложится обычным смешиванием, а не сложением света: пряди знака плотнее волокон, на пересечениях цвет не белеет и не чернеет
+  const INK = { uSky: '#2d84c6', uMid: '#4a57a8', uTip: '#5a2a90', uLime: '#2d84c6', uTeal: '#3f68d6', uViolet: '#6a37a6' }, GLOW = {};
+  for (const k in INK) { GLOW[k] = uniforms[k].value.clone(); INK[k] = new THREE.Color(INK[k]); }
+  window.__setLight = on => {
+    uniforms.uLight.value = on ? 1 : 0;
+    for (const k in INK) uniforms[k].value.copy(on ? INK[k] : GLOW[k]);
+    bloom.enabled = !on; veil.visible = !on;
+    lines.material.blending = dust.material.blending = on ? THREE.NormalBlending : THREE.AdditiveBlending;
+    renderer.setClearColor(on ? 0xffffff : 0x000000, 1);
+  };
+  window.__setLight(document.documentElement.getAttribute('data-theme') === 'light');
 
   let cw = 0, ch = 0;
   function resize() {
@@ -464,7 +493,7 @@ if (renderer) {
   }
   // знак в hero: десктоп — ось в зазоре между текстом и окном (на 22 px левее — сетка не под стеклом окна), высота 87 % экрана, вершина на 96 %;
   // телефон и планшет — 80 % ширины по центру, вершина в зазоре между кнопками и макетом. C — центр «одного окна» в пине.
-  let frameRect = null, textRect = null, titleRect = null, capTop = 0, vyPx = 0;
+  let frameRect = null, textRect = null, headRect = null, titleRect = null, capTop = 0, vyPx = 0;
   function placeSign() {
     const w = cw, h = ch, xs = mobile ? 1.35 : 1, y0 = scrollY;
     const col = document.querySelector('.hero .wrap > div'), media = document.getElementById('heroMedia'), fr = document.getElementById('heroFrame');
@@ -477,6 +506,7 @@ if (renderer) {
       frameRect = { l: f.left, r: f.right, t: f.top + y0, b: f.bottom + y0 };
       const t = document.querySelector('.hero h1').getBoundingClientRect();   // заголовок + 16 px полей
       textRect = { l: t.left - 16, r: t.right + 16, t: t.top + y0 - 16, b: t.bottom + y0 + 16 };
+      headRect = null;                                      // заголовок уже в маске uText
     } else {
       const ct = document.querySelector('.hero .ctas');
       const below = [...document.querySelectorAll('.hero-phone, #heroFrame')].find(e => e.offsetParent);
@@ -489,6 +519,8 @@ if (renderer) {
       // подпись ленты интеграций проезжает по сетке знака — под ней знак тише, сетка гаснет, пока подпись подъезжает к вершине
       const cap = document.querySelector('.integr .label');
       if (cap) { const r = cap.getBoundingClientRect(); capTop = r.top + y0; textRect = { l: r.left - 16, r: r.right + 16, t: r.top + y0 - 12, b: r.bottom + y0 + 12 }; }
+      const hd = document.querySelector('.hero h1');
+      if (hd) { const r = hd.getBoundingClientRect(); headRect = { l: r.left - 12, r: r.right + 12, t: r.top + y0 - 10, b: r.bottom + y0 + 10 }; }
     }
     const stage = document.getElementById('mergeStage'), mt = document.querySelector('.merge-titles');
     const sh = stage ? stage.offsetHeight : h;              // сцена пина — 100svh от верха экрана, окно на 58 % (телефон — 55 %)
@@ -619,7 +651,7 @@ if (renderer) {
       const y = scrollY, xs = mobile ? 1.35 : 1;
       const r = (o, u) => { if (!o || o.b - y < 0 || o.t - y > ch) { u.set(2, 2, 2, 2); return; }
         u.set((o.l / cw * 2 - 1) / xs, 1 - 2 * (o.b - y) / ch, (o.r / cw * 2 - 1) / xs, 1 - 2 * (o.t - y) / ch); };
-      r(frameRect, uniforms.uFrame.value); r(textRect, uniforms.uText.value);
+      r(frameRect, uniforms.uFrame.value); r(textRect, uniforms.uText.value); r(headRect, uniforms.uHead.value);
     }
     const k = jump ? 0 : 1 - Math.exp(-dt / 1.4);  // догоняем цель с постоянной времени 1.4 с — не зависит от FPS и частоты скролла; на переходе по якорю фон стоит
     uniforms.uW.value.lerp(target.w, k);
