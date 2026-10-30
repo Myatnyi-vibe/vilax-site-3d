@@ -31,7 +31,7 @@
 :root[data-theme="light"]{
   color-scheme:light;
   --bg:#ffffff;--surf:#f4f5fb;--surf-2:#ececf6;
-  --accent:#3f68d6;--accent-h:#3156c0;--on-accent:#ffffff;
+  --accent:#2f5bea;--accent-h:#1e3fb3;--on-accent:#ffffff;   /* классический синий VILAX: --primary светлой темы продукта (globals.css) */
   --text:#0b1a2f;--muted:#44566f;--faint:#647489;--ghost:rgba(50,66,92,.6);
   --line:rgba(44,36,110,.13);--line-2:rgba(44,36,110,.22);
   --glass:#f5f5fb;
@@ -40,14 +40,12 @@
 :root[data-theme="light"] body{background:var(--bg)}
 :root[data-theme="light"] .vignette{display:none}
 :root[data-theme="light"] .hero::after{display:none}
-:root[data-theme="light"] .merge-glow{display:none}   /* на белом фон без дымки: в пине только нити цветами знака */
 :root[data-theme="light"] .no-webgl body{background:var(--bg)}
 :root[data-theme="light"] .nav::before{background:#ffffff}
 :root[data-theme="light"] .glass{background:var(--glass);border-color:rgba(44,36,110,.12);box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 22px 50px -34px rgba(44,36,110,.2)}
-:root[data-theme="light"] .btn-accent:hover{box-shadow:0 8px 34px -8px rgba(63,104,214,.5),inset 0 1px 0 rgba(255,255,255,.4)}
+:root[data-theme="light"] .btn-accent:hover{box-shadow:0 8px 34px -8px rgba(47,91,234,.5),inset 0 1px 0 rgba(255,255,255,.4)}
 :root[data-theme="light"] .btn-ghost{background:rgba(74,87,168,.07);border-color:var(--line-2)}
 :root[data-theme="light"] .kicker{background:rgba(74,87,168,.1);border-color:rgba(74,87,168,.32);color:#3a46a0}
-:root[data-theme="light"] :is(.marquee-track span,.chaos span){background:rgba(74,87,168,.06)}
 :root[data-theme="light"] .losses li{background:rgba(74,87,168,.05)}
 :root[data-theme="light"] .ask{background:rgba(74,87,168,.06)}
 /* нити на белом чёткие — под подписями и кнопкой hero почти не видны: тот же тон, плотнее */
@@ -55,14 +53,8 @@
 :root[data-theme="light"] .marquee-track span{background:rgba(244,245,250,.88)}
 :root[data-theme="light"] .btn-ghost{background:rgba(242,243,249,.88)}
 :root[data-theme="light"] .btn-ghost:hover{background:#e8eaf4}
-/* плашка «вся сеть · сегодня» в пине — светлая, без бирюзового свечения */
-:root[data-theme="light"] .one-badge{background:#ffffff;border-color:rgba(74,87,168,.32);box-shadow:0 12px 30px -14px rgba(44,36,110,.35)}
-:root[data-theme="light"] .one-badge span{color:#3a46a0}
 :root[data-theme="light"] .f-cta{box-shadow:0 30px 60px -30px rgba(44,36,110,.35)}   /* без бирюзового ореола вокруг финального блока */
-/* тёмные демо-карточки чатов (иллюстрация «как сейчас») остаются тёмными — текст в них делаем светлым, иначе тёмное на тёмном */
-:root[data-theme="light"] .bub p{color:#dfe7f2}
-:root[data-theme="light"] .file b{color:#eef3fa}
-:root[data-theme="light"] :is(.bub span,.file small){color:rgba(220,230,245,.55)}
+:root[data-theme="light"] .f-cta :is(.label,p,.side small){color:rgba(255,255,255,.88)}   /* на синем тёмный текст, подобранный под бирюзу, не читался */
 :root[data-theme="light"] .field input{background:#ffffff}
 :root[data-theme="light"] .btn-dark{background:#0b1a2f;color:#f5f7fa}
 /* скрины продукта по теме: у каждого кадра пара <img> — тёмная и светлая (shots/light, shots-app/light), видна одна;
@@ -167,9 +159,11 @@ section{position:relative}
 .integr{padding:10px 0 40px}
 .integr .label{text-align:center;margin-bottom:16px}
 .marquee{overflow:hidden;-webkit-mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
-.marquee-track{display:flex;gap:14px;width:max-content;animation:marq 40s linear infinite}
+/* два одинаковых набора, сдвиг ровно на набор и зазор: шва нет. Набор не уже экрана, поэтому лента не кончается ни на каком мониторе */
+.marquee-track{display:flex;gap:14px;width:max-content;animation:marq 100s linear infinite}
+.marquee-set{display:flex;flex:none;gap:14px;min-width:100vw;justify-content:space-around}
 .marquee-track span{padding:10px 18px;border-radius:12px;border:1px solid var(--line);background:rgba(245,247,250,.03);color:var(--muted);font-weight:500;white-space:nowrap}
-@keyframes marq{to{transform:translateX(-50%)}}
+@keyframes marq{to{transform:translateX(calc(-50% - 7px))}}
 
 /* ============ СЕГОДНЯ ============ */
 .today{padding:140px 0 40px}
@@ -178,66 +172,100 @@ section{position:relative}
 .pain .label{color:var(--err)}
 .pain h3{font-size:21px;font-weight:600;letter-spacing:-.02em;margin:12px 0 8px;line-height:1.25}
 .pain p{color:var(--muted);font-size:15px}
-.chaos{display:flex;flex-wrap:wrap;gap:10px;margin-top:36px}
-.chaos span{padding:10px 16px;border-radius:99px;border:1px dashed var(--line-2);color:var(--faint);font-size:15px}
 
-/* ============ ПИН: ХАОС → ОДНО ОКНО ============ */
+/* ============ ПИН: УСЛУГИ СЕТИ → ПЛАТА VILAX ============ */
+/* токены платы: :root — тёмная тема, ниже светлая. На светлой плата светлая: белый корпус, светлый кристалл, знак и слово в цветах логотипа */
+:root{
+  --pcb-lit-l:#56b5e6;--pcb-lit-m:#5679bd;--pcb-lit-r:#7a5cc7;--pcb-body:#142749;--pcb-die:#0f1f42;--pcb-edge:rgba(145,160,183,.3);--pcb-line:#3e4e6a;
+  --pcb-die-l:#56b5e6;--pcb-die-m:#5679bd;--pcb-die-r:#8468d0;--pcb-sign:contrast(.6) brightness(1.25);--pcb-word:brightness(0) invert(1);--pcb-word-op:.92;
+  --pcb-shadow:rgba(2,8,23,.6);--pcb-glow:0 0 72px -12px rgba(24,242,223,.34);--pcb-title-grad:linear-gradient(90deg,#56b5e6 0%,#56b5e6 30%,#7f9be0 60%,#a48cf0 100%);
+  --pcb-tile:#0f1f42;--pcb-tile-line:rgba(145,160,183,.3);--pcb-tile-shadow:0 18px 40px -20px rgba(2,8,23,.6);
+}
+:root[data-theme="light"]{
+  --pcb-lit-l:#2d84c6;--pcb-lit-m:#4a57a8;--pcb-lit-r:#6a37a6;--pcb-body:#ffffff;--pcb-die:#f4f5fb;--pcb-edge:rgba(44,36,110,.07);--pcb-line:rgba(44,36,110,.24);
+  --pcb-die-l:#2d84c6;--pcb-die-m:#4a57a8;--pcb-die-r:#6a37a6;--pcb-sign:brightness(.8) saturate(1.25);--pcb-word:none;--pcb-word-op:1;
+  --pcb-shadow:rgba(44,36,110,.3);--pcb-glow:none;--pcb-title-grad:var(--brand-grad);
+  --pcb-tile:#ffffff;--pcb-tile-line:rgba(44,36,110,.16);--pcb-tile-shadow:0 14px 30px -18px rgba(44,36,110,.35);
+}
 .merge{height:100vh;height:100svh;overflow:hidden}
-.merge-stage{position:relative;height:100%;width:100%;perspective:1400px}
-.merge-glow{position:absolute;left:50%;top:58%;width:min(1100px,120vw);aspect-ratio:1;translate:-50% -50%;border-radius:50%;
-  background:radial-gradient(closest-side,rgba(24,242,223,.32),rgba(34,151,255,.14) 45%,transparent 70%);opacity:0;pointer-events:none;filter:blur(10px)}
-.merge-titles{position:absolute;left:0;right:0;top:12%;height:2.4em;z-index:4;pointer-events:none;font-size:clamp(28px,3.8vw,56px)}
+.merge-stage{position:relative;height:100%;width:100%}
+/* на низком экране (пейзажный телефон) заголовок не уходит под шапку: 72 px — её высота и зазор */
+.merge-titles{position:absolute;left:0;right:0;top:max(12%,72px);height:2.4em;z-index:4;pointer-events:none;font-size:clamp(28px,3.8vw,56px)}
 .mt{text-wrap:balance;position:absolute;left:50%;top:0;translate:-50% 0;width:min(940px,90vw);text-align:center;font-size:1em;line-height:1.06;letter-spacing:-.035em;font-weight:620}
 .mt2{opacity:0}
-.chaos-layer{position:absolute;inset:0;z-index:2;pointer-events:none}
-.ch{--w:clamp(220px,18vw,280px);position:absolute;left:50%;top:58%;width:var(--w);margin:-50px 0 0 calc(var(--w) / -2);will-change:transform}
-.ch-in{will-change:transform,opacity}
-.ch .f{animation:bob 6s ease-in-out infinite}
-.ch:nth-child(2n) .f{animation-duration:7.5s;animation-delay:-2s}
-.ch:nth-child(3n) .f{animation-duration:5.2s;animation-delay:-1s}
-@keyframes bob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-10px) rotate(.8deg)}}
-/* обрывки «как сейчас» */
-.bub{padding:12px 14px;border-radius:16px 16px 16px 4px;background:rgba(15,28,51,.92);border:1px solid var(--line-2);box-shadow:0 20px 40px -18px rgba(0,0,0,.8)}
-.bub b{display:block;font-size:12px;font-weight:600;color:var(--sky);margin-bottom:4px}
-.bub p{font-size:14px;line-height:1.35;color:var(--text)}
-.bub span{display:block;text-align:right;font-family:var(--mono);font-size:11px;color:var(--ghost);margin-top:4px}
-.xls{border-radius:10px;overflow:hidden;background:#f3f5f2;color:#1b1f1b;box-shadow:0 20px 40px -18px rgba(0,0,0,.8);font-size:11px}
-.xls .h{background:#1f7a46;color:#fff;padding:6px 10px;font-weight:600;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.xls table{width:100%;border-collapse:collapse;font-family:var(--mono)}
-.xls td{border:1px solid #d6dbd4;padding:4px 6px;white-space:nowrap}
-.xls td.e{color:#c62828;font-weight:600}
-.file{display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:14px;background:rgba(15,28,51,.92);border:1px solid var(--line-2);box-shadow:0 20px 40px -18px rgba(0,0,0,.8)}
-.file i{flex:none;width:34px;height:40px;border-radius:6px;display:grid;place-items:center;font-style:normal;font-family:var(--mono);font-size:10px;font-weight:600;color:#fff;background:#1f7a46}
-.file i.pdf{background:#c2413b}
-.file>div{min-width:0}
-.ch .f{overflow:hidden}
-.xls table{table-layout:fixed}
-.xls td{overflow:hidden;text-overflow:ellipsis}
-.onec .h{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.file b{display:block;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.file small{font-family:var(--mono);font-size:11px;color:var(--ghost)}
-.onec{border-radius:10px;overflow:hidden;background:#fffbe6;color:#2a2410;box-shadow:0 20px 40px -18px rgba(0,0,0,.8)}
-.onec .h{background:#f2c200;padding:6px 10px;font-weight:700;font-size:11px}
-.onec p{padding:10px;font-size:13px}
-.note{padding:16px 16px 18px;background:#ffe27a;color:#3a3000;font-size:15px;font-weight:600;line-height:1.3;border-radius:3px;box-shadow:0 18px 30px -14px rgba(0,0,0,.7);font-family:"Segoe Print","Comic Sans MS",var(--sans)}
-/* одно окно */
-.one{position:absolute;left:50%;top:58%;z-index:3;width:min(780px,80vw);opacity:0}
-.one .frame{position:relative;overflow:hidden}
-.one .frame img{width:100%;aspect-ratio:2/1;object-fit:cover;object-position:top left}
-.one .frame-bar b{font-size:12px;font-weight:600;margin-left:8px;color:var(--text)}
-.sweep{position:absolute;inset:0;pointer-events:none;background:linear-gradient(100deg,transparent 35%,rgba(255,255,255,.18) 50%,transparent 65%);transform:translateX(-120%)}
-.one-badge{position:absolute;left:50%;top:-22px;width:max-content;translate:-50% 0;z-index:2;display:flex;align-items:center;gap:10px;padding:8px 16px 8px 10px;border-radius:99px;
-  background:rgba(2,8,23,.85);border:1px solid rgba(24,242,223,.5);box-shadow:0 0 30px -6px rgba(24,242,223,.6);opacity:0;white-space:nowrap}
-.one-badge img{height:22px}
-.one-badge span{font-family:var(--mono);font-size:12px;color:var(--accent)}
-.one .ip{display:none}
-.merge-count{position:absolute;left:0;right:0;bottom:6%;z-index:4;display:flex;justify-content:center;align-items:center;gap:14px;font-family:var(--mono);font-size:13px;color:var(--faint)}
+.mt em{background-image:var(--pcb-title-grad)}   /* тёмная тема: конец градиента светлее, иначе тонкое начертание сливается с бирюзовой полосой вуали */
+/* плата: снизу вверх дорожки → подписи → плитки → ореол → корпус. Начало координат сцены: X — как на эталоне 1440, Y — центр корпуса; размер и масштаб ставит layoutPcb */
+.pcb{position:absolute;inset:0;z-index:2;pointer-events:none}
+.pcb-scene{position:absolute;left:0;top:0;width:1440px;height:0;transform-origin:0 0}
+.pcb-traces{position:absolute;left:0;top:0;width:1px;height:1px;overflow:visible;fill:none;stroke-width:1.5;stroke-linejoin:round}
+.pcb-base{stroke:var(--line-2)}
+.pcb-lit{opacity:0}
+.pcb-lit.pcb-l{stroke:var(--pcb-lit-l)}
+.pcb-lit.pcb-r{stroke:var(--pcb-lit-r)}
+.pcb-ic{display:block;flex:none;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;color:var(--accent)}
+.pcb-labs{list-style:none}
+.pcb-lab{position:absolute;display:flex;align-items:baseline;gap:8px;font-family:var(--mono);font-size:var(--pcb-lab-fs,12px);line-height:16px;color:var(--faint);white-space:nowrap;opacity:0}
+.pcb-lab.pcb-l{left:64px}
+.pcb-lab.pcb-r{right:64px}
+.pcb-lab b{font-family:var(--sans);font-weight:600;color:var(--text)}
+.pcb-lab .pcb-ic{display:none}
+.pcb-tile{position:absolute;left:0;top:0;display:flex;align-items:center;gap:7px;width:132px;height:46px;padding:0 8px 0 12px;border:1px solid var(--pcb-tile-line);border-radius:10px;background:var(--pcb-tile);box-shadow:var(--pcb-tile-shadow);visibility:hidden;will-change:transform}
+.pcb-tile .pcb-ic{width:18px;height:18px}
+.pcb-tile span{font-size:var(--pcb-name-fs,13px);font-weight:600;line-height:18px;color:var(--text);white-space:nowrap}
+.pcb-whisk{position:absolute;left:-1px;top:-1px;width:1px;height:1px;overflow:visible;fill:none;stroke:var(--line-2);stroke-width:1.5}
+/* корпус: 280×280 в единицах эталона; в узком режиме — --pcb-c в px, внутри всё масштабируется как единое целое, волосяные линии не толстеют */
+.pcb-pins,.pcb-ring,.pcb-chip{position:absolute;left:580px;top:-140px;width:var(--pcb-c,280px);height:var(--pcb-c,280px);border-radius:var(--pcb-rad,18px)}
+.pcb-pins{overflow:visible;fill:none}
+.pcb-ring{box-shadow:var(--pcb-glow);opacity:0}
+.pcb-chip{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--pcb-gap,16px);box-shadow:0 calc(28px * var(--pcb-u,1)) calc(56px * var(--pcb-u,1)) calc(-28px * var(--pcb-u,1)) var(--pcb-shadow)}   /* тень — по размеру корпуса: на мелком не лежит пятном до легенды */
+.pcb-chip svg{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;fill:none}
+.pcb-pins path,.pcb-chip path{vector-effect:non-scaling-stroke}
+.pcb-chip img{position:relative;width:auto}
+.pcb-sign{height:var(--pcb-sign-h,96px);filter:var(--pcb-sign)}
+.pcb-word{height:var(--pcb-word-h,14px);filter:var(--pcb-word);opacity:var(--pcb-word-op)}
+.pcb-comb{stroke:var(--line-2);stroke-width:1.5}
+.pcb-sparse .pcb-comb-e{display:none}   /* мелкий корпус: гребёнка реже */
+.pcb-lead{fill:var(--line-2)}
+.pcb-frame{fill:var(--pcb-body);stroke:url(#pcbPkgGrad);stroke-width:1.5}
+.pcb-edge{stroke:var(--pcb-edge);stroke-width:1}
+.pcb-die{fill:var(--pcb-die);stroke:var(--pcb-line);stroke-width:1}
+.pcb-bond{fill:var(--pcb-line)}
+.pcb-dring{stroke:url(#pcbRingGrad);stroke-width:1.5;opacity:0}
+.pcb-on{opacity:0}
+.pcb-on.pcb-pl{fill:var(--pcb-lit-l)}
+.pcb-on.pcb-pr{fill:var(--pcb-lit-r)}
+.pcb-on.pcb-bl{fill:var(--pcb-die-l);stroke:var(--pcb-die-l)}
+.pcb-on.pcb-br{fill:var(--pcb-die-r);stroke:var(--pcb-die-r)}
+.pcb-chip .pcb-on{stroke-width:calc(1.5px - 1.5px * var(--pcb-u,1))}   /* мелкий корпус: линия контакта обводкой добирает до 1.5 px на экране, как дорожка снаружи; при масштабе 1 обводки нет */
+/* узкий режим (телефоны, планшеты, низкие экраны): сцена в px без масштаба, плитка — квадрат со значком, подписи — легенда под платой */
+.pcb-narrow .pcb-tile{justify-content:center;width:var(--pcb-t);height:var(--pcb-t);padding:0;border-radius:8px}
+.pcb-narrow .pcb-tile span{display:none}
+.pcb-narrow .pcb-tile .pcb-ic{width:calc(var(--pcb-t) * .52);height:calc(var(--pcb-t) * .52)}
+.pcb-narrow .pcb-labs{position:absolute;left:var(--gutter);right:var(--gutter);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px 10px}   /* имя и примечание — пара: внутри 1 px, между парами 14 px */
+.pcb-narrow .pcb-lab,.pcb-narrow .pcb-lab.pcb-l,.pcb-narrow .pcb-lab.pcb-r{position:relative;left:auto;right:auto;display:grid;grid-template-columns:14px minmax(0,1fr);column-gap:6px;row-gap:1px;align-items:start;align-content:start;white-space:normal}
+.pcb-narrow .pcb-lab .pcb-ic{display:block;grid-row:1 / span 2;width:14px;height:14px;margin-top:1px}
+.pcb-narrow .pcb-lab b,.pcb-narrow .pcb-lab span{grid-column:2}
+@media (min-width:900px){   /* широкая легенда: значок, имя и примечание в одну строку */
+  .pcb-narrow .pcb-lab,.pcb-narrow .pcb-lab.pcb-l,.pcb-narrow .pcb-lab.pcb-r{grid-template-columns:14px auto minmax(0,1fr);align-items:baseline}
+  .pcb-narrow .pcb-lab .pcb-ic{grid-row:1;align-self:center;margin-top:0}
+  .pcb-narrow .pcb-lab span{grid-column:3}
+}
+.pcb-no-notes .pcb-lab span{display:none}
+.pcb-no-legend .pcb-labs{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}   /* с экрана убрана, для чтения с экрана остаётся: плитки и корпус от него скрыты */
+/* счётчик: «1 окно» — два слоя в одной ячейке, серый уходит, акцентный приходит */
+.merge-count{position:absolute;left:0;right:0;bottom:6%;z-index:4;display:flex;justify-content:center;align-items:center;gap:14px;font-family:var(--mono);font-size:13px;line-height:20px;color:var(--faint);white-space:nowrap;pointer-events:none}
 .merge-count b{font-weight:500;color:var(--text)}
-.merge-count .to{color:var(--accent)}
-.merge-count .arrow{width:60px;height:1px;background:linear-gradient(90deg,var(--line-2),var(--accent))}
-.merge.static .ch,.merge.static .mt1{display:none}
-.merge.static .one{translate:-50% -50%}
-.merge.static .mt2,.merge.static .one,.merge.static .one-badge,.merge.static .merge-glow{opacity:1}
+.pcb-arrow{position:relative;display:block;flex:none;width:60px;height:1px;background:var(--line-2)}
+.pcb-arrow i{position:absolute;inset:0;background:linear-gradient(90deg,var(--line-2),var(--accent));transform:scaleX(0);transform-origin:0 50%}
+.pcb-cell{display:inline-grid}
+.pcb-off,.pcb-to{grid-area:1 / 1}
+.pcb-to{color:var(--accent);opacity:0}
+.pcb-to b{color:inherit}
+/* без движения: итоговый кадр — дорожки и контакты считает renderPcb(1) */
+.merge.static .mt1{display:none}
+.merge.static .mt2,.merge.static .pcb-ring,.merge.static .pcb-dring,.merge.static .pcb-to{opacity:1}
+.merge.static .pcb-off{opacity:0}
+.merge.static .pcb-arrow i{transform:none}
 
 /* ============ ВИТРИНА: ФИНАНСЫ И КОНТРОЛЬ ============ */
 .show{padding:120px 0 60px}
@@ -474,23 +502,15 @@ section{position:relative}
   .sec-head{margin-bottom:32px;gap:16px}
   .feat{padding:0 0 44px}
   .steps{margin-top:48px}
-  /* блок слияния: iPhone помещается по высоте, плашка над ним, а не на «чёлке» */
-  .one{width:min(205px,52vw)}
   .hero .ctas{display:grid;grid-template-columns:1fr;gap:10px}
   .hero .ctas .btn{width:100%;height:50px}
   .tiers div{padding:8px 1px}.tiers b{font-size:11.5px}
   .sw{width:52px;height:32px}.sw::after{width:24px;height:24px}.sw[aria-checked="true"]::after{transform:translateX(20px)}
   .foot>div:last-child{grid-column:span 2}
   .faq summary{align-items:center}
-  .ch{--w:168px}
-  .ch:nth-child(n+7){display:none}
-  .bub p{font-size:12px}.note{font-size:13px;padding:12px}
-  .one{top:55%}
-  .one .frame{display:none}
-  .one .ip{display:block}
-  .one-badge{position:relative;left:auto;top:auto;translate:none;display:flex;margin:0 auto 12px}
   .merge-count{display:none}
-  .merge-titles{top:11%}
+  .merge-titles{top:max(11%,72px)}
+  .pcb-narrow .pcb-labs{grid-template-columns:repeat(2,minmax(0,1fr))}
   .brand img.word{display:none}
   .hero::after{background:linear-gradient(180deg,rgba(2,8,23,.6),rgba(2,8,23,.35) 70%,transparent)}
   .mgrid,.steps,.tgrid{grid-template-columns:1fr}
@@ -517,6 +537,11 @@ section{position:relative}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
+  /* без движения лента — обычный список: видны все названия */
+  .marquee{-webkit-mask:none;mask:none;padding:0 var(--gutter)}
+  .marquee-track{display:block;width:auto}
+  .marquee-set{flex-wrap:wrap;justify-content:center;min-width:0}
+  .marquee-set+.marquee-set{display:none}
 }
 </style>
 <script>try{var _p=new URLSearchParams(location.search).get('theme');var _t=(_p==='light'||_p==='dark')?_p:localStorage.getItem('vilax-theme');if(_t)document.documentElement.setAttribute('data-theme',_t);var L=_t==='light'?'light/':'',U='';document.head.insertAdjacentHTML('beforeend','<link rel="preload" as="image" fetchpriority="high" media="(min-width:601px)" href="'+U+'shots/'+L+'t001.webp"><link rel="preload" as="image" fetchpriority="high" media="(max-width:600px)" href="'+U+'shots-app/'+L+'t001.webp">');}catch(e){}</script>
@@ -574,10 +599,10 @@ section{position:relative}
 <!-- ===== 2. ИНТЕГРАЦИИ ===== -->
 <section class="integr" data-scene="arc">
   <div class="label">работает с тем, что у вас уже есть</div>
-  <div class="marquee" aria-label="Работает с: iiko, Quick Resto, 1С, МойСклад, Google Таблицы, Telegram, Apple Wallet, Google Wallet">
+  <div class="marquee" role="img" aria-label="Работает с: iiko, Яндекс Карты, Quick Resto, Telegram, 2ГИС, МойСклад, RedSMS, Apple Wallet, 1С:УНФ, SMS.RU, Google Карты, Excel, МТС Exolve, Точка Банк, ChatGPT, iQSMS, Syrve, Google Wallet, SMS Aero, Claude, SMSC.RU">
     <div class="marquee-track" aria-hidden="true">
-      <span>iiko</span><span>Quick Resto</span><span>1С</span><span>МойСклад</span><span>Google Таблицы</span><span>Telegram</span><span>Apple Wallet</span><span>Google Wallet</span>
-      <span>iiko</span><span>Quick Resto</span><span>1С</span><span>МойСклад</span><span>Google Таблицы</span><span>Telegram</span><span>Apple Wallet</span><span>Google Wallet</span>
+      <div class="marquee-set"><span>iiko</span><span>Яндекс Карты</span><span>Quick Resto</span><span>Telegram</span><span>2ГИС</span><span>МойСклад</span><span>RedSMS</span><span>Apple Wallet</span><span>1С:УНФ</span><span>SMS.RU</span><span>Google Карты</span><span>Excel</span><span>МТС Exolve</span><span>Точка Банк</span><span>ChatGPT</span><span>iQSMS</span><span>Syrve</span><span>Google Wallet</span><span>SMS Aero</span><span>Claude</span><span>SMSC.RU</span></div>
+      <div class="marquee-set"><span>iiko</span><span>Яндекс Карты</span><span>Quick Resto</span><span>Telegram</span><span>2ГИС</span><span>МойСклад</span><span>RedSMS</span><span>Apple Wallet</span><span>1С:УНФ</span><span>SMS.RU</span><span>Google Карты</span><span>Excel</span><span>МТС Exolve</span><span>Точка Банк</span><span>ChatGPT</span><span>iQSMS</span><span>Syrve</span><span>Google Wallet</span><span>SMS Aero</span><span>Claude</span><span>SMSC.RU</span></div>
     </div>
   </div>
 </section>
@@ -598,30 +623,97 @@ section{position:relative}
   </div>
 </section>
 
-<!-- ===== 4. ПИН: ХАОС СЕТИ → ОДНО ОКНО VILAX ===== -->
-<section class="merge" id="merge" data-scene="aurora" data-shift="0" data-intensity="0.55" aria-label="VILAX собирает данные сети в одно окно">
+<!-- ===== 4. ПИН: УСЛУГИ СЕТИ → ПЛАТА VILAX. Фон о блоке не знает: нити идут за платой, плата непрозрачна ===== -->
+<section class="merge" id="merge" data-scene="aurora" data-shift="-0.35" aria-label="VILAX собирает данные сети в одно окно">
   <div class="merge-stage" id="mergeStage">
-    <div class="merge-glow" aria-hidden="true"></div>
     <div class="merge-titles">
-      <h2 class="mt mt1">Ответы разбросаны по чатам, <em>таблицам и отчётам.</em></h2>
+      <h2 class="mt mt1">Ответы разбросаны по разным сервисам, <em>таблицам и отчётам.</em></h2>
       <h2 class="mt mt2">VILAX собирает их <em>в одно окно.</em></h2>
     </div>
-    <div class="chaos-layer" aria-hidden="true">
-      <div class="ch" data-x="-36" data-y="-20" data-r="-6"><div class="ch-in"><div class="f bub"><b>Управляющий · Арбат</b><p>Выручка вчера 412 тыс. Фудкост пока не знаю</p><span>23:47</span></div></div></div>
-      <div class="ch" data-x="33" data-y="-22" data-r="5"><div class="ch-in"><div class="f xls"><div class="h">План_октябрь_v7_финал(2).xlsx</div><table><tr><td>Точка</td><td>План</td><td>Факт</td></tr><tr><td>Тверская</td><td>6,9 млн</td><td>6,4 млн</td></tr><tr><td>Сокол</td><td>3,1 млн</td><td class="e">#ССЫЛКА!</td></tr></table></div></div></div>
-      <div class="ch" data-x="-40" data-y="12" data-r="4"><div class="ch-in"><div class="f bub"><b>Владелец</b><p>Кто удалил чек после пречека на Покровке?</p><span>02:13</span></div></div></div>
-      <div class="ch" data-x="37" data-y="10" data-r="-4"><div class="ch-in"><div class="f file"><i>XLS</i><div><b>Отчёт_касса_неделя.xlsx</b><small>14 МБ · пересылка</small></div></div></div></div>
-      <div class="ch" data-x="-22" data-y="32" data-r="3"><div class="ch-in"><div class="f onec"><div class="h">1С · себестоимость</div><p>Выгрузка будет в пятницу</p></div></div></div>
-      <div class="ch" data-x="22" data-y="33" data-r="6"><div class="ch-in"><div class="f note">Списания?? Спросить у Сокола</div></div></div>
-      <div class="ch" data-x="-6" data-y="-8" data-r="-3"><div class="ch-in"><div class="f bub"><b>Бухгалтерия</b><p>Сколько гостей было вчера по сети?</p><span>прочитано</span></div></div></div>
-      <div class="ch" data-x="8" data-y="22" data-r="-5"><div class="ch-in"><div class="f file"><i class="pdf">PDF</i><div><b>Скан_накладные_43.pdf</b><small>в чате «Закупки»</small></div></div></div></div>
+    <div class="pcb" id="pcb">
+      <div class="pcb-scene">
+        <!-- дорожки: одна базовая на все ряды и 8 горящих; ход дорожек ставит layoutPcb -->
+        <svg class="pcb-traces" aria-hidden="true">
+          <defs>
+            <symbol id="pcbI0" viewBox="0 0 24 24"><path d="M6 3h12v18l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4-2 1.4z M9 8h6 M9 12h6"/></symbol>
+            <symbol id="pcbI1" viewBox="0 0 24 24"><path d="M4 5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z M4 10h16 M4 15h16 M10 4v16"/></symbol>
+            <symbol id="pcbI2" viewBox="0 0 24 24"><path d="M3 10l9-6 9 6 M5 10v8 M10 10v8 M14 10v8 M19 10v8 M3 20h18"/></symbol>
+            <symbol id="pcbI3" viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z M12 12a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/></symbol>
+            <symbol id="pcbI4" viewBox="0 0 24 24"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z M5 17a3 3 0 0 1 3-3h11"/></symbol>
+            <symbol id="pcbI5" viewBox="0 0 24 24"><path d="M3 8l9-5 9 5v8l-9 5-9-5z M3 8l9 5 9-5 M12 13v8"/></symbol>
+            <symbol id="pcbI6" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z M8 9h8 M8 12.5h5"/></symbol>
+            <symbol id="pcbI7" viewBox="0 0 24 24"><path d="M3 6h18v12H3z M3 10h18 M7 15h4"/></symbol>
+          </defs>
+          <path class="pcb-base"/>
+          <path class="pcb-lit pcb-l"/>
+          <path class="pcb-lit pcb-r"/>
+          <path class="pcb-lit pcb-l"/>
+          <path class="pcb-lit pcb-r"/>
+          <path class="pcb-lit pcb-l"/>
+          <path class="pcb-lit pcb-r"/>
+          <path class="pcb-lit pcb-l"/>
+          <path class="pcb-lit pcb-r"/>
+        </svg>
+        <!-- выводы корпуса: гребёнка и рабочие выводы лежат под плитками, поэтому текст плитки не пересекается с выводом; геометрия та же, что у корпуса -->
+        <svg class="pcb-pins" viewBox="0 0 280 280" aria-hidden="true">
+          <path class="pcb-comb" d="M-10 15H1M290 15H279M15 -10V1M15 290V279M65 -10V1M65 290V279M115 -10V1M115 290V279M165 -10V1M165 290V279M215 -10V1M215 290V279M-10 265H1M290 265H279M265 -10V1M265 290V279"/>
+          <path class="pcb-comb pcb-comb-e" d="M-10 40H1M290 40H279M40 -10V1M40 290V279M-10 90H1M290 90H279M90 -10V1M90 290V279M-10 140H1M290 140H279M140 -10V1M140 290V279M-10 190H1M290 190H279M190 -10V1M190 290V279M-10 240H1M290 240H279M240 -10V1M240 290V279"/>
+          <path class="pcb-lead" d="M-18 63.5L1 63.5L1 66.5L-18 66.5ZM298 63.5L279 63.5L279 66.5L298 66.5ZM-18 113.5L1 113.5L1 116.5L-18 116.5ZM298 113.5L279 113.5L279 116.5L298 116.5ZM-18 163.5L1 163.5L1 166.5L-18 166.5ZM298 163.5L279 163.5L279 166.5L298 166.5ZM-18 213.5L1 213.5L1 216.5L-18 216.5ZM298 213.5L279 213.5L279 216.5L298 216.5Z"/>
+          <path class="pcb-on pcb-pl" data-i="0" d="M-18 63.5L1 63.5L1 66.5L-18 66.5Z"/>
+          <path class="pcb-on pcb-pr" data-i="1" d="M298 63.5L279 63.5L279 66.5L298 66.5Z"/>
+          <path class="pcb-on pcb-pl" data-i="2" d="M-18 113.5L1 113.5L1 116.5L-18 116.5Z"/>
+          <path class="pcb-on pcb-pr" data-i="3" d="M298 113.5L279 113.5L279 116.5L298 116.5Z"/>
+          <path class="pcb-on pcb-pl" data-i="4" d="M-18 163.5L1 163.5L1 166.5L-18 166.5Z"/>
+          <path class="pcb-on pcb-pr" data-i="5" d="M298 163.5L279 163.5L279 166.5L298 166.5Z"/>
+          <path class="pcb-on pcb-pl" data-i="6" d="M-18 213.5L1 213.5L1 216.5L-18 216.5Z"/>
+          <path class="pcb-on pcb-pr" data-i="7" d="M298 213.5L279 213.5L279 216.5L298 216.5Z"/>
+        </svg>
+        <ul class="pcb-labs" role="list" aria-label="Источники данных сети">
+          <li class="pcb-lab pcb-l"><svg class="pcb-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#pcbI0"/></svg><b>POS</b> <span>чеки, смены</span></li>
+          <li class="pcb-lab pcb-r"><svg class="pcb-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#pcbI1"/></svg><b>Эксель</b> <span>планы, таблицы</span></li>
+          <li class="pcb-lab pcb-l"><svg class="pcb-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#pcbI2"/></svg><b>Банк</b> <span>выписки</span></li>
+          <li class="pcb-lab pcb-r"><svg class="pcb-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#pcbI3"/></svg><b>Геосервис</b> <span>карты, отзывы</span></li>
+          <li class="pcb-lab pcb-l"><svg class="pcb-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#pcbI4"/></svg><b>1С</b> <span>учёт, себестоимость</span></li>
+          <li class="pcb-lab pcb-r"><svg class="pcb-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#pcbI5"/></svg><b>Склад</b> <span>закупки, остатки</span></li>
+          <li class="pcb-lab pcb-l"><svg class="pcb-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#pcbI6"/></svg><b>Чаты</b> <span>сводки, вопросы</span></li>
+          <li class="pcb-lab pcb-r"><svg class="pcb-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#pcbI7"/></svg><b>Лояльность</b> <span>гости, карты</span></li>
+        </ul>
+        <div class="pcb-tiles" aria-hidden="true">
+          <div class="pcb-tile"><svg class="pcb-whisk"><path d="M-4 13H0M132 13H136M-4 23H0M132 23H136M-4 33H0M132 33H136"/></svg><svg class="pcb-ic" viewBox="0 0 24 24"><use href="#pcbI0"/></svg><span>POS</span></div>
+          <div class="pcb-tile"><svg class="pcb-whisk"><path d="M-4 13H0M132 13H136M-4 23H0M132 23H136M-4 33H0M132 33H136"/></svg><svg class="pcb-ic" viewBox="0 0 24 24"><use href="#pcbI1"/></svg><span>Эксель</span></div>
+          <div class="pcb-tile"><svg class="pcb-whisk"><path d="M-4 13H0M132 13H136M-4 23H0M132 23H136M-4 33H0M132 33H136"/></svg><svg class="pcb-ic" viewBox="0 0 24 24"><use href="#pcbI2"/></svg><span>Банк</span></div>
+          <div class="pcb-tile"><svg class="pcb-whisk"><path d="M-4 13H0M132 13H136M-4 23H0M132 23H136M-4 33H0M132 33H136"/></svg><svg class="pcb-ic" viewBox="0 0 24 24"><use href="#pcbI3"/></svg><span>Геосервис</span></div>
+          <div class="pcb-tile"><svg class="pcb-whisk"><path d="M-4 13H0M132 13H136M-4 23H0M132 23H136M-4 33H0M132 33H136"/></svg><svg class="pcb-ic" viewBox="0 0 24 24"><use href="#pcbI4"/></svg><span>1С</span></div>
+          <div class="pcb-tile"><svg class="pcb-whisk"><path d="M-4 13H0M132 13H136M-4 23H0M132 23H136M-4 33H0M132 33H136"/></svg><svg class="pcb-ic" viewBox="0 0 24 24"><use href="#pcbI5"/></svg><span>Склад</span></div>
+          <div class="pcb-tile"><svg class="pcb-whisk"><path d="M-4 13H0M132 13H136M-4 23H0M132 23H136M-4 33H0M132 33H136"/></svg><svg class="pcb-ic" viewBox="0 0 24 24"><use href="#pcbI6"/></svg><span>Чаты</span></div>
+          <div class="pcb-tile"><svg class="pcb-whisk"><path d="M-4 13H0M132 13H136M-4 23H0M132 23H136M-4 33H0M132 33H136"/></svg><svg class="pcb-ic" viewBox="0 0 24 24"><use href="#pcbI7"/></svg><span>Лояльность</span></div>
+        </div>
+        <div class="pcb-ring" aria-hidden="true"></div>
+        <div class="pcb-chip" aria-hidden="true">
+          <svg viewBox="0 0 280 280">
+            <defs>
+              <linearGradient id="pcbPkgGrad" x1="0" y1="0" x2="280" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" style="stop-color:var(--pcb-lit-l)"/><stop offset=".3" style="stop-color:var(--pcb-lit-l)"/><stop offset=".6" style="stop-color:var(--pcb-lit-m)"/><stop offset="1" style="stop-color:var(--pcb-lit-r)"/></linearGradient>
+              <linearGradient id="pcbRingGrad" x1="30.5" y1="0" x2="249.5" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" style="stop-color:var(--pcb-die-l)"/><stop offset=".3" style="stop-color:var(--pcb-die-l)"/><stop offset=".6" style="stop-color:var(--pcb-die-m)"/><stop offset="1" style="stop-color:var(--pcb-die-r)"/></linearGradient>
+            </defs>
+            <path class="pcb-frame" d="M18 0.75H262A17.25 17.25 0 0 1 279.25 18V262A17.25 17.25 0 0 1 262 279.25H18A17.25 17.25 0 0 1 0.75 262V18A17.25 17.25 0 0 1 18 0.75Z"/>
+            <path class="pcb-edge" d="M18 2.5H262A15.5 15.5 0 0 1 277.5 18V262A15.5 15.5 0 0 1 262 277.5H18A15.5 15.5 0 0 1 2.5 262V18A15.5 15.5 0 0 1 18 2.5Z"/>
+            <path class="pcb-die" d="M44.5 30.5H241.5A8 8 0 0 1 249.5 38.5V241.5A8 8 0 0 1 241.5 249.5H38.5A8 8 0 0 1 30.5 241.5V44.5Z"/>
+            <path class="pcb-bond" d="M1.5 64.25L27 64.25L27 62L33 62L33 68L27 68L27 65.75L1.5 65.75ZM278.5 64.25L253 64.25L253 62L247 62L247 68L253 68L253 65.75L278.5 65.75ZM1.5 114.25L27 114.25L27 112L33 112L33 118L27 118L27 115.75L1.5 115.75ZM278.5 114.25L253 114.25L253 112L247 112L247 118L253 118L253 115.75L278.5 115.75ZM1.5 164.25L27 164.25L27 162L33 162L33 168L27 168L27 165.75L1.5 165.75ZM278.5 164.25L253 164.25L253 162L247 162L247 168L253 168L253 165.75L278.5 165.75ZM1.5 214.25L27 214.25L27 212L33 212L33 218L27 218L27 215.75L1.5 215.75ZM278.5 214.25L253 214.25L253 212L247 212L247 218L253 218L253 215.75L278.5 215.75Z"/>
+            <path class="pcb-on pcb-bl" data-i="0" d="M1.5 64.25L27 64.25L27 62L33 62L33 68L27 68L27 65.75L1.5 65.75Z"/>
+            <path class="pcb-on pcb-br" data-i="1" d="M278.5 64.25L253 64.25L253 62L247 62L247 68L253 68L253 65.75L278.5 65.75Z"/>
+            <path class="pcb-on pcb-bl" data-i="2" d="M1.5 114.25L27 114.25L27 112L33 112L33 118L27 118L27 115.75L1.5 115.75Z"/>
+            <path class="pcb-on pcb-br" data-i="3" d="M278.5 114.25L253 114.25L253 112L247 112L247 118L253 118L253 115.75L278.5 115.75Z"/>
+            <path class="pcb-on pcb-bl" data-i="4" d="M1.5 164.25L27 164.25L27 162L33 162L33 168L27 168L27 165.75L1.5 165.75Z"/>
+            <path class="pcb-on pcb-br" data-i="5" d="M278.5 164.25L253 164.25L253 162L247 162L247 168L253 168L253 165.75L278.5 165.75Z"/>
+            <path class="pcb-on pcb-bl" data-i="6" d="M1.5 214.25L27 214.25L27 212L33 212L33 218L27 218L27 215.75L1.5 215.75Z"/>
+            <path class="pcb-on pcb-br" data-i="7" d="M278.5 214.25L253 214.25L253 212L247 212L247 218L253 218L253 215.75L278.5 215.75Z"/>
+            <path class="pcb-dring" d="M44.5 30.5H241.5A8 8 0 0 1 249.5 38.5V241.5A8 8 0 0 1 241.5 249.5H38.5A8 8 0 0 1 30.5 241.5V44.5Z"/>
+          </svg>
+          <img class="pcb-sign" src="logo.svg" alt=""><img class="pcb-word" src="wordmark.svg" alt="">
+        </div>
+      </div>
     </div>
-    <div class="one" id="oneWin">
-      <div class="one-badge"><img src="logo.svg" alt=""><span>вся сеть · сегодня</span></div>
-      <div class="glass frame"><div class="frame-bar"><i></i><i></i><i></i><b>VILAX · Центр управления</b><span class="demo-tag">демо-данные</span></div><img src="shots/t001.webp" alt="Экран VILAX «Центр управления»: выручка сети сегодня" loading="lazy" data-th="dark"><img src="shots/light/t001.webp" alt="Экран VILAX «Центр управления»: выручка сети сегодня" loading="lazy" data-th="light"><span class="sweep" aria-hidden="true"></span></div>
-      <div class="ip"><div class="ip__lid"><span class="ip__keys" aria-hidden="true"><i></i><i></i><i></i><i></i></span><div class="ip__glass"><span class="ip__island" aria-hidden="true"></span><span class="ip__bar" aria-hidden="true"><svg class="ip__clock" viewBox="0 0 26 12"><text x="13" y="10.5" text-anchor="middle">9:41</text></svg><svg class="ip__ico" viewBox="0 0 64 12"><rect x="0" y="8" width="3" height="4" rx=".8"/><rect x="4.5" y="6" width="3" height="6" rx=".8"/><rect x="9" y="3.5" width="3" height="8.5" rx=".8"/><rect x="13.5" y="1" width="3" height="11" rx=".8"/><rect x="38.5" y="1.5" width="21" height="9" rx="2.6" fill="none" stroke="currentColor" stroke-opacity=".4"/><rect x="40.5" y="3.5" width="17" height="5" rx="1.3"/></svg></span><div class="ip__screen"><img src="shots-app/t001.webp" alt="Приложение VILAX: выручка сети сегодня" loading="lazy" data-th="dark"><img src="shots-app/light/t001.webp" alt="Приложение VILAX: выручка сети сегодня" loading="lazy" data-th="light"></div><span class="ip__home" aria-hidden="true"></span></div></div></div>
-    </div>
-    <div class="merge-count" aria-hidden="true"><span><b>8</b> источников</span><span class="arrow"></span><span class="to"><b style="color:var(--accent)">1</b> окно</span></div>
+    <div class="merge-count" aria-hidden="true"><span><b>8</b> источников</span><span class="pcb-arrow"><i></i></span><span class="pcb-cell"><span class="pcb-off"><b>1</b> окно</span><span class="pcb-to"><b>1</b> окно</span></span></div>
   </div>
 </section>
 
@@ -1216,7 +1308,7 @@ if (renderer) {
   // --- типографика: предлоги и союзы не висят в конце строки, тире не начинает строку, число не отрывается от слова ---
   (function nbsp(root) {
     const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: n =>
-      n.parentElement.closest('script,style,svg,input,textarea,.ch') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT });
+      n.parentElement.closest('script,style,svg,input,textarea') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT });
     const short = /(^|[\s(«])(в|и|к|с|о|у|а|на|по|за|до|от|из|не|но|для|без|при|как|что|или|со|во|об)\s+/giu;
     for (let n; (n = w.nextNode());) {
       let t = n.textContent;
@@ -1289,8 +1381,148 @@ if (renderer) {
     say(ok ? 'Проверка пройдена. Отправка заявки в CRM подключается при выкладке сайта.' : 'Заполните все поля — так менеджер сразу пришлёт расчёт.');
   });
 
+  // --- плата пина: геометрия от размеров сцены, работает и без GSAP. Анимация — только доля пути и проценты, поэтому пересчёт не требует пересборки таймлайна ---
+  const pcbEl = $('#pcb'), pcbStage = $('#mergeStage'), pcbScene = $('.pcb-scene'), pcbBase = $('.pcb-base'), pcbLabsEl = $('.pcb-labs'), pcbChipBoxes = $$('.pcb-pins, .pcb-ring, .pcb-chip');
+  const pcbLit = $$('.pcb-lit'), pcbLabs = $$('.pcb-lab'), pcbTiles = $$('.pcb-tile'), pcbWhisk = $$('.pcb-whisk path');
+  const pcbOn = pcbLit.map((_, i) => $$(`.pcb-on[data-i="${i}"]`));
+  const PCB_PIN = [-75, -25, 25, 75], PCB_ENTRY = [-230, -100, 100, 230];   // ряды от центра корпуса: рабочие выводы и входы дорожек при k = 1
+  const pcbClamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+  const pcbGeo = { wide: true, s: 1, k: 1, C: 280, T: 0, mir: 1440, tw: 132, th: 46, snap: 1, legend: 'labels', rows: [] };
+  const pcbP = { v: !hasGsap || reduce ? 1 : 0 };                            // прогресс сцены 0…1; его двигает таймлайн пина, без движения — сразу итоговый кадр
+
+  // расстояние по пути от центра плитки до её края: назад по последней горизонтали, по скосу (dx = dy), по первой горизонтали
+  const pcbTail = (r, d, hw, hh) => {
+    if (d < r.a) return hw;
+    const e = Math.max(0, d - r.a - r.b);
+    if (e >= hw) return hw;
+    const sl = Math.min(r.b, d - r.a), u = Math.SQRT2 * Math.min(hw - e, hh);
+    return u <= sl ? e + u : sl + hw - sl / Math.SQRT2;
+  };
+
+  // горящая часть дорожки — тот же ход, обрезанный в b от старта. Обрезка, а не штрих: штрих с pathLength видеокарта рисует двумя толщинами, у хвоста плитки виден тёмный обрубок
+  const pcbLitPath = (r, b, mir) => {
+    const mx = x => (r.right ? mir - x : x), head = `M${mx(r.x0)} ${r.entry}`;
+    if (b <= r.a) return `${head}H${mx(r.x0 + b)}`;
+    const knee = `${head}H${mx(r.bend)}L`;
+    if (b <= r.a + r.b) { const t = (b - r.a) / r.b; return `${knee}${mx(r.bend + r.dy * t)} ${r.entry + (r.pin - r.entry) * t}`; }
+    return `${knee}${mx(r.bend + r.dy)} ${r.pin}H${mx(r.bend + r.dy + b - r.a - r.b)}`;
+  };
+
+  // кадр сцены: детерминирован, вперёд и назад даёт одно и то же, вёрстку не читает
+  function renderPcb(p) {
+    const { wide, mir, tw, th, snap, rows } = pcbGeo;
+    rows.forEach((r, i) => {
+      const q = pcbClamp((p - i * .075) / .42);
+      if (q === r.q) return;                                                 // плитка стоит (ещё не выехала или уже в корпусе) — писать в стили нечего
+      r.q = q;
+      const d = q * r.len;
+      // плитка на ломаной: горизонталь, скос 45°, горизонталь под корпус
+      let x, y;
+      if (d < r.a) { x = r.x0 + d; y = r.entry; }
+      else if (d < r.a + r.b) { const t = (d - r.a) / r.b; x = r.bend + r.dy * t; y = r.entry + (r.pin - r.entry) * t; }
+      else { x = r.bend + r.dy + d - r.a - r.b; y = r.pin; }
+      if (r.right) x = mir - x;
+      pcbTiles[i].style.transform = `translate3d(${Math.round((x - tw / 2) * snap) / snap}px, ${Math.round((y - th / 2) * snap) / snap}px, 0)`;   // на целый пиксель экрана: текст плитки не мылится, когда прокрутка остановилась
+      pcbTiles[i].style.visibility = q > 0 && q < 1 ? 'visible' : 'hidden';
+      // огонь идёт за хвостом плитки: до места, где дорожка выходит из-под неё (на скосе это ближе половины ширины, иначе огонь отстаёт)
+      const burn = pcbClamp(d - pcbTail(r, d, tw / 2, th / 2) + 1, 0, r.lenTrace);
+      pcbLit[i].setAttribute('d', pcbLitPath(r, burn, mir));
+      pcbLit[i].style.opacity = burn > 0 ? 1 : 0;
+      // дорожка догорела до корпуса: зажигаются вывод, контакт и подпись
+      const on = pcbClamp((d - r.lenTrace) / r.onSpan);
+      pcbOn[i].forEach(el => { el.style.opacity = on; });
+      pcbLabs[i].style.opacity = wide ? on : .38 + .62 * on;
+    });
+  }
+
+  const pcbSizeKey = () => `${pcbStage.offsetWidth}x${pcbStage.offsetHeight}@${devicePixelRatio}`;
+  let pcbLaidOut = '';
+
+  function layoutPcb() {
+    pcbLaidOut = pcbSizeKey();
+    const W = pcbStage.offsetWidth, H = pcbStage.offsetHeight, count = $('.merge-count');
+    // область платы: от низа заголовка (высота — большего из двух) до счётчика или низа сцены
+    const top = $('.merge-titles').offsetTop + Math.max($('.mt1').offsetHeight, $('.mt2').offsetHeight) + 16;
+    const avail = (count.offsetHeight ? count.offsetTop - 12 : H - 16) - top;
+    const wide = W >= 1095 && H >= 560;
+    pcbEl.classList.toggle('pcb-narrow', !wide);
+    pcbEl.classList.remove('pcb-no-notes', 'pcb-no-legend');
+    let s = 1, k = 1, C = 280, T = 0, tx = 0, cy, chipX = 580, w = 1440, legend = 'labels', rowOf;
+    if (wide) {
+      // один масштаб на сцену; при нехватке высоты входы дорожек поджимаются к выводам (k до 0.62): 75 — вывод верхнего ряда, 23 — подпись над дорожкой
+      const sW = W / 1440;
+      k = pcbClamp((avail / (2 * sW) - 98) / 155, .62, 1);
+      const hh = Math.max(150, 75 + 155 * k + 23);
+      s = Math.min(sW, avail / (2 * hh), 1.5);
+      tx = Math.round(W / 2 - 720 * s);
+      cy = Math.round(top + avail / 2);
+      const x0 = 720 - W / (2 * s) - 170;                                    // старт за кадром: левый край экрана в единицах сцены минус 170
+      rowOf = row => { const pin = PCB_PIN[row]; return { pin, entry: pin + (PCB_ENTRY[row] - pin) * k, x0, bend: 340, edge: 580, under: 80, lead: 18, onSpan: 40 }; };
+      pcbEl.style.setProperty('--pcb-lab-fs', Math.max(12, 11 / s) + 'px');   // на экране текст не меньше 11 px
+      pcbEl.style.setProperty('--pcb-name-fs', Math.max(13, 11 / s) + 'px');
+      ['--pcb-c', '--pcb-rad', '--pcb-gap', '--pcb-sign-h', '--pcb-word-h', '--pcb-t', '--pcb-u'].forEach(v => pcbEl.style.removeProperty(v));
+      pcbEl.classList.remove('pcb-sparse');
+      pcbLabs.forEach((el, i) => { const r = i >> 1, pin = PCB_PIN[r]; el.style.top = pin + (PCB_ENTRY[r] - pin) * k + (r < 2 ? -23 : 7) + 'px'; });   // подпись над дорожкой в верхней половине, под ней в нижней
+      pcbLabsEl.style.top = '';
+    } else {
+      // корпус и плитки в px; легенда под платой, композиция по центру области; не помещается — без примечаний, затем без легенды
+      w = W;
+      pcbScene.style.width = W + 'px';                                       // сначала ширина и шрифт узкого режима: легенду меряем такой, какой она будет на экране
+      pcbEl.style.removeProperty('--pcb-lab-fs');
+      pcbEl.style.removeProperty('--pcb-name-fs');
+      C = 2 * Math.round(Math.min(pcbClamp(W * .31, 108, pcbClamp(avail * .36, 200, 300)), avail * .72) / 2);   // на высоком планшете корпус крупнее — плата не теряется на пустом экране
+      T = pcbClamp(W * .085, 30, 44);
+      const gapOf = () => Math.max(T + 10, C * .28), zoneOf = () => Math.max(C, 3 * gapOf() + T);   // шаг рядов и зона платы: корпус или четыре ряда плиток; крупному корпусу — шире шаг, иначе скосы исчезают
+      pcbLabs.forEach(el => { el.style.top = ''; });
+      let lh = pcbLabsEl.offsetHeight;
+      if (zoneOf() + 20 + lh > avail) { pcbEl.classList.add('pcb-no-notes'); lh = pcbLabsEl.offsetHeight; legend = 'names'; }
+      if (zoneOf() + 20 + lh > avail) { pcbEl.classList.add('pcb-no-legend'); lh = 0; legend = 'none'; }
+      if (zoneOf() > avail) T = Math.max(22, (avail - 30) / 4);              // совсем низкий экран: плитки меньше, ряды всё равно в области
+      const zone = zoneOf(), start = top + (avail - zone - (lh ? 20 + lh : 0)) / 2;
+      cy = Math.round(start + zone / 2);
+      pcbLabsEl.style.top = start + zone + 20 - cy + 'px';
+      chipX = Math.round((W - C) / 2);
+      const unit = C / 280, gap = gapOf(), lead = 18 * unit;
+      const dy0 = Math.abs(1.5 * gap - 75 * unit);
+      const bend = chipX - dy0 - Math.max(10, lead + 2);                     // скос кончается за 10 px до корпуса (и не раньше вывода), все ряды начинают скос на одном месте
+      rowOf = row => ({ pin: PCB_PIN[row] * unit, entry: (row - 1.5) * gap, x0: -T, bend, edge: chipX, under: 30, lead, onSpan: 24 });
+      pcbEl.style.setProperty('--pcb-t', T + 'px');
+      pcbEl.style.setProperty('--pcb-c', C + 'px');
+      pcbEl.style.setProperty('--pcb-u', unit);
+      pcbEl.style.setProperty('--pcb-rad', 18 * unit + 'px');
+      pcbEl.style.setProperty('--pcb-gap', 16 * unit + 'px');
+      pcbEl.style.setProperty('--pcb-sign-h', 96 * unit + 'px');
+      pcbEl.style.setProperty('--pcb-word-h', Math.max(9, 14 * unit) + 'px');  // слово VILAX на корпусе не ниже 9 px
+      pcbEl.classList.toggle('pcb-sparse', 25 * unit < 12);                    // шаг гребёнки меньше 12 px — разреживаем
+    }
+    const mir = 2 * chipX + C;                                               // зеркало: правая сторона симметрична левой относительно центра корпуса
+    pcbScene.style.width = w + 'px';
+    pcbScene.style.transform = `translate(${tx}px, ${cy}px) scale(${s})`;
+    pcbChipBoxes.forEach(el => { el.style.left = chipX + 'px'; el.style.top = -C / 2 + 'px'; });
+    // дорожки и путь плиток; правая сторона — зеркало левой
+    let base = '';
+    const rows = pcbTiles.map((_, i) => {
+      const right = i % 2 === 1, r = rowOf(i >> 1), dy = Math.abs(r.entry - r.pin), mx = x => (right ? mir - x : x);
+      const route = `M${mx(r.x0)} ${r.entry}H${mx(r.bend)}L${mx(r.bend + dy)} ${r.pin}H`;
+      base += route + mx(r.edge - r.lead);                                   // базовая доходит до вывода, горящая — до края корпуса
+      const a = r.bend - r.x0, b = dy * Math.SQRT2, lenTrace = a + b + r.edge - r.bend - dy;
+      return { ...r, right, dy, a, b, lenTrace, len: lenTrace + r.under, q: -1 };
+    });
+    pcbBase.setAttribute('d', base);
+    const tw = wide ? 132 : T, th = wide ? 46 : T;
+    const whisk = [.283, .5, .717].map(f => { const y = Math.round(th * f); return `M-4 ${y}H0M${tw} ${y}H${tw + 4}`; }).join('');   // по три усика с каждой стороны
+    pcbWhisk.forEach(el => el.setAttribute('d', whisk));
+    Object.assign(pcbGeo, { wide, s, k, C, T, mir, tw, th, snap: s * devicePixelRatio, legend, rows });
+    renderPcb(pcbP.v);
+  }
+  if (!hasGsap || reduce) $('#merge').classList.add('static');              // без движения: итоговый кадр, заголовок один
+  layoutPcb();
+  addEventListener('resize', () => { if (pcbSizeKey() !== pcbLaidOut) layoutPcb(); });   // панель браузера на телефоне показалась или спряталась: сцена та же (100svh), пересчитывать нечего
+  document.fonts.ready.then(layoutPcb);
+  if (hasGsap) ScrollTrigger.addEventListener('refresh', layoutPcb);         // загрузка посреди пина и переход по якорю: кадр с текущей прогрессией
+  window.__pcb = { layout: layoutPcb, render: renderPcb, geo: pcbGeo, p: pcbP }; // для скриптов проверки
+
   if (!hasGsap || reduce) {
-    document.querySelector('#merge').classList.add('static');
     $$('.step').forEach(s => s.style.setProperty('--p', '100%'));
     return;
   }
@@ -1298,9 +1530,9 @@ if (renderer) {
   // --- построчное появление: строки текста и числа выезжают снизу ---
   const LINE_SEL = ['.sec-head p', '.hero .lead', '.pain h3', '.pain p', '.feat h3', '.feat p', '.metric p', '.losses h3', '.losses .card > p',
     '.losses li span', '.ai-card h3', '.ai-card > p', '.blk h3', '.blk .task', '.blk li', '.tcard h3', '.tcard p', '.step h4', '.step p',
-    '.steps-note', '.terms li', '.points li', '.f-cta h2', '.f-cta p', '.foot .about p', '.pick-row small', '.est h3', '.merge-count'].join(',');
+    '.steps-note', '.terms li', '.points li', '.f-cta h2', '.f-cta p', '.foot .about p', '.pick-row small', '.est h3'].join(',');
   const SELF_SEL = ['.metric .v', '.blk .price b', '.blk .price span', '#basePrice', '.base-price small', '.tiers b', '.ticks b'].join(',');
-  const skip = el => el.closest('.ch, .one, .ip, .screens, .stage, nav, form, details, .zoom');
+  const skip = el => el.closest('.ip, .screens, .stage, nav, form, details, .zoom');
   const lineEls = $$(LINE_SEL).filter(el => !skip(el) && el.textContent.trim());
   const selfEls = $$(SELF_SEL).filter(el => !skip(el));
   lineEls.forEach(el => el.classList.remove('reveal'));       // чтобы не было двойного появления блоком
@@ -1379,38 +1611,31 @@ if (renderer) {
       scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 1.2 } });
   });
 
-  // --- пин: хаос сети → одно окно VILAX ---
+  // --- пин: услуги едут по дорожкам платы и уходят в корпус. Один скраб двигает одно число, кадр рисует renderPcb ---
   gsap.matchMedia().add({ desk: '(min-width: 601px)', phone: '(max-width: 600px)' }, ctx => {
-    const W = innerWidth, H = innerHeight, k = ctx.conditions.phone ? { x: .62, y: .78 } : { x: 1, y: 1 };
-    const items = $$('#merge .ch').filter(el => getComputedStyle(el).display !== 'none');
-    // разброс: x/y — доля экрана от центра, поворот — в градусах
-    const lim = el => Math.max(0, W / 2 - el.offsetWidth / 2 - 10);             // карточка целиком в экране
-    items.forEach(el => gsap.set(el, { x: gsap.utils.clamp(-lim(el), lim(el), +el.dataset.x / 100 * W * k.x), y: +el.dataset.y / 100 * H * k.y, rotation: +el.dataset.r }));
-    // вход до закрепления: обрывки вылетают из глубины (анимируется .ch-in — у .ch свой таймлайн слияния)
-    gsap.fromTo(items.map(el => el.querySelector('.ch-in')),
-      { opacity: 0, scale: .55, z: -400, filter: 'blur(14px)' },
-      { opacity: 1, scale: 1, z: 0, filter: 'blur(0px)', ease: 'power2.out', stagger: { each: .06, from: 'random' },
-        scrollTrigger: { trigger: '#merge', start: 'top 85%', end: 'top 5%', scrub: 1.2 } });
     // вход заголовка — на обёртке: у .mt1 своё затухание в таймлайне, два скраба на одном свойстве спорят
     gsap.fromTo('.merge-titles', { opacity: 0, y: 40, filter: 'blur(10px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', ease: 'power2.out',
       scrollTrigger: { trigger: '#merge', start: 'top 70%', end: 'top 15%', scrub: 1.2 } });
+    // вход платы и счётчика — без blur: тонкие линии от него пачкаются
+    gsap.fromTo('.pcb, .merge-count', { opacity: 0, y: 40 }, { opacity: 1, y: 0, ease: 'power2.out',
+      scrollTrigger: { trigger: '#merge', start: 'top 85%', end: 'top 15%', scrub: 1.2 } });
 
-    gsap.set('#oneWin', { xPercent: -50, yPercent: -50 });                      // центр в процентах — пересчитывается при загрузке картинок
-    const tl = gsap.timeline({ scrollTrigger: { trigger: '#merge', start: 'top top', end: ctx.conditions.phone ? '+=170%' : '+=240%', scrub: 1.4, pin: true, anticipatePin: 1 } });
-    tl.to(items, { x: '+=0', duration: .25 })                                     // пауза: хаос плавает
-      .to(items, { x: 0, y: 0, rotation: 0, scale: .2, opacity: 0, filter: 'blur(8px)', ease: 'power3.in',
-                   duration: .5, stagger: { each: .03, from: 'random' } }, .25)    // затягивает в центр
-      .to('.mt1', { opacity: 0, y: -30, filter: 'blur(10px)', duration: .22 }, .32)
-      .fromTo('.merge-glow', { opacity: 0, scale: .3 }, { opacity: 1, scale: 1, duration: .5, ease: 'power2.out' }, .5)
-      .fromTo('#oneWin', { opacity: 0, scale: .5, y: 40, rotateX: 18, filter: 'blur(12px)' },
-                         { opacity: 1, scale: 1, y: 0, rotateX: 0, filter: 'blur(0px)', duration: .45, ease: 'power3.out' }, .58)
-      .fromTo('.mt2', { opacity: 0, y: 40, filter: 'blur(10px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: .3 }, .72)
-      .fromTo('.one-badge', { opacity: 0, y: 14, scale: .85 }, { opacity: 1, y: 0, scale: 1, duration: .2, ease: 'back.out(2)' }, .9)
-      .fromTo('#oneWin .sweep', { xPercent: -120 }, { xPercent: 120, duration: .35, ease: 'power1.inOut' }, .95)
-      .fromTo('.merge-count .to', { opacity: .3 }, { opacity: 1, duration: .2 }, .95)
-      .to({}, { duration: .3 });                                                    // пауза: смотрим на окно
-    // уход: на десктопе сцена отъезжает и гаснет; на телефоне окно просто уезжает вверх вместе со страницей
-    if (!ctx.conditions.phone) tl.to('#mergeStage', { opacity: 0, scale: .94, y: -40, filter: 'blur(6px)', duration: .35, ease: 'power2.in' });
+    pcbP.v = 0;
+    // запас до шапки (68 — её низ и зазор); считается заново на каждом refresh: окно могли сделать ниже без перезагрузки
+    const titleRoom = () => $('.merge-titles').offsetTop - 68;
+    const tl = gsap.timeline({ scrollTrigger: { trigger: '#merge', start: 'top top', end: ctx.conditions.phone ? '+=170%' : '+=240%', scrub: 1.4, pin: true, anticipatePin: 1, invalidateOnRefresh: true } });
+    tl.to(pcbP, { v: 1, duration: 1, ease: 'none', lazy: false, onUpdate: () => renderPcb(pcbP.v) })
+      .to('.mt1', { opacity: 0, y: () => -pcbClamp(titleRoom(), 0, 30), duration: .1, ease: 'power1.in' }, .94)    // заголовки сменяются по очереди, без наложения; на низком экране гаснущий не заезжает под шапку
+      .fromTo('.mt2', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: .12, ease: 'power1.out' }, 1.04)
+      .fromTo('.pcb-ring, .pcb-dring', { opacity: 0 }, { opacity: 1, duration: .16, ease: 'none' }, 1)
+      .fromTo('.pcb-arrow i', { scaleX: 0 }, { scaleX: 1, duration: .16, ease: 'none' }, 1)
+      .fromTo('.pcb-off', { opacity: 1 }, { opacity: 0, duration: .07, ease: 'none' }, 1.05)   // «1 окно»: серый уходит, акцентный приходит
+      .fromTo('.pcb-to', { opacity: 0 }, { opacity: 1, duration: .07, ease: 'none' }, 1.09)
+      .addLabel('hold')
+      .to({}, { duration: .3 });                                                    // пауза: смотрим на итог
+    // уход: на десктопе сцена отъезжает и гаснет; подъём не больше запаса до шапки (сжатие к центру опускает заголовок на 6 % расстояния до середины, запас на столько же больше). На телефоне плата просто уезжает вверх вместе со страницей
+    if (!ctx.conditions.phone) tl.to('#mergeStage', { opacity: 0, scale: .94, y: () => -pcbClamp(titleRoom() + .06 * (pcbStage.offsetHeight / 2 - $('.merge-titles').offsetTop), 0, 40), duration: .35, ease: 'power2.in' });
+    renderPcb(pcbP.v);
   });
 
   // показатели: счёт от нуля только в момент появления (в разметке — итоговые числа)

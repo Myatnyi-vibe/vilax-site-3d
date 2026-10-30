@@ -1,5 +1,5 @@
 # Собирает v4/index.html: разметка VILAX (v4/src.html) + WebGL-фон версии 4 (v4/webgl.html).
-# webgl.html — блок шаблона «3дсайтпро» с цветами VILAX (как в корневом build.py) и сюжетом «нити → знак V → одна нить».
+# webgl.html — блок шаблона «3дсайтпро» с цветами VILAX (как в корневом build.py) и сюжетом «нити → знак V → две завесы → аврора».
 # Запуск: python -I v4/build.py
 import pathlib, re
 
