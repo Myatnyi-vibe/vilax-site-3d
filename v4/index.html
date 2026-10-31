@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>VILAX — система управления сетью ресторанов</title>
-<meta name="description" content="Полная аналитика, геосервисы, лояльность и потери всех точек сети — в одном окне. Подключение к iiko, r-keeper и Quick Resto, 1С и МойСклад, интегрируем ваши эксель-файлы, сводки по сети в Telegram. Для сетей от 10 точек.">
+<meta name="description" content="Полная аналитика, геосервисы, лояльность и потери всех точек сети — в одном окне. Подключение к iiko и Syrve в облаке, по согласованию — Quick Resto, 1С:УНФ и МойСклад. Выгрузка отчётов в Excel, сводки по сети в Telegram. Для сетей от 10 точек.">
 <meta name="theme-color" content="#020817">
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -48,6 +48,9 @@
 :root[data-theme="light"] .kicker{background:rgba(74,87,168,.1);border-color:rgba(74,87,168,.32);color:#3a46a0}
 :root[data-theme="light"] .losses li{background:rgba(74,87,168,.05)}
 :root[data-theme="light"] .ask{background:rgba(74,87,168,.06)}
+:root[data-theme="light"] .badge.b2{background:var(--accent);color:var(--on-accent);border:0}   /* сиреневый текст на сиреневой плашке не читался: синяя, как у соседней карточки */
+:root[data-theme="light"] .ico{background:var(--accent);border-color:var(--accent);margin-inline:auto}   /* серая подложка от тёмной темы съедала синюю иконку */
+:root[data-theme="light"] .ico svg{stroke:var(--on-accent)}
 /* нити знака на белом чёткие — под подписями и кнопкой hero почти не видны: тот же тон, плотнее */
 :root[data-theme="light"] .kicker{background:rgba(237,238,246,.88)}
 :root[data-theme="light"] .marquee-track span{background:rgba(244,245,250,.88)}
@@ -544,7 +547,7 @@ section{position:relative}
   .marquee-set+.marquee-set{display:none}
 }
 </style>
-<script>try{var _p=new URLSearchParams(location.search).get('theme');var _t=(_p==='light'||_p==='dark')?_p:localStorage.getItem('vilax-theme');if(_t)document.documentElement.setAttribute('data-theme',_t);var L=_t==='light'?'light/':'',U='../';document.head.insertAdjacentHTML('beforeend','<link rel="preload" as="image" fetchpriority="high" media="(min-width:601px)" href="'+U+'shots/'+L+'t001.webp"><link rel="preload" as="image" fetchpriority="high" media="(max-width:600px)" href="'+U+'shots-app/'+L+'t001.webp">');}catch(e){}</script>
+<script>try{var _p=new URLSearchParams(location.search).get('theme');var _t=(_p==='light'||_p==='dark')?_p:sessionStorage.getItem('vilax-theme');if(_t)document.documentElement.setAttribute('data-theme',_t);var L=_t==='light'?'light/':'',U='../';document.head.insertAdjacentHTML('beforeend','<link rel="preload" as="image" fetchpriority="high" media="(min-width:601px)" href="'+U+'shots/'+L+'t001.webp"><link rel="preload" as="image" fetchpriority="high" media="(max-width:600px)" href="'+U+'shots-app/'+L+'t001.webp">');}catch(e){}</script>
 <!-- первый кадр hero у <img> ленивый (пара тёмная/светлая — качается только своя тема), поэтому его заранее подгружаем по теме: на десктопе — окно, на телефоне — iPhone -->
 </head>
 <body>
@@ -598,7 +601,7 @@ section{position:relative}
 
 <!-- ===== 2. ИНТЕГРАЦИИ ===== -->
 <section class="integr" data-scene="logo">
-  <div class="label">работает с тем, что у вас уже есть</div>
+  <div class="label">с чем работает · часть по согласованию</div>
   <div class="marquee" role="img" aria-label="Работает с: iiko, Яндекс Карты, Quick Resto, Telegram, 2ГИС, МойСклад, RedSMS, Apple Wallet, 1С:УНФ, SMS.RU, Google Карты, Excel, МТС Exolve, Точка Банк, ChatGPT, iQSMS, Syrve, Google Wallet, SMS Aero, Claude, SMSC.RU">
     <div class="marquee-track" aria-hidden="true">
       <div class="marquee-set"><span>iiko</span><span>Яндекс Карты</span><span>Quick Resto</span><span>Telegram</span><span>2ГИС</span><span>МойСклад</span><span>RedSMS</span><span>Apple Wallet</span><span>1С:УНФ</span><span>SMS.RU</span><span>Google Карты</span><span>Excel</span><span>МТС Exolve</span><span>Точка Банк</span><span>ChatGPT</span><span>iQSMS</span><span>Syrve</span><span>Google Wallet</span><span>SMS Aero</span><span>Claude</span><span>SMSC.RU</span></div>
@@ -668,24 +671,24 @@ section{position:relative}
           <path class="pcb-on pcb-pl" data-i="6" d="M-18 213.5L1 213.5L1 216.5L-18 216.5Z"/>
           <path class="pcb-on pcb-pr" data-i="7" d="M298 213.5L279 213.5L279 216.5L298 216.5Z"/>
         </svg>
-        <ul class="pcb-labs" role="list" aria-label="Источники данных сети">
+        <ul class="pcb-labs" role="list" aria-label="Сервисы сети">
           <li class="pcb-lab pcb-l"><svg class="pcb-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#pcbI0"/></svg><b>POS</b> <span>чеки, смены</span></li>
-          <li class="pcb-lab pcb-r"><svg class="pcb-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#pcbI1"/></svg><b>Эксель</b> <span>планы, таблицы</span></li>
-          <li class="pcb-lab pcb-l"><svg class="pcb-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#pcbI2"/></svg><b>Банк</b> <span>выписки</span></li>
+          <li class="pcb-lab pcb-r"><svg class="pcb-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#pcbI1"/></svg><b>Эксель</b> <span>отчёты из VILAX</span></li>
+          <li class="pcb-lab pcb-l"><svg class="pcb-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#pcbI2"/></svg><b>Точка Банк</b> <span>выписки УК</span></li>
           <li class="pcb-lab pcb-r"><svg class="pcb-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#pcbI3"/></svg><b>Геосервис</b> <span>карты, отзывы</span></li>
-          <li class="pcb-lab pcb-l"><svg class="pcb-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#pcbI4"/></svg><b>1С</b> <span>учёт, себестоимость</span></li>
+          <li class="pcb-lab pcb-l"><svg class="pcb-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#pcbI4"/></svg><b>1С:УНФ</b> <span>продажи, остатки</span></li>
           <li class="pcb-lab pcb-r"><svg class="pcb-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#pcbI5"/></svg><b>Склад</b> <span>закупки, остатки</span></li>
-          <li class="pcb-lab pcb-l"><svg class="pcb-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#pcbI6"/></svg><b>Чаты</b> <span>сводки, вопросы</span></li>
+          <li class="pcb-lab pcb-l"><svg class="pcb-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#pcbI6"/></svg><b>Telegram</b> <span>сводки, ответы</span></li>
           <li class="pcb-lab pcb-r"><svg class="pcb-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#pcbI7"/></svg><b>Лояльность</b> <span>гости, карты</span></li>
         </ul>
         <div class="pcb-tiles" aria-hidden="true">
           <div class="pcb-tile"><svg class="pcb-whisk"><path d="M-4 13H0M132 13H136M-4 23H0M132 23H136M-4 33H0M132 33H136"/></svg><svg class="pcb-ic" viewBox="0 0 24 24"><use href="#pcbI0"/></svg><span>POS</span></div>
           <div class="pcb-tile"><svg class="pcb-whisk"><path d="M-4 13H0M132 13H136M-4 23H0M132 23H136M-4 33H0M132 33H136"/></svg><svg class="pcb-ic" viewBox="0 0 24 24"><use href="#pcbI1"/></svg><span>Эксель</span></div>
-          <div class="pcb-tile"><svg class="pcb-whisk"><path d="M-4 13H0M132 13H136M-4 23H0M132 23H136M-4 33H0M132 33H136"/></svg><svg class="pcb-ic" viewBox="0 0 24 24"><use href="#pcbI2"/></svg><span>Банк</span></div>
+          <div class="pcb-tile"><svg class="pcb-whisk"><path d="M-4 13H0M132 13H136M-4 23H0M132 23H136M-4 33H0M132 33H136"/></svg><svg class="pcb-ic" viewBox="0 0 24 24"><use href="#pcbI2"/></svg><span>Точка Банк</span></div>
           <div class="pcb-tile"><svg class="pcb-whisk"><path d="M-4 13H0M132 13H136M-4 23H0M132 23H136M-4 33H0M132 33H136"/></svg><svg class="pcb-ic" viewBox="0 0 24 24"><use href="#pcbI3"/></svg><span>Геосервис</span></div>
-          <div class="pcb-tile"><svg class="pcb-whisk"><path d="M-4 13H0M132 13H136M-4 23H0M132 23H136M-4 33H0M132 33H136"/></svg><svg class="pcb-ic" viewBox="0 0 24 24"><use href="#pcbI4"/></svg><span>1С</span></div>
+          <div class="pcb-tile"><svg class="pcb-whisk"><path d="M-4 13H0M132 13H136M-4 23H0M132 23H136M-4 33H0M132 33H136"/></svg><svg class="pcb-ic" viewBox="0 0 24 24"><use href="#pcbI4"/></svg><span>1С:УНФ</span></div>
           <div class="pcb-tile"><svg class="pcb-whisk"><path d="M-4 13H0M132 13H136M-4 23H0M132 23H136M-4 33H0M132 33H136"/></svg><svg class="pcb-ic" viewBox="0 0 24 24"><use href="#pcbI5"/></svg><span>Склад</span></div>
-          <div class="pcb-tile"><svg class="pcb-whisk"><path d="M-4 13H0M132 13H136M-4 23H0M132 23H136M-4 33H0M132 33H136"/></svg><svg class="pcb-ic" viewBox="0 0 24 24"><use href="#pcbI6"/></svg><span>Чаты</span></div>
+          <div class="pcb-tile"><svg class="pcb-whisk"><path d="M-4 13H0M132 13H136M-4 23H0M132 23H136M-4 33H0M132 33H136"/></svg><svg class="pcb-ic" viewBox="0 0 24 24"><use href="#pcbI6"/></svg><span>Telegram</span></div>
           <div class="pcb-tile"><svg class="pcb-whisk"><path d="M-4 13H0M132 13H136M-4 23H0M132 23H136M-4 33H0M132 33H136"/></svg><svg class="pcb-ic" viewBox="0 0 24 24"><use href="#pcbI7"/></svg><span>Лояльность</span></div>
         </div>
         <div class="pcb-ring" aria-hidden="true"></div>
@@ -713,7 +716,7 @@ section{position:relative}
         </div>
       </div>
     </div>
-    <div class="merge-count" aria-hidden="true"><span><b>8</b> источников</span><span class="pcb-arrow"><i></i></span><span class="pcb-cell"><span class="pcb-off"><b>1</b> окно</span><span class="pcb-to"><b>1</b> окно</span></span></div>
+    <div class="merge-count" aria-hidden="true"><span><b>8</b> сервисов</span><span class="pcb-arrow"><i></i></span><span class="pcb-cell"><span class="pcb-off"><b>1</b> окно</span><span class="pcb-to"><b>1</b> окно</span></span></div>
   </div>
 </section>
 
@@ -756,7 +759,7 @@ section{position:relative}
     <div class="sec-head">
       <div><span class="kicker mono reveal"><i class="dot"></i>в цифрах</span>
       <h2 class="h2 split">Что VILAX держит <em>под контролем.</em></h2></div>
-      <p class="reveal">Всё это можно проверить на демо — на вашей кассе и ваших точках после подключения.</p>
+      <p class="reveal">Всё это можно проверить на демо, а с iiko или Syrve — и на ваших точках после подключения.</p>
     </div>
     <div class="mgrid" id="mgrid">
       <div class="glass metric reveal"><div class="label">выручка дня из iiko</div><div class="v" data-count="15">15<small> мин</small></div><p>примерно так часто обновляется выручка — не ждёте вечернего отчёта</p></div>
@@ -818,10 +821,10 @@ section{position:relative}
     <div class="sec-head">
       <div><span class="kicker mono reveal"><i class="dot"></i>подключение и доступы</span>
       <h2 class="h2 split">Без новой кассы и <em>без приложения.</em></h2></div>
-      <p class="reveal">Подключаемся к тому, что у вас уже работает, и даём доступ ровно тем, кому нужно.</p>
+      <p class="reveal">Если у вас iiko или Syrve в облаке, кассу менять не нужно. Доступ даём ровно тем, кому нужно.</p>
     </div>
     <div class="tgrid">
-      <div class="glass tcard reveal"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></div><h3>Ваша касса остаётся</h3><p>В России — iiko и Quick Resto. Учёт и склад — из 1С и МойСклад, планы и справочники — из Google Таблиц.</p></div>
+      <div class="glass tcard reveal"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></div><h3>Ваша касса остаётся</h3><p>В России — iiko, за рубежом — Syrve, оба только в облаке. Quick&nbsp;Resto, 1С:УНФ и МойСклад — по согласованию. Планы задаёте прямо в VILAX.</p></div>
       <div class="glass tcard reveal"><div class="ico"><svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div><h3>Доступ по ролям и точкам</h3><p>13 шаблонов ролей. Данные видят только те, кому вы дали доступ: управляющий — свою точку, владелец — всю сеть.</p></div>
       <div class="glass tcard reveal"><div class="ico"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></svg></div><h3>Серверы в России</h3><p>Основная база российских сетей — на серверах в Москве.</p></div>
       <div class="glass tcard reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M21 4 3 11l6 2 2 6 3-4 5 4z"/></svg></div><h3>Браузер и Telegram</h3><p>Отдельное приложение не нужно: система работает в браузере — на компьютере и на телефоне, сводки приходят в Telegram.</p></div>
@@ -881,7 +884,7 @@ section{position:relative}
   <div class="wrap faq-grid">
     <div><span class="kicker mono reveal"><i class="dot"></i>вопросы</span><h2 class="h2 split">Что спрашивают <em>перед демо.</em></h2></div>
     <div class="faq reveal">
-      <details><summary>С какими кассами работает VILAX?</summary><p>В России — iiko и Quick Resto. Учёт и склад подтягиваем из 1С и МойСклад, планы и справочники — из Google Таблиц.</p></details>
+      <details><summary>С какими кассами работает VILAX?</summary><p>В России — iiko, за рубежом — Syrve, оба только в облаке: локальные серверы не подключаем. Потери и разбор смены считаются только на них. Quick&nbsp;Resto — по согласованию: идут только дневная выручка и число чеков. 1С:УНФ и МойСклад — тоже по согласованию, если чеки пробиваются прямо в них: тогда идут розничные продажи, товары и остатки. Другие конфигурации 1С не принимаем. Планы задаёте прямо в VILAX, отчёты выгружаются в Excel.</p></details>
       <details><summary>Сколько длится подключение?</summary><p>Срок зависит от кассы и числа точек — менеджер назовёт его после демо. При оплате за год стандартный онбординг входит в цену: одно подключение, доступы и вводная сессия для команды.</p></details>
       <details><summary>Кто видит данные сети?</summary><p>Только те, кому вы дали доступ. Доступ настраивается ролями и локациями: управляющий точки видит свою точку, владелец — всю сеть.</p></details>
       <details><summary>Можно подключить не все блоки?</summary><p>Да. Блоки выбираете сами — цена за локацию складывается из выбранных и одинакова для всех точек сети. Тариф зависит от того, сколько локаций работает в VILAX.</p></details>
@@ -908,7 +911,7 @@ section{position:relative}
 
 <footer data-scene="wave" data-intensity="0.5">
   <div class="wrap">
-    <div class="ticker mono"><span><i class="dot"></i>iiko и Quick Resto</span><span><i class="dot"></i>сводки по сети в Telegram</span><span><i class="dot"></i>от 10 точек</span></div>
+    <div class="ticker mono"><span><i class="dot"></i>iiko и Syrve в облаке</span><span><i class="dot"></i>сводки по сети в Telegram</span><span><i class="dot"></i>от 10 точек</span></div>
     <div class="foot">
       <div class="about"><a class="brand" href="#top" data-scroll aria-label="VILAX"><img class="mark" src="../logo.svg" alt=""><img class="word" src="../wordmark.svg" alt="" style="display:block"></a><p>Система управления сетью ресторанов.</p></div>
       <div><h4>платформа</h4><a href="#finance" data-scroll>Финансы и контроль</a><a href="#blocks" data-scroll>Гости 360</a><a href="#blocks" data-scroll>Сотрудники и Академия</a><a href="#blocks" data-scroll>Система лояльности</a></div>
@@ -1561,10 +1564,10 @@ if (renderer) {
   const onScroll = () => nav.classList.toggle('scrolled', scrollY > 20);
   addEventListener('scroll', onScroll, { passive: true }); onScroll();
 
-  // переключатель темы (светлая/тёмная), выбор помнится
+  // переключатель темы (светлая/тёмная): выбор держится, пока открыта вкладка, новый заход — всегда тёмная
   const themeTgl = $('#themeTgl');
   const zooms = $$('a.zoom');   // «открыть экран целиком» ведёт на экран своей темы
-  const setTheme = t => { document.documentElement.setAttribute('data-theme', t); try { localStorage.setItem('vilax-theme', t); } catch (e) {} if (themeTgl) themeTgl.setAttribute('aria-pressed', t === 'light'); if (window.__setLight) window.__setLight(t === 'light');
+  const setTheme = t => { document.documentElement.setAttribute('data-theme', t); try { sessionStorage.setItem('vilax-theme', t); } catch (e) {} if (themeTgl) themeTgl.setAttribute('aria-pressed', t === 'light'); if (window.__setLight) window.__setLight(t === 'light');
     zooms.forEach(a => { const d = a.dataset.dark || (a.dataset.dark = a.getAttribute('href')); a.setAttribute('href', t === 'light' ? d.replace('shots/', 'shots/light/') : d); }); };
   setTheme(document.documentElement.getAttribute('data-theme') || 'dark');
   themeTgl && themeTgl.addEventListener('click', () => setTheme(document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light'));
