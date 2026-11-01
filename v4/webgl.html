@@ -277,9 +277,8 @@ if (renderer) {
             g += band;
           }
           g *= 1.0 - smoothstep(2.0, 3.0, uStory);
-          vec3 cv = mix(uLime, uTeal, 0.55 + 0.35 * smoothstep(-0.2, 0.4, xn - uSG.x));   // у знака — насыщенные бирюза и синий сайта
-          vec3 c3 = mix(uLime, uTeal, smoothstep(0.35, 0.75, fbm(p * 1.5 + t)));  // у завес — палитра v3
-          return min(g * mix(cv, c3, smoothstep(0.3, 1.0, cur)), vec3(1.2));
+          vec3 c3 = mix(uLime, uTeal, smoothstep(0.35, 0.75, fbm(p * 1.5 + t)));  // цвет один на весь сюжет — палитра авроры: туча у знака такая же, как дальше по сайту
+          return min(g * c3, vec3(1.2));
         }
         void main(){
           vec2 uv = gl_FragCoord.xy / uRes;
@@ -532,9 +531,9 @@ if (renderer) {
   uniforms.uStory.value = story;
   // появление знака — только если страница открыта сверху и движение разрешено
   if (!reduce && scrollY < innerHeight * 0.3) uniforms.uGrow.value = 0;
-  function glowFor(st) {                                // свечение сюжета: у знака — у крыльев, у завес — за ними
+  function glowFor(st) {                                // свечение сюжета: у знака — у крыльев, у завес — за ними; сила одна, при загрузке проявляется
     const cur = seg(st, 0.6, 2);
-    uniforms.uSG.value.set(uniforms.uVPos.value.x * (1 - seg(st, 1, 2)), cur, st < 2.99 ? 0.06 + 0.11 * cur : 0, mobile ? 1.35 : 1);
+    uniforms.uSG.value.set(uniforms.uVPos.value.x * (1 - seg(st, 1, 2)), cur, st < 2.99 ? 0.17 * (reduce ? 1 : ease(seg(boot, 0, 1.2))) : 0, mobile ? 1.35 : 1);
   }
 
   const mouse = new THREE.Vector2();

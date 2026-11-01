@@ -148,7 +148,7 @@ section{position:relative}
 
 /* ============ HERO ============ */
 .hero{min-height:100vh;min-height:100svh;padding:120px 0 60px;display:flex;align-items:center}
-.hero::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;background:linear-gradient(90deg,rgba(2,8,23,.72) 0%,rgba(2,8,23,.35) 38%,transparent 60%)}
+.hero::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;background:linear-gradient(90deg,rgba(2,8,23,.72) 0%,rgba(2,8,23,.35) 38%,transparent 60%);-webkit-mask-image:linear-gradient(180deg,#000 75%,transparent);mask-image:linear-gradient(180deg,#000 75%,transparent)}   /* низ сходит на нет: подложка под текстом не режет тучу ровной линией на границе с лентой */
 .hero .wrap{position:relative;z-index:1;display:grid;grid-template-columns:.95fr 1.1fr;gap:48px;align-items:center;width:100%}
 .hero h1{font-size:clamp(38px,4.1vw,62px);line-height:1.02;letter-spacing:-.035em;font-weight:620;margin:22px 0 24px}
 .hero .lead{color:var(--muted);font-size:clamp(17px,1.3vw,19px);max-width:500px}
@@ -515,7 +515,7 @@ section{position:relative}
   .merge-titles{top:max(11%,72px)}
   .pcb-narrow .pcb-labs{grid-template-columns:repeat(2,minmax(0,1fr))}
   .brand img.word{display:none}
-  .hero::after{background:linear-gradient(180deg,rgba(2,8,23,.6),rgba(2,8,23,.35) 70%,transparent)}
+  .hero::after{background:linear-gradient(180deg,rgba(2,8,23,.6),rgba(2,8,23,.35) 70%,transparent);-webkit-mask-image:none;mask-image:none}
   .mgrid,.steps,.tgrid{grid-template-columns:1fr}
   .bgrid{grid-template-columns:1fr}
   .blk,.blk.base{grid-column:auto;grid-template-columns:1fr;padding:24px 22px 0;gap:6px}
@@ -1212,9 +1212,8 @@ if (renderer) {
             g += band;
           }
           g *= 1.0 - smoothstep(2.0, 3.0, uStory);
-          vec3 cv = mix(uLime, uTeal, 0.55 + 0.35 * smoothstep(-0.2, 0.4, xn - uSG.x));   // у знака — насыщенные бирюза и синий сайта
-          vec3 c3 = mix(uLime, uTeal, smoothstep(0.35, 0.75, fbm(p * 1.5 + t)));  // у завес — палитра v3
-          return min(g * mix(cv, c3, smoothstep(0.3, 1.0, cur)), vec3(1.2));
+          vec3 c3 = mix(uLime, uTeal, smoothstep(0.35, 0.75, fbm(p * 1.5 + t)));  // цвет один на весь сюжет — палитра авроры: туча у знака такая же, как дальше по сайту
+          return min(g * c3, vec3(1.2));
         }
         void main(){
           vec2 uv = gl_FragCoord.xy / uRes;
@@ -1467,9 +1466,9 @@ if (renderer) {
   uniforms.uStory.value = story;
   // появление знака — только если страница открыта сверху и движение разрешено
   if (!reduce && scrollY < innerHeight * 0.3) uniforms.uGrow.value = 0;
-  function glowFor(st) {                                // свечение сюжета: у знака — у крыльев, у завес — за ними
+  function glowFor(st) {                                // свечение сюжета: у знака — у крыльев, у завес — за ними; сила одна, при загрузке проявляется
     const cur = seg(st, 0.6, 2);
-    uniforms.uSG.value.set(uniforms.uVPos.value.x * (1 - seg(st, 1, 2)), cur, st < 2.99 ? 0.06 + 0.11 * cur : 0, mobile ? 1.35 : 1);
+    uniforms.uSG.value.set(uniforms.uVPos.value.x * (1 - seg(st, 1, 2)), cur, st < 2.99 ? 0.17 * (reduce ? 1 : ease(seg(boot, 0, 1.2))) : 0, mobile ? 1.35 : 1);
   }
 
   const mouse = new THREE.Vector2();
