@@ -160,15 +160,15 @@ if (renderer) {
         gB *= tipF;
         // яркость под текстом: крыло за заголовком ×0.6, сетка без светового пятна (ячейки остаются тёмными), под стеклом окна hero тише;
         // hero уходит — узел и сетка гаснут; расплетаясь — знак притухает
-        gB *= mix(2.15 * uVGain, 1.0, gP);                    // голубой и фиолетовый логотипа темнее бирюзы — пряди знака ярче (на телефоне ещё ярче: нитей меньше, bloom слабее)
+        gB *= mix(mix(0.9, 2.15, uLight) * uVGain, 1.0, gP);  // краска на белом темнее бирюзы — там пряди ярче (на телефоне ещё ярче: нитей меньше, bloom слабее)
         gB *= mix(1.0, 0.55, smoothstep(0.12, 0.45, abs(c)));  // волокна между прядями тише ядер — пряди чётче, меньше «волос»
         if (uText.x < 1.5) {                                  // под текстом (заголовок hero, на телефоне — подпись ленты) — вдвое тише
           vec2 te = smoothstep(uText.xy - 0.03, uText.xy + 0.03, p.xy) * (1.0 - smoothstep(uText.zw - 0.03, uText.zw + 0.03, p.xy));
           gB *= 1.0 - 0.5 * (1.0 - a) * te.x * te.y;
         }
-        if (uLight > 0.5 && uHead.x < 1.5) {                  // телефон, светлая: под заголовком hero знак втрое тише — крыло не сливается с «в одном окне.»
+        if (uHead.x < 1.5) {                                  // телефон: под текстом hero знак тише — светлая втрое под заголовком, тёмная на треть под заголовком и кнопками
           vec2 th = smoothstep(uHead.xy - 0.03, uHead.xy + 0.03, p.xy) * (1.0 - smoothstep(uHead.zw - 0.03, uHead.zw + 0.03, p.xy));
-          gB *= 1.0 - 0.67 * (1.0 - a) * th.x * th.y;
+          gB *= 1.0 - mix(0.33, 0.67, uLight) * (1.0 - a) * th.x * th.y;
         }
         gB *= 1.0 - 0.3 * smoothstep(0.72, 0.95, u);
         if (uFrame.x < 1.5) {
@@ -214,9 +214,9 @@ if (renderer) {
     uSG: { value: new THREE.Vector4(0, 0, 0.03, mobile ? 1.35 : 1) },
     uLeave: { value: 0 },
     uFrame: { value: new THREE.Vector4(2, 2, 2, 2) },
-    uSky: { value: new THREE.Color('#56b5e6') },          // градиент знака — как --brand-grad сайта
-    uMid: { value: new THREE.Color('#5679bd') },
-    uTip: { value: new THREE.Color('#7a5cc7') },
+    uSky: { value: new THREE.Color('#18f2df') },          // тёмная: знак в цвет кнопки; светлая — краска знака, см. INK
+    uMid: { value: new THREE.Color('#18f2df') },
+    uTip: { value: new THREE.Color('#18f2df') },
     uDip: { value: 1 },
     uText: { value: new THREE.Vector4(2, 2, 2, 2) },
     uHead: { value: new THREE.Vector4(2, 2, 2, 2) },
@@ -345,7 +345,7 @@ if (renderer) {
           vC = mix(vC, uViolet, step(0.9, aSeed));
           // в знаке — градиент логотипа по x (как --brand-grad): голубой до оси → синий → фиолетовый на правом крыле
           float gx = gX + (aSeed - 0.5) * 0.2;
-          vec3 cL = mix(mix(uSky, uTeal, 0.3), uMid, smoothstep(-0.05, 0.4, gx));   // голубой знака чуть насыщеннее — ближе к синему сайта
+          vec3 cL = mix(mix(uSky, uTeal, 0.3 * uLight), uMid, smoothstep(-0.05, 0.4, gx));   // голубой знака чуть насыщеннее — ближе к синему сайта
           cL = mix(cL, uTip, smoothstep(0.4, 0.95, gx));
           vC = mix(vC, cL, uW.w * (1.0 - gP));
           vC = mix(vC, uLight > 0.5 ? vC * 0.6 : vec3(1.0), pulse*0.35);   // бегущий свет: на тёмном — белее, на белом — гуще краска
@@ -440,7 +440,7 @@ if (renderer) {
   }
   // знак в hero: десктоп — ось в зазоре между текстом и окном (на 22 px левее — сетка не под стеклом окна), высота 87 % экрана, вершина на 96 %;
   // телефон и планшет — 80 % ширины по центру, вершина в зазоре между кнопками и макетом.
-  let frameRect = null, textRect = null, headRect = null, capTop = 0, vyPx = 0;
+  let frameRect = null, textRect = null, headRect = null, colRect = null, capTop = 0, vyPx = 0;
   function placeSign() {
     const w = cw, h = ch, xs = mobile ? 1.35 : 1, y0 = scrollY;
     const col = document.querySelector('.hero .wrap > div'), media = document.getElementById('heroMedia'), fr = document.getElementById('heroFrame');
@@ -453,7 +453,7 @@ if (renderer) {
       frameRect = { l: f.left, r: f.right, t: f.top + y0, b: f.bottom + y0 };
       const t = document.querySelector('.hero h1').getBoundingClientRect();   // заголовок + 16 px полей
       textRect = { l: t.left - 16, r: t.right + 16, t: t.top + y0 - 16, b: t.bottom + y0 + 16 };
-      headRect = null;                                      // заголовок уже в маске uText
+      headRect = colRect = null;                            // заголовок уже в маске uText
     } else {
       const ct = document.querySelector('.hero .ctas');
       const below = [...document.querySelectorAll('.hero-phone, #heroFrame')].find(e => e.offsetParent);
@@ -468,6 +468,7 @@ if (renderer) {
       if (cap) { const r = cap.getBoundingClientRect(); capTop = r.top + y0; textRect = { l: r.left - 16, r: r.right + 16, t: r.top + y0 - 12, b: r.bottom + y0 + 12 }; }
       const hd = document.querySelector('.hero h1');
       if (hd) { const r = hd.getBoundingClientRect(); headRect = { l: r.left - 12, r: r.right + 12, t: r.top + y0 - 10, b: r.bottom + y0 + 10 }; }
+      if (col) { const r = col.getBoundingClientRect(); colRect = { l: r.left - 12, r: r.right + 12, t: r.top + y0 - 10, b: r.bottom + y0 + 10 }; }
     }
   }
   resize();
@@ -573,7 +574,7 @@ if (renderer) {
       const y = scrollY, xs = mobile ? 1.35 : 1;
       const r = (o, u) => { if (!o || o.b - y < 0 || o.t - y > ch) { u.set(2, 2, 2, 2); return; }
         u.set((o.l / cw * 2 - 1) / xs, 1 - 2 * (o.b - y) / ch, (o.r / cw * 2 - 1) / xs, 1 - 2 * (o.t - y) / ch); };
-      r(frameRect, uniforms.uFrame.value); r(textRect, uniforms.uText.value); r(headRect, uniforms.uHead.value);
+      r(frameRect, uniforms.uFrame.value); r(textRect, uniforms.uText.value); r(uniforms.uLight.value > 0.5 ? headRect : colRect, uniforms.uHead.value);
     }
     const k = jump ? 0 : 1 - Math.exp(-dt / 1.4);  // догоняем цель с постоянной времени 1.4 с — не зависит от FPS и частоты скролла; на переходе по якорю фон стоит
     uniforms.uW.value.lerp(target.w, k);
