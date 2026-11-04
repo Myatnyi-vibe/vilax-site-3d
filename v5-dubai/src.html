@@ -1,0 +1,1488 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VILAX — management system for your restaurant</title>
+<meta name="description" content="Your whole venue in one window: revenue every 15 minutes, losses for every shift. Connects to Syrve in the cloud — no new POS. Daily summaries in Telegram, export to Excel. For restaurants, lounges, bars and cafés in Dubai.">
+<meta name="theme-color" content="#020817">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="VILAX">
+<meta property="og:locale" content="en_AE">
+<meta property="og:title" content="VILAX — management system for your restaurant">
+<meta property="og:description" content="Your whole venue in one window. Revenue every 15 minutes, losses for every shift.">
+<meta property="og:url" content="https://myatnyi-vibe.github.io/vilax-site-3d/v5-dubai/">
+<meta property="og:image" content="https://myatnyi-vibe.github.io/vilax-site-3d/v5-dubai/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="VILAX: your whole venue in one window">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="VILAX — management system for your restaurant">
+<meta name="twitter:description" content="Your whole venue in one window. Revenue every 15 minutes, losses for every shift.">
+<meta name="twitter:image" content="https://myatnyi-vibe.github.io/vilax-site-3d/v5-dubai/og.jpg">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+
+:root{
+  --bg:#081532;--surf:#0f1f42;--surf-2:#142749;
+  --accent:#18f2df;--accent-h:#5ff6ea;--on-accent:#06152e;
+  --blue:#2297ff;--sky:#56b5e6;--violet:#5b3f99;
+  --text:#f5f7fa;--muted:#c3ccda;--faint:#91a0b7;--ghost:rgba(145,160,183,.7);
+  --line:rgba(145,160,183,.16);--line-2:rgba(145,160,183,.3);
+  --err:#ff8a80;--warn:#ffc46b;
+  --glass:linear-gradient(180deg,rgba(245,247,250,.055),rgba(245,247,250,.018));
+  --brand-grad:linear-gradient(90deg,#56b5e6 0%,#56b5e6 30%,#5679bd 60%,#7a5cc7 100%);
+  --radius:20px;
+  --sans:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",monospace;
+  --ease-ui:cubic-bezier(.23,1,.32,1);--ease-out:cubic-bezier(.16,1,.3,1);
+  --wrap:1200px;--gutter:clamp(16px,4vw,40px);
+}
+
+:root[data-theme="light"]{
+  color-scheme:light;
+  --bg:#ffffff;--surf:#f4f5fb;--surf-2:#ececf6;
+  --accent:#2f5bea;--accent-h:#1e3fb3;--on-accent:#ffffff;
+  --text:#0b1a2f;--muted:#44566f;--faint:#647489;--ghost:rgba(50,66,92,.6);
+  --line:rgba(44,36,110,.13);--line-2:rgba(44,36,110,.22);
+  --glass:#f5f5fb;
+  --brand-grad:linear-gradient(90deg,#2d84c6 0%,#2d84c6 30%,#4a57a8 60%,#6a37a6 100%);
+}
+:root[data-theme="light"] body{background:var(--bg)}
+:root[data-theme="light"] .vignette{display:none}
+:root[data-theme="light"] .hero::after{display:none}
+:root[data-theme="light"] .no-webgl body{background:var(--bg)}
+:root[data-theme="light"] .nav::before{background:#ffffff}
+:root[data-theme="light"] .glass{background:var(--glass);border-color:rgba(44,36,110,.12);box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 22px 50px -34px rgba(44,36,110,.2)}
+:root[data-theme="light"] .btn-accent:hover{box-shadow:0 8px 34px -8px rgba(47,91,234,.5),inset 0 1px 0 rgba(255,255,255,.4)}
+:root[data-theme="light"] .btn-ghost{background:rgba(74,87,168,.07);border-color:var(--line-2)}
+:root[data-theme="light"] .kicker{background:rgba(74,87,168,.1);border-color:rgba(74,87,168,.32);color:#3a46a0}
+:root[data-theme="light"] .ask{background:rgba(74,87,168,.06)}
+:root[data-theme="light"] .badge.b2{background:var(--accent);color:var(--on-accent);border:0}
+:root[data-theme="light"] .ico{background:var(--accent);border-color:var(--accent);margin-inline:auto}
+:root[data-theme="light"] .ico svg{stroke:var(--on-accent)}
+
+:root[data-theme="light"] .kicker{background:rgba(237,238,246,.88)}
+:root[data-theme="light"] .marquee-track span{background:rgba(244,245,250,.88)}
+:root[data-theme="light"] .btn-ghost{background:rgba(242,243,249,.88)}
+:root[data-theme="light"] .btn-ghost:hover{background:#e8eaf4}
+
+:root[data-theme="light"] .frame-bar{background:#ececf6}
+:root[data-theme="light"] .frame-bar i{background:rgba(44,36,110,.18)}
+:root[data-theme="light"] .demo-tag{color:#5b6478}
+:root[data-theme="light"] .f-cta{box-shadow:0 30px 60px -30px rgba(44,36,110,.35)}
+:root[data-theme="light"] .f-cta :is(.label,p,.side small){color:rgba(255,255,255,.88)}
+:root[data-theme="light"] .field input{background:#ffffff}
+:root[data-theme="light"] .btn-dark{background:#0b1a2f;color:#f5f7fa}
+
+:root:not([data-theme="light"]) img[data-th="light"],:root[data-theme="light"] img[data-th="dark"]{display:none}
+:root[data-theme="light"] .screens{background:#f5f7f9}
+:root[data-theme="light"] .ip{--ip-bg:#f7f7f7;--ip-ink:#0b1a2f}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg);color-scheme:dark;-webkit-text-size-adjust:100%;overflow-x:clip}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:clip}
+a{color:inherit;text-decoration:none}
+button,input{font:inherit;color:inherit}
+img,video{display:block;max-width:100%}
+
+em{font-style:normal;font-weight:200;letter-spacing:-.02em;background:var(--brand-grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.mono{font-family:var(--mono);font-size:12px;letter-spacing:.02em}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 var(--gutter)}
+
+#gl{position:fixed;inset:0;width:100vw;height:100vh;height:100lvh;z-index:0;display:block;pointer-events:none}
+.no-webgl body{background:radial-gradient(60% 50% at 35% 70%,rgba(24,242,223,.14),transparent 70%),radial-gradient(40% 40% at 85% 15%,rgba(91,63,153,.18),transparent 70%),var(--bg)}
+.vignette{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(120% 90% at 50% 45%,transparent 45%,rgba(1,4,12,.75) 100%)}
+.grain{position:fixed;inset:-50%;z-index:1;pointer-events:none;opacity:.045;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+main,footer{position:relative;z-index:2}
+
+.nav{position:fixed;top:0;left:0;right:0;z-index:50}
+.nav::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,21,50,.86),rgba(8,21,50,.6));backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);opacity:0;transition:opacity .5s;border-bottom:1px solid var(--line)}
+.nav.scrolled::before{opacity:1}
+.nav .wrap{position:relative;display:flex;align-items:center;gap:24px;height:64px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand img.mark{height:26px;width:auto}
+.brand img.word{height:13px;width:auto}
+.nav-links{display:flex;gap:26px;margin:0 auto;font-size:14px;color:var(--faint)}
+.nav-links a{transition:color .2s var(--ease-ui)}
+.nav-links a:hover{color:var(--text)}
+.nav-burger{display:none;flex:none;width:40px;height:40px;border-radius:10px;border:1px solid var(--line-2);background:rgba(245,247,250,.04);color:var(--text);cursor:pointer;place-content:center;gap:6px}
+.nav-burger i{display:block;width:18px;height:1.8px;border-radius:2px;background:currentColor;transition:transform .25s var(--ease-ui)}
+.nav-burger[aria-expanded="true"] i:first-child{transform:translateY(3.9px) rotate(45deg)}
+.nav-burger[aria-expanded="true"] i:last-child{transform:translateY(-3.9px) rotate(-45deg)}
+:root[data-theme="light"] .nav-burger{background:rgba(18,38,66,.045)}
+.nav-sheet{position:absolute;top:64px;left:0;right:0;display:flex;flex-direction:column;padding:8px 20px 16px;background:var(--bg);border-bottom:1px solid var(--line-2);box-shadow:0 24px 40px -24px rgba(0,0,0,.5)}
+.nav-sheet[hidden]{display:none}
+.nav-sheet a{display:flex;align-items:center;min-height:52px;font-size:18px;font-weight:500;border-bottom:1px solid var(--line)}
+.nav-sheet a:last-child{border-bottom:0}
+.theme-tgl{flex:none;width:40px;height:40px;border-radius:10px;border:1px solid var(--line-2);background:rgba(245,247,250,.04);color:var(--muted);display:grid;place-items:center;cursor:pointer;transition:color .2s,background .2s,border-color .2s}
+.theme-tgl:hover{color:var(--text);border-color:var(--accent)}
+.theme-tgl svg{width:18px;height:18px}
+.theme-tgl .i-sun{display:none}
+:root[data-theme="light"] .theme-tgl{background:rgba(18,38,66,.045)}
+:root[data-theme="light"] .theme-tgl .i-sun{display:block}
+:root[data-theme="light"] .theme-tgl .i-moon{display:none}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);flex:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;height:46px;padding:0 22px;border-radius:10px;font-size:15px;font-weight:600;border:1px solid transparent;cursor:pointer;transition:transform .25s var(--ease-ui),background .25s,box-shadow .25s;white-space:nowrap}
+.btn:active{transform:scale(.97)}
+.btn-accent{background:var(--accent);color:var(--on-accent);box-shadow:inset 0 1px 0 rgba(255,255,255,.45)}
+.btn-accent:hover{background:var(--accent-h);box-shadow:0 8px 40px -8px rgba(24,242,223,.55),inset 0 1px 0 rgba(255,255,255,.45)}
+.btn-ghost{background:rgba(245,247,250,.04);border-color:var(--line-2);color:var(--text)}
+.btn-ghost:hover{background:rgba(245,247,250,.08)}
+.btn-dark{background:var(--bg);color:var(--text)}
+.nav .btn{height:38px;padding:0 16px;font-size:14px;border-radius:8px}
+.nav-tel{font-size:14px;color:var(--muted);white-space:nowrap;transition:color .2s var(--ease-ui)}
+.nav-tel:hover{color:var(--text)}
+.f-cta .side small .tel{color:inherit;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
+
+section{position:relative}
+.kicker{display:inline-flex;align-items:center;gap:8px;height:28px;padding:0 12px;border-radius:99px;background:rgba(245,247,250,.04);border:1px solid var(--line);color:var(--faint)}
+.kicker .dot{width:5px;height:5px}
+.h2{text-wrap:balance;font-size:clamp(34px,4.4vw,64px);line-height:1.04;letter-spacing:-.03em;font-weight:620;margin-top:18px}
+.sec-head{display:grid;grid-template-columns:1.3fr 1fr;gap:40px;align-items:end;margin-bottom:56px}
+.sec-head p{color:var(--muted);max-width:440px;justify-self:end;font-size:clamp(16px,1.2vw,18px)}
+.glass{position:relative;background:var(--glass);border:1px solid var(--line);border-radius:var(--radius);backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);box-shadow:inset 0 1px 0 rgba(245,247,250,.07),0 40px 80px -30px rgba(0,0,0,.75)}
+.glass::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;
+  background:linear-gradient(160deg,rgba(245,247,250,.16),rgba(245,247,250,0) 40%,rgba(86,181,230,.14));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.label{font-family:var(--mono);font-size:12px;color:var(--ghost);letter-spacing:.02em}
+.word{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.08em;margin-bottom:-.08em}
+
+.lns{display:block;min-width:0}
+.ln{display:block;overflow:hidden;padding-bottom:.14em;margin-bottom:-.14em}
+.ln-in{display:block;will-change:transform}
+.blk li{display:flex}
+.word>span{display:inline-block;will-change:transform}
+
+.frame{border-radius:16px;overflow:hidden;padding:0}
+.frame-bar{display:flex;align-items:center;gap:6px;height:34px;padding:0 14px;border-bottom:1px solid var(--line);background:rgba(2,8,23,.55)}
+.frame-bar i{width:9px;height:9px;border-radius:50%;background:rgba(145,160,183,.25)}
+.frame-bar span{margin-left:auto}
+.demo-tag{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--faint)}
+.demo-tag::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--warn)}
+
+/* ============ HERO ============ */
+.hero{min-height:100vh;min-height:100svh;padding:120px 0 60px;display:flex;align-items:center}
+.hero::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;background:linear-gradient(90deg,rgba(2,8,23,.72) 0%,rgba(2,8,23,.35) 38%,transparent 60%);-webkit-mask-image:linear-gradient(180deg,#000 75%,transparent);mask-image:linear-gradient(180deg,#000 75%,transparent)}
+.hero .wrap{position:relative;z-index:1;display:grid;grid-template-columns:.95fr 1.1fr;gap:48px;align-items:center;width:100%}
+.hero h1{font-size:clamp(38px,4.1vw,62px);line-height:1.02;letter-spacing:-.035em;font-weight:620;margin:22px 0 24px}
+.hero .lead{color:var(--muted);font-size:clamp(17px,1.3vw,19px);max-width:500px}
+.hero .ctas{display:flex;gap:12px;margin:32px 0 22px;flex-wrap:wrap}
+.facts-line{display:flex;flex-wrap:wrap;gap:8px 18px;color:var(--faint)}
+.facts-line span{display:flex;align-items:center;gap:8px}
+.facts-line .dot{width:5px;height:5px}
+.hero-media{min-width:0;margin-right:calc(var(--gutter)*-1 - 30px)}
+
+.integr{padding:10px 0 40px}
+.integr .label{text-align:center;margin-bottom:16px}
+.marquee{overflow:hidden;-webkit-mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+
+.marquee-track{display:flex;gap:14px;width:max-content;animation:marq 100s linear infinite}
+.marquee-set{display:flex;flex:none;gap:14px;min-width:100vw;justify-content:space-around}
+.marquee-track span{padding:10px 18px;border-radius:12px;border:1px solid var(--line);background:rgba(245,247,250,.03);color:var(--muted);font-weight:500;white-space:nowrap}
+@keyframes marq{to{transform:translateX(calc(-50% - 7px))}}
+
+.today{padding:140px 0 40px}
+.pains{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.pain{padding:26px 26px 28px}
+.pain .label{color:var(--err)}
+.pain h3{font-size:21px;font-weight:600;letter-spacing:-.02em;margin:12px 0 8px;line-height:1.25}
+.pain p{color:var(--muted);font-size:15px}
+
+:root{
+  --pcb-lit-l:#56b5e6;--pcb-lit-m:#5679bd;--pcb-lit-r:#7a5cc7;--pcb-body:#142749;--pcb-die:#0f1f42;--pcb-edge:rgba(145,160,183,.3);--pcb-line:#3e4e6a;
+  --pcb-die-l:#56b5e6;--pcb-die-m:#5679bd;--pcb-die-r:#8468d0;--pcb-sign:contrast(.6) brightness(1.25);--pcb-word:brightness(0) invert(1);--pcb-word-op:.92;
+  --pcb-shadow:rgba(2,8,23,.6);--pcb-glow:0 0 72px -12px rgba(24,242,223,.34);--pcb-title-grad:linear-gradient(90deg,#56b5e6 0%,#56b5e6 30%,#7f9be0 60%,#a48cf0 100%);
+  --pcb-tile:#0f1f42;--pcb-tile-line:rgba(145,160,183,.3);--pcb-tile-shadow:0 18px 40px -20px rgba(2,8,23,.6);
+}
+:root[data-theme="light"]{
+  --pcb-lit-l:#2d84c6;--pcb-lit-m:#4a57a8;--pcb-lit-r:#6a37a6;--pcb-body:#ffffff;--pcb-die:#f4f5fb;--pcb-edge:rgba(44,36,110,.07);--pcb-line:rgba(44,36,110,.24);
+  --pcb-die-l:#2d84c6;--pcb-die-m:#4a57a8;--pcb-die-r:#6a37a6;--pcb-sign:brightness(.8) saturate(1.25);--pcb-word:none;--pcb-word-op:1;
+  --pcb-shadow:rgba(44,36,110,.3);--pcb-glow:none;--pcb-title-grad:var(--brand-grad);
+  --pcb-tile:#ffffff;--pcb-tile-line:rgba(44,36,110,.16);--pcb-tile-shadow:0 14px 30px -18px rgba(44,36,110,.35);
+}
+.merge{height:100vh;height:100svh;overflow:hidden}
+.merge-stage{position:relative;height:100%;width:100%}
+
+.merge-titles{position:absolute;left:0;right:0;top:max(12%,72px);height:2.4em;z-index:4;pointer-events:none;font-size:clamp(28px,3.8vw,56px)}
+.mt{text-wrap:balance;position:absolute;left:50%;top:0;translate:-50% 0;width:min(940px,90vw);text-align:center;font-size:1em;line-height:1.06;letter-spacing:-.035em;font-weight:620}
+.mt2{opacity:0}
+.mt em{background-image:var(--pcb-title-grad)}
+
+.pcb{position:absolute;inset:0;z-index:2;pointer-events:none}
+.pcb-scene{position:absolute;left:0;top:0;width:1440px;height:0;transform-origin:0 0}
+.pcb-traces{position:absolute;left:0;top:0;width:1px;height:1px;overflow:visible;fill:none;stroke-width:1.5;stroke-linejoin:round}
+.pcb-base{stroke:var(--line-2)}
+.pcb-lit{opacity:0}
+.pcb-lit.pcb-l{stroke:var(--pcb-lit-l)}
+.pcb-lit.pcb-r{stroke:var(--pcb-lit-r)}
+.pcb-ic{display:block;flex:none;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;color:var(--accent)}
+.pcb-labs{list-style:none}
+.pcb-lab{position:absolute;display:flex;align-items:baseline;gap:8px;font-family:var(--mono);font-size:var(--pcb-lab-fs,12px);line-height:16px;color:var(--faint);white-space:nowrap;opacity:0}
+.pcb-lab.pcb-l{left:64px}
+.pcb-lab.pcb-r{right:64px}
+.pcb-lab b{font-family:var(--sans);font-weight:600;color:var(--text)}
+.pcb-lab .pcb-ic{display:none}
+.pcb-tile{position:absolute;left:0;top:0;display:flex;align-items:center;gap:7px;width:132px;height:46px;padding:0 8px 0 12px;border:1px solid var(--pcb-tile-line);border-radius:10px;background:var(--pcb-tile);box-shadow:var(--pcb-tile-shadow);visibility:hidden;will-change:transform}
+.pcb-tile .pcb-ic{width:18px;height:18px}
+.pcb-tile span{font-size:var(--pcb-name-fs,13px);font-weight:600;line-height:18px;color:var(--text);white-space:nowrap}
+.pcb-whisk{position:absolute;left:-1px;top:-1px;width:1px;height:1px;overflow:visible;fill:none;stroke:var(--line-2);stroke-width:1.5}
+
+.pcb-pins,.pcb-ring,.pcb-chip{position:absolute;left:580px;top:-140px;width:var(--pcb-c,280px);height:var(--pcb-c,280px);border-radius:var(--pcb-rad,18px)}
+.pcb-pins{overflow:visible;fill:none}
+.pcb-ring{box-shadow:var(--pcb-glow);opacity:0}
+.pcb-chip{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--pcb-gap,16px);box-shadow:0 calc(28px * var(--pcb-u,1)) calc(56px * var(--pcb-u,1)) calc(-28px * var(--pcb-u,1)) var(--pcb-shadow)}
+.pcb-chip svg{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;fill:none}
+.pcb-pins path,.pcb-chip path{vector-effect:non-scaling-stroke}
+.pcb-chip img{position:relative;width:auto}
+.pcb-sign{height:var(--pcb-sign-h,96px);filter:var(--pcb-sign)}
+.pcb-word{height:var(--pcb-word-h,14px);filter:var(--pcb-word);opacity:var(--pcb-word-op)}
+.pcb-comb{stroke:var(--line-2);stroke-width:1.5}
+.pcb-sparse .pcb-comb-e{display:none}
+.pcb-lead{fill:var(--line-2)}
+.pcb-frame{fill:var(--pcb-body);stroke:url(#pcbPkgGrad);stroke-width:1.5}
+.pcb-edge{stroke:var(--pcb-edge);stroke-width:1}
+.pcb-die{fill:var(--pcb-die);stroke:var(--pcb-line);stroke-width:1}
+.pcb-bond{fill:var(--pcb-line)}
+.pcb-dring{stroke:url(#pcbRingGrad);stroke-width:1.5;opacity:0}
+.pcb-on{opacity:0}
+.pcb-on.pcb-pl{fill:var(--pcb-lit-l)}
+.pcb-on.pcb-pr{fill:var(--pcb-lit-r)}
+.pcb-on.pcb-bl{fill:var(--pcb-die-l);stroke:var(--pcb-die-l)}
+.pcb-on.pcb-br{fill:var(--pcb-die-r);stroke:var(--pcb-die-r)}
+.pcb-chip .pcb-on{stroke-width:calc(1.5px - 1.5px * var(--pcb-u,1))}
+
+.pcb-narrow .pcb-tile{justify-content:center;width:var(--pcb-t);height:var(--pcb-t);padding:0;border-radius:8px}
+.pcb-narrow .pcb-tile span{display:none}
+.pcb-narrow .pcb-tile .pcb-ic{width:calc(var(--pcb-t) * .52);height:calc(var(--pcb-t) * .52)}
+.pcb-narrow .pcb-labs{position:absolute;left:var(--gutter);right:var(--gutter);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px 10px}
+.pcb-narrow .pcb-lab,.pcb-narrow .pcb-lab.pcb-l,.pcb-narrow .pcb-lab.pcb-r{position:relative;left:auto;right:auto;display:grid;grid-template-columns:14px minmax(0,1fr);column-gap:6px;row-gap:1px;align-items:start;align-content:start;white-space:normal}
+.pcb-narrow .pcb-lab .pcb-ic{display:block;grid-row:1 / span 2;width:14px;height:14px;margin-top:1px}
+.pcb-narrow .pcb-lab b,.pcb-narrow .pcb-lab span{grid-column:2}
+@media (min-width:900px){
+  .pcb-narrow .pcb-lab,.pcb-narrow .pcb-lab.pcb-l,.pcb-narrow .pcb-lab.pcb-r{grid-template-columns:14px auto minmax(0,1fr);align-items:baseline}
+  .pcb-narrow .pcb-lab .pcb-ic{grid-row:1;align-self:center;margin-top:0}
+  .pcb-narrow .pcb-lab span{grid-column:3}
+}
+.pcb-no-notes .pcb-lab span{display:none}
+.pcb-no-legend .pcb-labs{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+
+.merge-count{position:absolute;left:0;right:0;bottom:6%;z-index:4;display:flex;justify-content:center;align-items:center;gap:14px;font-family:var(--mono);font-size:13px;line-height:20px;color:var(--faint);white-space:nowrap;pointer-events:none}
+.merge-count b{font-weight:500;color:var(--text)}
+.pcb-arrow{position:relative;display:block;flex:none;width:60px;height:1px;background:var(--line-2)}
+.pcb-arrow i{position:absolute;inset:0;background:linear-gradient(90deg,var(--line-2),var(--accent));transform:scaleX(0);transform-origin:0 50%}
+.pcb-cell{display:inline-grid}
+.pcb-off,.pcb-to{grid-area:1 / 1}
+.pcb-to{color:var(--accent);opacity:0}
+.pcb-to b{color:inherit}
+
+.merge.static .mt1{display:none}
+.merge.static .mt2,.merge.static .pcb-ring,.merge.static .pcb-dring,.merge.static .pcb-to{opacity:1}
+.merge.static .pcb-off{opacity:0}
+.merge.static .pcb-arrow i{transform:none}
+
+.show{padding:120px 0 60px}
+.show-grid{display:grid;grid-template-columns:.8fr 1.4fr;gap:48px}
+.feat{min-height:62vh;display:flex;flex-direction:column;justify-content:center;padding:20px 0;opacity:.35;transition:opacity .6s var(--ease-out)}
+.feat.on{opacity:1}
+.feat .n{font-family:var(--mono);font-size:12px;color:var(--accent)}
+.feat h3{font-size:clamp(24px,2.4vw,32px);font-weight:600;letter-spacing:-.025em;margin:10px 0 12px;line-height:1.15}
+.feat p{color:var(--muted);max-width:400px}
+.feat .zoom{display:none}
+.hero-phone,.fphone{display:none}
+.hero-app{position:relative;width:100%;height:100%}
+.hero-app img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;opacity:0;transition:opacity .9s var(--ease-out)}
+.hero-app img.on{opacity:1}
+.feat .zoom .label{display:block;margin-top:8px}
+.stage{position:sticky;top:calc(50vh - min(26vw,300px));height:max-content}
+.stage .frame{position:relative}
+.screens{position:relative;aspect-ratio:2/1;background:#030a1a}
+.screens img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top left;opacity:0;transform:scale(1.015);transition:opacity .8s var(--ease-out),transform 1.2s var(--ease-out)}
+.screens img.on{opacity:1;transform:none}
+.stage-foot{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-top:1px solid var(--line)}
+.ticks2{display:flex;gap:6px}
+.ticks2 i{width:22px;height:3px;border-radius:2px;background:rgba(145,160,183,.25);transition:background .5s}
+.ticks2 i.on{background:var(--accent);box-shadow:0 0 8px var(--accent)}
+
+.metrics{padding:120px 0 60px}
+.mgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.metric{padding:26px 24px}
+.metric .v{font-size:clamp(46px,4.6vw,68px);font-weight:500;letter-spacing:-.045em;line-height:1;margin:16px 0 12px;font-variant-numeric:tabular-nums;color:var(--text)}
+.metric .v small{font-size:.45em;letter-spacing:-.02em;color:var(--accent)}
+.metric p{color:var(--muted);font-size:14px}
+
+/* ============ AI ============ */
+.ai{padding:120px 0 60px}
+.ai-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.ai-card{padding:30px;display:flex;flex-direction:column;gap:14px}
+.ai-card h3{font-size:26px;font-weight:600;letter-spacing:-.02em;line-height:1.15}
+.ai-card p{color:var(--muted)}
+.badge{display:inline-flex;width:max-content;font-family:var(--mono);font-size:11px;color:var(--on-accent);background:var(--accent);padding:3px 8px;border-radius:6px}
+.badge.b2{background:rgba(122,92,199,.25);color:#cdbcf5;border:1px solid rgba(122,92,199,.5)}
+.asks{display:flex;flex-direction:column;gap:8px;margin-top:auto;padding-top:10px}
+.ask{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:rgba(2,8,23,.45);font-size:15px;color:var(--text)}
+.ask::before{content:"›";color:var(--accent);font-family:var(--mono)}
+.soon{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--warn);border:1px solid rgba(255,196,107,.4);padding:1px 7px;border-radius:6px}
+.ai-card .frame img{width:100%;aspect-ratio:2/1;object-fit:cover;object-position:top left}
+
+.blocks{padding:120px 0 60px}
+.bgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.blk{display:grid;grid-template-columns:minmax(0,1fr) 210px;gap:28px;align-items:start;padding:30px 30px 0;overflow:hidden}
+.blk .body{padding-bottom:30px}
+.blk h3{font-size:22px;font-weight:600;letter-spacing:-.02em;margin:10px 0 6px}
+.blk .task{color:var(--faint);font-size:14px}
+.blk ul{list-style:none;margin-top:16px;display:grid;gap:8px;font-size:14px;color:var(--muted)}
+.blk li::before{content:"✓";color:var(--accent);margin-right:10px;font-size:12px}
+.blk .ip{margin-bottom:-70px}
+.blk.base{grid-column:span 2;grid-template-columns:minmax(0,1fr) 270px;border-color:rgba(24,242,223,.32);padding:40px 48px 0}
+.blk.base h3{font-size:30px}
+.blk.base ul{grid-template-columns:1fr 1fr;column-gap:24px}
+.blk.base .ip{margin-bottom:-110px}
+.blk .price{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-top:16px;padding:12px 14px;border-radius:12px;border:1px solid rgba(24,242,223,.3);background:rgba(24,242,223,.06);max-width:420px}
+.blk .price b{font-size:28px;font-weight:600;letter-spacing:-.02em;color:var(--accent)}
+.blk .price span{font-size:13px;color:var(--faint)}
+.blk:not(.base) .price{margin-top:12px;padding:8px 12px}
+.blk:not(.base) .price b{font-size:20px}
+.req{font-family:var(--mono);font-size:11px;color:var(--on-accent);background:var(--accent);padding:2px 7px;border-radius:6px}
+
+.ip{--case:#34363b;--case-hi:#5b5e64;--case-lo:#17181b;--ip-bg:#0a0e1b;--ip-ink:#f2f4fa;container-type:inline-size;width:100%}
+.ip__lid{position:relative;box-sizing:border-box;width:100%;padding:3cqw;border:max(1.5px,.9cqw) solid var(--case);border-radius:15.5cqw;background:#060607;
+  box-shadow:inset 0 0 0 1px rgb(255 255 255/.06),0 3cqw 8cqw -3cqw rgb(0 0 0/.55),0 30px 60px -20px rgba(24,242,223,.18)}
+.ip__glass{position:relative;display:grid;grid-template-rows:12.7cqw minmax(0,1fr) 5cqw;justify-items:center;overflow:hidden;aspect-ratio:9/19.5;border-radius:11.6cqw;background:var(--ip-bg)}
+.ip__screen{grid-row:2;position:relative;height:100%;aspect-ratio:1179/2556;overflow:hidden;background:var(--ip-bg)}
+.ip__screen img{width:100%;height:100%;object-fit:cover;object-position:top}
+.ip__island{position:absolute;z-index:3;top:2.6cqw;left:50%;width:29.6cqw;height:8.7cqw;translate:-50% 0;border-radius:9999px;background:#000}
+.ip__island::after{content:"";position:absolute;top:50%;right:3.2cqw;width:2.6cqw;height:2.6cqw;translate:0 -50%;border-radius:50%;background:radial-gradient(circle at 35% 35%,#3a4a6a,#10141d 60%)}
+.ip__bar{position:absolute;z-index:2;top:2.6cqw;left:0;right:0;display:grid;grid-template-columns:1fr 29.6cqw 1fr;justify-items:center;align-items:center;height:8.7cqw;color:var(--ip-ink)}
+.ip__clock{display:block;height:2.9cqw;width:auto;fill:currentColor;font:600 12px -apple-system,"SF Pro Text",system-ui,sans-serif}
+.ip__ico{grid-column:3;display:block;width:auto;height:2.9cqw;fill:currentColor}
+.ip__home{position:absolute;z-index:2;bottom:1.6cqw;left:50%;width:31.4cqw;height:1.25cqw;translate:-50% 0;border-radius:9999px;background:var(--ip-ink)}
+.ip__keys{position:absolute;inset:0}
+.ip__keys i{position:absolute;display:block;width:.8cqw;background:linear-gradient(90deg,var(--case-lo),var(--case-hi) 50%,var(--case-lo))}
+.ip__keys i:nth-child(-n+3){left:calc(-.9cqw - .8cqw);border-radius:.4cqw 0 0 .4cqw}
+.ip__keys i:nth-child(1){top:17%;height:5.5%}.ip__keys i:nth-child(2){top:26%;height:10%}.ip__keys i:nth-child(3){top:38.5%;height:10%}
+.ip__keys i:nth-child(4){right:calc(-.9cqw - .8cqw);top:29%;height:15%;border-radius:0 .4cqw .4cqw 0}
+
+.trust{padding:120px 0 60px}
+.tgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.tcard{padding:26px}
+.tcard h3{font-size:19px;font-weight:600;letter-spacing:-.015em;margin:12px 0 8px}
+.tcard p{color:var(--muted);font-size:15px}
+.who .tcard{padding:22px 26px}
+.ico{width:40px;height:40px;border-radius:12px;border:1px solid var(--line-2);display:grid;place-items:center;background:rgba(2,8,23,.5)}
+.ico svg{width:20px;height:20px;stroke:var(--accent);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:24px;margin-top:80px;counter-reset:s}
+.step{border-top:1px solid var(--line);padding-top:22px;position:relative}
+.step::before{counter-increment:s;content:"0" counter(s);font-family:var(--mono);font-size:12px;color:var(--accent)}
+.step::after{content:"";position:absolute;top:-1px;left:0;height:1px;width:var(--p,0%);background:var(--accent);box-shadow:0 0 10px var(--accent)}
+.step h4{font-size:18px;font-weight:600;letter-spacing:-.015em;margin:10px 0 8px}
+.step p{color:var(--muted);font-size:14px}
+.steps-note{margin-top:24px;color:var(--faint);font-size:14px}
+
+.pricing{padding:120px 0 60px}
+.est{display:grid;grid-template-columns:1fr 400px;padding:0}
+.est-l{padding:32px 34px;border-right:1px solid var(--line)}
+.est-r{padding:30px}
+.est h3{font-size:20px;font-weight:600;margin:6px 0 26px}
+.range{position:relative;height:28px}
+.range input{position:absolute;inset:0;width:100%;opacity:0;cursor:pointer;z-index:2;margin:0}
+.range .rail2{position:absolute;left:0;right:0;top:12px;height:5px;border-radius:9px;background:rgba(245,247,250,.08)}
+:root[data-theme="light"] .range .rail2{background:#cfd5e2}
+.range .fill2{position:absolute;left:0;top:12px;height:5px;border-radius:9px;background:linear-gradient(90deg,rgba(34,151,255,.5),var(--accent))}
+.range .knob{position:absolute;top:3px;width:22px;height:22px;margin-left:-11px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 6px rgba(24,242,223,.14),0 0 24px rgba(24,242,223,.7)}
+.range input:focus-visible~.knob{outline:2px solid #fff;outline-offset:3px}
+.ticks{display:flex;justify-content:space-between;margin-top:14px;font-family:var(--mono);font-size:12px;color:var(--ghost)}
+.ticks b{color:var(--text);font-weight:500}
+.pick{display:grid;gap:0;margin-top:30px}
+.pick-row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:16px;padding:13px 0;border-bottom:1px solid var(--line)}
+.pick-row:last-child{border-bottom:0}
+.pick-row b{display:block;font-weight:600;font-size:15px}
+.pick-row small{display:block;color:var(--faint);font-size:13px;margin-top:2px}
+.sw{position:relative;width:44px;height:26px;border-radius:99px;border:1px solid var(--line-2);background:rgba(245,247,250,.06);cursor:pointer;transition:background .3s var(--ease-ui),border-color .3s}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--faint);transition:transform .35s var(--ease-out),background .3s}
+.sw[aria-checked="true"]{background:rgba(24,242,223,.18);border-color:rgba(24,242,223,.55)}
+.sw[aria-checked="true"]::after{transform:translateX(18px);background:var(--accent);box-shadow:0 0 12px var(--accent)}
+.sw[disabled]{cursor:default;opacity:.85}
+.terms{list-style:none;display:grid;gap:8px;margin-top:24px}
+.terms li{display:flex;gap:10px;color:var(--muted);font-size:14px}
+.terms li::before{content:"";width:5px;height:5px;margin-top:8px;border-radius:50%;background:var(--accent);flex:none}
+.base-price{display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:center;margin-top:26px;padding:18px 20px;border-radius:14px;border:1px solid rgba(24,242,223,.3);background:rgba(24,242,223,.05)}
+.base-price b{display:block;font-size:40px;font-weight:600;letter-spacing:-.03em;margin:4px 0 2px;color:var(--text);font-variant-numeric:tabular-nums}
+.base-price small{font-size:13px;color:var(--faint)}
+.tiers{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.tiers div{padding:10px 8px;border-radius:10px;border:1px solid var(--line);text-align:center;transition:border-color .4s,background .4s}
+.tiers span{display:block;font-family:var(--mono);font-size:11px;color:var(--ghost)}
+.tiers b{font-size:14px;font-weight:600;color:var(--muted);white-space:nowrap}
+.tiers div.on{border-color:rgba(24,242,223,.6);background:rgba(24,242,223,.1)}
+.tiers div.on b{color:var(--accent)}
+.summary{border:1px solid rgba(24,242,223,.3);background:rgba(24,242,223,.06);border-radius:12px;padding:12px 14px;margin-bottom:16px;font-size:14px;color:var(--muted)}
+.summary b{color:var(--text);font-weight:600}
+.form{display:grid;gap:12px}
+.field{display:grid;gap:6px}
+.field span{font-size:13px;color:var(--faint)}
+.field input{height:46px;border-radius:10px;border:1px solid var(--line-2);background:rgba(2,8,23,.55);padding:0 14px;color:var(--text);outline:none;transition:border-color .2s}
+.field input:focus{border-color:var(--accent)}
+.field.bad input{border-color:var(--err)}
+.form .btn{width:100%;margin-top:6px}
+.consent{font-size:12px;color:var(--ghost)}
+.consent a{text-decoration:underline;text-underline-offset:2px}
+
+.faq-sec{padding:120px 0 40px}
+
+.faq-grid{display:grid;grid-template-columns:min-content minmax(0,1fr);gap:48px clamp(64px,6.5vw,96px)}
+.faq details{border-bottom:1px solid var(--line);padding:18px 0}
+.faq summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:16px;font-size:17px;font-weight:500}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";color:var(--accent);font-family:var(--mono);font-size:18px;line-height:1}
+.faq details[open] summary::after{content:"−"}
+.faq details p{color:var(--muted);margin-top:10px;max-width:640px}
+
+.final{padding:80px 0 40px}
+.f-cta{position:relative;overflow:hidden;background:var(--accent);color:var(--on-accent);border-radius:24px;padding:56px;display:grid;grid-template-columns:1.2fr 1fr;gap:40px;align-items:center;box-shadow:0 0 100px -30px rgba(24,242,223,.55)}
+.f-cta .ghost{position:absolute;right:-60px;bottom:-80px;width:360px;opacity:.12;filter:grayscale(1) brightness(0)}
+.f-cta .label{color:rgba(2,8,23,.6)}
+.f-cta h2{font-size:clamp(32px,3.8vw,54px);letter-spacing:-.035em;font-weight:620;line-height:1.04;margin:14px 0 14px}
+.f-cta h2 b{font-weight:800}
+.f-cta p{color:rgba(2,8,23,.75);max-width:520px}
+.f-cta .btn{height:54px;padding:0 28px;font-size:16px}
+.f-cta .side{display:grid;gap:12px;justify-items:start;position:relative}
+.f-cta .side small{color:rgba(2,8,23,.65);font-size:13px}
+.ticker{display:flex;justify-content:space-between;gap:20px;padding:28px 0;border-bottom:1px solid var(--line);color:var(--faint);flex-wrap:wrap}
+.ticker span{display:flex;align-items:center;gap:8px}
+.foot{display:grid;grid-template-columns:1.6fr repeat(3,1fr);gap:30px;padding:36px 0}
+.foot h4{font-family:var(--mono);font-weight:400;font-size:12px;color:var(--ghost);margin-bottom:14px}
+.foot a{display:block;font-size:14px;color:var(--muted);margin-bottom:8px}
+.foot a:hover{color:var(--text)}
+.foot a.brand{display:flex;margin:0}
+.foot .about p{color:var(--muted);margin:14px 0 0;max-width:320px}
+.legal{display:flex;justify-content:space-between;padding:20px 0 40px;color:var(--ghost);border-top:1px solid var(--line)}
+.tg{display:grid;gap:8px;margin-top:18px}
+.tg-msg{display:grid;gap:4px;width:fit-content;max-width:100%;padding:12px 14px;border-radius:14px 14px 14px 4px;background:#182533;color:#e9eef4;font-size:14px;line-height:1.45}
+.tg-msg b{font-weight:600;margin-bottom:4px}
+.consent-row{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+.consent-row input{flex:none;width:18px;height:18px;margin:1px 0 0;accent-color:var(--accent)}
+.consent-more{display:block}
+.consent-row.bad{color:var(--coral,#ff8a7a)}
+.hp{position:absolute;width:1px;height:1px;overflow:hidden;opacity:0;clip-path:inset(50%);pointer-events:none}
+.form-ok{display:grid;gap:10px;align-content:center;min-height:240px}
+.form-ok h3{font-size:24px;font-weight:600;letter-spacing:-.02em}
+.form-ok p{color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);opacity:0;z-index:60;padding:12px 18px;border-radius:12px;background:var(--surf);border:1px solid var(--line-2);font-size:14px;transition:.5s var(--ease-out);max-width:calc(100vw - 32px)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+.hero .wrap>*,.sec-head>*,.show-grid>*,.ai-grid>*,.est>*,.faq-grid>*,.f-cta>*{min-width:0}
+@media (max-width:1100px){
+  .mgrid,.tgrid{grid-template-columns:1fr 1fr}
+  .blk{grid-template-columns:minmax(0,1fr) 170px;gap:20px;padding:24px 24px 0}
+  .blk.base{grid-template-columns:minmax(0,1fr) 230px;padding:32px 32px 0}
+  .blk.base ul{grid-template-columns:1fr}
+}
+@media (max-width:960px){
+  .nav-links{display:none}
+  .nav-tel{display:none}
+  .nav-burger{display:grid}
+  .nav .btn{margin-left:auto}
+  .hero{padding-top:100px}
+  .hero .wrap,.sec-head,.show-grid,.ai-grid,.est,.faq-grid,.f-cta{grid-template-columns:1fr}
+  .hero-media{margin-right:0}
+  .sec-head p{justify-self:start}
+  .pains{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr 1fr}
+  .stage{display:none}
+  .feat{min-height:0;opacity:1;padding:0 0 56px}
+  .feat .zoom{display:block}
+  .feat img{display:block;width:100%;aspect-ratio:2/1;object-fit:cover;object-position:top left;border-radius:14px;border:1px solid var(--line);margin-top:18px}
+  .est-l{border-right:0;border-bottom:1px solid var(--line)}
+  .foot{grid-template-columns:1fr 1fr}
+  .foot .about{grid-column:span 2}
+  .f-cta{padding:36px 28px}
+}
+@media (max-width:600px){
+  .hero-media .frame{display:none}
+  .hero-phone{display:block;width:min(240px,62vw);margin:4px auto 0}
+  .feat .zoom{display:none}
+  .feat .fphone{display:block;width:min(230px,60vw);margin:22px auto 0}
+  .feat .fphone img{aspect-ratio:auto;height:100%;border:0;border-radius:0;margin:0}
+  .today,.show,.metrics,.ai,.blocks,.trust,.pricing,.faq-sec{padding:72px 0 16px}
+  .final{padding:48px 0 32px}
+  .integr{padding:0 0 8px}
+  .hero{padding:96px 0 40px;min-height:auto}
+  .sec-head{margin-bottom:32px;gap:16px}
+  .feat{padding:0 0 44px}
+  .steps{margin-top:48px}
+  .hero .ctas{display:grid;grid-template-columns:1fr;gap:10px}
+  .hero .ctas .btn{width:100%;height:50px}
+  .tiers div{padding:8px 1px}.tiers b{font-size:11.5px}
+  .sw{width:52px;height:32px}.sw::after{width:24px;height:24px}.sw[aria-checked="true"]::after{transform:translateX(20px)}
+  .foot>div:last-child{grid-column:span 2}
+  .faq summary{align-items:center}
+  .merge-count{display:none}
+  .merge-titles{top:max(11%,72px)}
+  .pcb-narrow .pcb-labs{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .brand img.word{display:none}
+  .hero::after{background:linear-gradient(180deg,rgba(2,8,23,.6),rgba(2,8,23,.35) 70%,transparent);-webkit-mask-image:none;mask-image:none}
+  .mgrid,.steps,.tgrid{grid-template-columns:1fr}
+  .who .tgrid{grid-template-columns:1fr 1fr;gap:10px}
+  .who .tcard{padding:16px}
+  .who .tcard h3{font-size:17px;margin:10px 0 4px}
+  .who .tcard p{font-size:13px}
+  .bgrid{grid-template-columns:1fr}
+  .blk,.blk.base{grid-column:auto;grid-template-columns:1fr;padding:24px 22px 0;gap:6px}
+  .blk .ip{width:min(240px,72%);margin:0 auto -60px}
+  .blk.base .ip{width:min(260px,76%);margin-bottom:-70px}
+  .ticker{flex-direction:column;gap:10px}
+  .legal{flex-direction:column;gap:6px}
+  .est-l,.est-r{padding:22px 20px}
+  .base-price{grid-template-columns:1fr;gap:14px}
+  .tiers{gap:4px}.tiers div{padding:8px 2px}.tiers b{font-size:12px}
+  .f-cta{padding:30px 22px}
+  .faq summary{font-size:16px}
+}
+@media (min-width:961px){
+  .faq{border-top:1px solid var(--line-2)}
+  .faq-grid .kicker{vertical-align:top}
+  .faq details p{text-wrap:pretty}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .marquee{-webkit-mask:none;mask:none;padding:0 var(--gutter)}
+  .marquee-track{display:block;width:auto}
+  .marquee-set{flex-wrap:wrap;justify-content:center;min-width:0}
+  .marquee-set+.marquee-set{display:none}
+}
+/* v5-dubai crops. Desktop frames (.screens, 2:1): zoom --s around --o so the multi-venue rows of the demo stay outside the frame.
+   iPhone frames: no mobile EN screens exist, so the phone shows a strip of the desktop shot (~370 of 1600 px), --px picks the strip, --ps zooms from the bottom-left corner (hides the top bar with the demo group name). */
+.screens{overflow:hidden}
+.screens img,.feat .zoom img{transform:scale(calc(var(--s,1)*1.015));transform-origin:var(--o,0 0)}
+.screens img.on,.feat .zoom img{transform:scale(var(--s,1))}
+:is(.screens,.zoom) img[src$="/t046.webp"]{--s:1.594;--o:7.7% 16.8%}
+:is(.screens,.zoom) img[src$="/y004.webp"]{--s:1.5686;--o:7.9% 100%}
+:is(.screens,.zoom) img[src$="/t040.webp"]{--s:1.4286;--o:70.8% 95.8%}
+.ip__screen img,.hero-app img{object-position:var(--px,24%) 0;transform:scale(var(--ps,1.1));transform-origin:var(--po,0 100%)}
+:is(.ip__screen,.hero-app) img:is([src$="/y004m.webp"],[src$="/g-bookm.webp"]){--px:0;--ps:1}
+:is(.ip__screen,.hero-app) img[src$="/t040.webp"]{--px:25.4%}
+:is(.ip__screen,.hero-app) img[src$="/t078.webp"]{--px:23.7%;--ps:1;height:84%}
+:is(.ip__screen,.hero-app) img[src$="/y007.webp"]{--px:26.8%;--ps:1.12;--po:0 0}
+@media (max-width:900px){
+  .feat .zoom{position:relative;overflow:hidden;aspect-ratio:2/1;border-radius:14px;border:1px solid var(--line);margin-top:18px}
+  .feat .zoom img{position:absolute;inset:0;margin:0;border:0;border-radius:0;width:100%;height:100%}
+}
+@media (max-width:600px){
+  .feat.kz .zoom{display:block}
+  .feat.kz .fphone{display:none}
+}
+.hero-phone-tag{display:none}
+/* calculator v16 */
+.calc-row{display:grid;gap:10px;padding:16px 0;border-top:1px solid var(--line)}
+.calc-row[hidden]{display:none}
+.calc-row>b,.calc-row label b{font-weight:600;font-size:15px}
+.calc-row small{display:block;color:var(--faint);font-size:13px;margin-top:2px}
+.seg{display:inline-grid;grid-auto-flow:column;gap:4px;width:max-content;max-width:100%;padding:4px;border-radius:12px;border:1px solid var(--line-2);background:rgba(245,247,250,.04)}
+.seg button{border:0;background:none;color:var(--muted);font:inherit;font-size:13.5px;padding:8px 12px;border-radius:9px;cursor:pointer;white-space:nowrap;transition:background .25s,color .25s}
+.seg button[aria-checked="true"]{background:rgba(24,242,223,.16);color:var(--text);box-shadow:inset 0 0 0 1px rgba(24,242,223,.5)}
+.seg button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.stepper{display:inline-grid;grid-template-columns:44px 96px 44px;height:44px;width:max-content;border:1px solid var(--line-2);border-radius:10px;overflow:hidden}
+.stepper button{border:0;background:rgba(245,247,250,.05);color:var(--text);font-size:18px;cursor:pointer}
+.stepper input{border:0;border-inline:1px solid var(--line-2);background:transparent;color:var(--text);text-align:center;font:inherit;font-size:15px;font-variant-numeric:tabular-nums;-moz-appearance:textfield;appearance:textfield;outline:none;min-width:0}
+.stepper input::-webkit-inner-spin-button,.stepper input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.stepper input:focus{background:rgba(24,242,223,.08)}
+.quote{display:grid;gap:7px;margin-bottom:18px;padding:16px 18px;border-radius:14px;border:1px solid rgba(24,242,223,.3);background:rgba(24,242,223,.05);font-size:14px;color:var(--muted)}
+.quote .label{margin-bottom:4px}
+.q-line{display:flex;justify-content:space-between;gap:12px}
+.q-line b{color:var(--text);font-weight:500;font-variant-numeric:tabular-nums;white-space:nowrap}
+.q-sep{height:1px;background:var(--line);margin:4px 0}
+.q-save b{color:var(--accent)}
+.q-total{align-items:baseline;color:var(--text);font-weight:600;font-size:15px}
+.q-total b{font-size:26px;font-weight:600;letter-spacing:-.02em;color:var(--accent)}
+.allin{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px 28px;padding:24px 30px;border-color:rgba(24,242,223,.32)}
+.allin h3{font-size:22px;font-weight:600;letter-spacing:-.02em;margin:8px 0 4px}
+.allin p{color:var(--faint);font-size:14px}
+.allin .price{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;padding:12px 16px;border-radius:12px;border:1px solid rgba(24,242,223,.3);background:rgba(24,242,223,.06)}
+.allin .price b{font-size:28px;font-weight:600;letter-spacing:-.02em;color:var(--accent)}
+.allin .price span{font-size:13px;color:var(--faint)}
+.blk .price small{flex-basis:100%;font-size:12.5px;color:var(--faint)}
+:root[data-theme="light"] .stepper button{background:rgba(74,87,168,.07)}
+:root[data-theme="light"] .seg{background:rgba(74,87,168,.05)}
+:root[data-theme="light"] .seg button[aria-checked="true"]{background:rgba(47,91,234,.12);box-shadow:inset 0 0 0 1px rgba(47,91,234,.5)}
+:root[data-theme="light"] .stepper input:focus{background:rgba(47,91,234,.06)}
+@media (max-width:600px){
+  .hero-phone-tag{display:block;text-align:center;margin:14px 0 0}
+  .seg{display:grid;grid-auto-flow:row;width:100%}
+  .seg button{text-align:left;white-space:normal}
+  .allin{padding:22px}
+}
+</style>
+<script>try{var _p=new URLSearchParams(location.search).get('theme');var _t=(_p==='light'||_p==='dark')?_p:sessionStorage.getItem('vilax-theme');if(_t)document.documentElement.setAttribute('data-theme',_t);var L=_t==='light'?'light/':'',U='';document.head.insertAdjacentHTML('beforeend','<link rel="preload" as="image" fetchpriority="high" href="'+U+'shots/'+L+'t046.webp">');}catch(e){}</script>
+
+</head>
+<body>
+<canvas id="gl" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<header class="nav" id="nav">
+  <div class="wrap">
+    <a class="brand" href="#top" data-scroll aria-label="VILAX"><img class="mark" src="../logo.svg" alt=""><img class="word" src="../wordmark.svg" alt=""></a>
+    <nav class="nav-links" aria-label="Sections">
+      <a href="#finance" data-scroll>What it shows</a>
+      <a href="#pricing" data-scroll>Pricing</a>
+      <a href="#trust" data-scroll>How to connect</a>
+      <a href="#faq" data-scroll>FAQ</a>
+    </nav>
+    <button class="theme-tgl" id="themeTgl" type="button" aria-label="Switch theme" aria-pressed="false">
+      <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+      <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.4M12 19.1v2.4M4.6 4.6l1.7 1.7M17.7 17.7l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.6 19.4l1.7-1.7M17.7 6.3l1.7-1.7"/></svg>
+    </button>
+    <a class="btn btn-accent" href="#pricing" data-scroll>Request a demo</a>
+    <button class="nav-burger" id="navBurger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="navSheet"><i></i><i></i></button>
+  </div>
+  <nav class="nav-sheet" id="navSheet" aria-label="Sections" hidden>
+    <a href="#finance" data-scroll>What it shows</a>
+    <a href="#pricing" data-scroll>Pricing</a>
+    <a href="#trust" data-scroll>How to connect</a>
+    <a href="#faq" data-scroll>FAQ</a>
+  </nav>
+</header>
+
+<main id="top">
+
+<section class="hero" data-scene="logo">
+  <div class="wrap">
+    <div>
+      <span class="kicker mono reveal"><i class="dot"></i>management system for your restaurant</span>
+      <h1 class="split">Your whole venue <em>in one window.</em></h1>
+      <p class="lead">Revenue every 15 minutes, losses for every shift.</p>
+      <div class="ctas reveal">
+        <a class="btn btn-accent" href="#pricing" data-scroll>Request a demo</a>
+        <a class="btn btn-ghost" href="#finance" data-scroll>See the interface</a>
+      </div>
+    </div>
+    <div class="hero-media" id="heroMedia">
+      <div class="glass frame" id="heroFrame">
+        <div class="frame-bar"><i></i><i></i><i></i><span class="demo-tag">real interface · demo data · multi-venue demo</span></div>
+        <div class="screens hero-screens" id="heroScreens" aria-label="VILAX screens: losses, shift result, menu matrix">
+          <img class="on" src="shots/t046.webp" alt="Losses across six channels" data-th="dark" loading="lazy"><img class="on" src="shots/light/t046.webp" alt="Losses across six channels" data-th="light" loading="lazy"><img src="shots/y004.webp" alt="Shift result against a usual day" data-th="dark" loading="lazy"><img src="shots/light/y004.webp" alt="Shift result against a usual day" data-th="light" loading="lazy"><img src="shots/t040.webp" alt="Menu matrix" data-th="dark" loading="lazy"><img src="shots/light/t040.webp" alt="Menu matrix" data-th="light" loading="lazy">
+        </div>
+        <div class="stage-foot"><span class="label" id="heroName">losses across six channels</span><div class="ticks2" id="heroTicks"><i class="on"></i><i></i><i></i></div></div>
+      </div>
+      <div class="ip hero-phone"><div class="ip__lid"><span class="ip__keys" aria-hidden="true"><i></i><i></i><i></i><i></i></span><div class="ip__glass"><span class="ip__island" aria-hidden="true"></span><span class="ip__bar" aria-hidden="true"><svg class="ip__clock" viewBox="0 0 26 12"><text x="13" y="10.5" text-anchor="middle">9:41</text></svg><svg class="ip__ico" viewBox="0 0 64 12"><rect x="0" y="8" width="3" height="4" rx=".8"/><rect x="4.5" y="6" width="3" height="6" rx=".8"/><rect x="9" y="3.5" width="3" height="8.5" rx=".8"/><rect x="13.5" y="1" width="3" height="11" rx=".8"/><rect x="38.5" y="1.5" width="21" height="9" rx="2.6" fill="none" stroke="currentColor" stroke-opacity=".4"/><rect x="40.5" y="3.5" width="17" height="5" rx="1.3"/></svg></span><div class="ip__screen"><div class="hero-app" id="heroApp"><img class="on" src="shots/t040.webp" alt="Menu matrix" data-th="dark" loading="lazy"><img class="on" src="shots/light/t040.webp" alt="Menu matrix" data-th="light" loading="lazy"><img src="shots/y004m.webp" alt="Shift result: a usual Tuesday" data-th="dark" loading="lazy"><img src="shots/light/y004m.webp" alt="Shift result: a usual Tuesday" data-th="light" loading="lazy"><img src="shots/g-bookm.webp" alt="Bookings by table" data-th="dark" loading="lazy"><img src="shots/light/g-bookm.webp" alt="Bookings by table" data-th="light" loading="lazy"></div></div><span class="ip__home" aria-hidden="true"></span></div></div></div>
+      <p class="label hero-phone-tag">real interface · demo data · multi-venue demo</p>
+    </div>
+  </div>
+</section>
+
+<section class="integr" data-scene="logo">
+  <div class="label">works with</div>
+  <div class="marquee" role="img" aria-label="Works with: Syrve, Telegram, Apple Wallet, Claude, ChatGPT, Excel export">
+    <div class="marquee-track" aria-hidden="true">
+      <div class="marquee-set"><span>Syrve</span><span>Telegram</span><span>Apple Wallet</span><span>Claude</span><span>ChatGPT</span><span>Excel export</span><span>Syrve</span><span>Telegram</span><span>Apple Wallet</span><span>Claude</span><span>ChatGPT</span><span>Excel export</span></div>
+      <div class="marquee-set"><span>Syrve</span><span>Telegram</span><span>Apple Wallet</span><span>Claude</span><span>ChatGPT</span><span>Excel export</span><span>Syrve</span><span>Telegram</span><span>Apple Wallet</span><span>Claude</span><span>ChatGPT</span><span>Excel export</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="who" id="who" data-scene="logo">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><span class="kicker mono reveal"><i class="dot"></i>who it's for</span>
+      <h2 class="h2 split">For a single venue <em>in Dubai.</em></h2></div>
+      <p class="reveal">Restaurants, lounges, bars and cafés — one clear picture of your venue, every day.</p>
+    </div>
+    <div class="tgrid">
+      <div class="glass tcard reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M7 3v8M5 3v4a2 2 0 0 0 4 0V3M7 11v10M17 3c-2 0-3 2.5-3 6h3v12"/></svg></div><h3>Restaurants</h3><p>Revenue, plan vs actual and losses for every shift.</p></div>
+      <div class="glass tcard reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 20h16M7 20c0-4 2-6 5-6s5 2 5 6M12 14V9M9 6c1-2 5-2 6 0"/></svg></div><h3>Lounges</h3><p>Shifts, discounts and voids under control.</p></div>
+      <div class="glass tcard reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M5 4h14l-7 8zM12 12v8M8 20h8"/></svg></div><h3>Bars</h3><p>Revenue by the hour and losses per shift.</p></div>
+      <div class="glass tcard reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M4 9h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5zM17 10h1.5a2.5 2.5 0 0 1 0 5H17M8 3v3M12 3v3"/></svg></div><h3>Cafés</h3><p>Daily totals and summaries in Telegram.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="today" id="today" data-scene="logo">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><span class="kicker mono reveal"><i class="dot"></i>how it works now</span>
+      <h2 class="h2 split">How a venue is run <em>today.</em></h2></div>
+      <p class="reveal">The data is in the POS, the books and the spreadsheets — but never in one place. So decisions come late.</p>
+    </div>
+    <div class="pains">
+      <div class="glass pain reveal"><div class="label">revenue</div><h3>You learn the revenue at night — from the manager's message at closing</h3><p>The gap to plan shows up when the month can no longer be saved.</p></div>
+      <div class="glass pain reveal"><div class="label">cost</div><h3>You learn food cost at the end of the month</h3><p>Which dishes eat the margin is worked out by hand.</p></div>
+      <div class="glass pain reveal"><div class="label">losses</div><h3>Nobody sees voids after the pre-check</h3><p>Cancellations, refunds, discounts and write-offs get lost between shifts.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="merge" id="merge" data-scene="logo" aria-label="VILAX brings your venue's data into one window">
+  <div class="merge-stage" id="mergeStage">
+    <div class="merge-titles">
+      <h2 class="mt mt1">The answers are scattered across services, <em>spreadsheets and reports.</em></h2>
+      <h2 class="mt mt2">VILAX brings them <em>into one window.</em></h2>
+    </div>
+    <div class="pcb" id="pcb">
+      <div class="pcb-scene">
+        <svg class="pcb-traces" aria-hidden="true">
+          <defs>
+            <symbol id="pcbI0" viewBox="0 0 24 24"><path d="M6 3h12v18l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4-2 1.4z M9 8h6 M9 12h6"/></symbol>
+            <symbol id="pcbI1" viewBox="0 0 24 24"><path d="M4 5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z M4 10h16 M4 15h16 M10 4v16"/></symbol>
+            <symbol id="pcbI2" viewBox="0 0 24 24"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z M18.5 16l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/></symbol>
+            <symbol id="pcbI3" viewBox="0 0 24 24"><path d="M4 6h16v14H4z M4 10h16 M8 3v5 M16 3v5 M8 14h3 M8 17h3"/></symbol>
+            <symbol id="pcbI4" viewBox="0 0 24 24"><path d="M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6 M16 4.5a3.5 3.5 0 0 1 0 6.5 M18 14.5c1.8.8 3 2.8 3 5.5"/></symbol>
+            <symbol id="pcbI5" viewBox="0 0 24 24"><path d="M4 20V4 M4 20h16 M8 16v-4 M12 16V8 M16 16v-6"/></symbol>
+            <symbol id="pcbI6" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z M8 9h8 M8 12.5h5"/></symbol>
+            <symbol id="pcbI7" viewBox="0 0 24 24"><path d="M3 6h18v12H3z M3 10h18 M7 15h4"/></symbol>
+          </defs>
+          <path class="pcb-base"/>
+          <path class="pcb-lit pcb-l"/>
+          <path class="pcb-lit pcb-r"/>
+          <path class="pcb-lit pcb-l"/>
+          <path class="pcb-lit pcb-r"/>
+          <path class="pcb-lit pcb-l"/>
+          <path class="pcb-lit pcb-r"/>
+          <path class="pcb-lit pcb-l"/>
+          <path class="pcb-lit pcb-r"/>
+        </svg>
+        <svg class="pcb-pins" viewBox="0 0 280 280" aria-hidden="true">
+          <path class="pcb-comb" d="M-10 15H1M290 15H279M15 -10V1M15 290V279M65 -10V1M65 290V279M115 -10V1M115 290V279M165 -10V1M165 290V279M215 -10V1M215 290V279M-10 265H1M290 265H279M265 -10V1M265 290V279"/>
+          <path class="pcb-comb pcb-comb-e" d="M-10 40H1M290 40H279M40 -10V1M40 290V279M-10 90H1M290 90H279M90 -10V1M90 290V279M-10 140H1M290 140H279M140 -10V1M140 290V279M-10 190H1M290 190H279M190 -10V1M190 290V279M-10 240H1M290 240H279M240 -10V1M240 290V279"/>
+          <path class="pcb-lead" d="M-18 63.5L1 63.5L1 66.5L-18 66.5ZM298 63.5L279 63.5L279 66.5L298 66.5ZM-18 113.5L1 113.5L1 116.5L-18 116.5ZM298 113.5L279 113.5L279 116.5L298 116.5ZM-18 163.5L1 163.5L1 166.5L-18 166.5ZM298 163.5L279 163.5L279 166.5L298 166.5ZM-18 213.5L1 213.5L1 216.5L-18 216.5ZM298 213.5L279 213.5L279 216.5L298 216.5Z"/>
+          <path class="pcb-on pcb-pl" data-i="0" d="M-18 63.5L1 63.5L1 66.5L-18 66.5Z"/>
+          <path class="pcb-on pcb-pr" data-i="1" d="M298 63.5L279 63.5L279 66.5L298 66.5Z"/>
+          <path class="pcb-on pcb-pl" data-i="2" d="M-18 113.5L1 113.5L1 116.5L-18 116.5Z"/>
+          <path class="pcb-on pcb-pr" data-i="3" d="M298 113.5L279 113.5L279 116.5L298 116.5Z"/>
+          <path class="pcb-on pcb-pl" data-i="4" d="M-18 163.5L1 163.5L1 166.5L-18 166.5Z"/>
+          <path class="pcb-on pcb-pr" data-i="5" d="M298 163.5L279 163.5L279 166.5L298 166.5Z"/>
+          <path class="pcb-on pcb-pl" data-i="6" d="M-18 213.5L1 213.5L1 216.5L-18 216.5Z"/>
+          <path class="pcb-on pcb-pr" data-i="7" d="M298 213.5L279 213.5L279 216.5L298 216.5Z"/>
+        </svg>
+        <ul class="pcb-labs" role="list" aria-label="Where your data lives today">
+          <li class="pcb-lab pcb-l"><svg class="pcb-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#pcbI0"/></svg><b>Syrve</b> <span>checks, shifts</span></li>
+          <li class="pcb-lab pcb-r"><svg class="pcb-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#pcbI1"/></svg><b>Excel</b> <span>reports export</span></li>
+          <li class="pcb-lab pcb-l"><svg class="pcb-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#pcbI2"/></svg><b>ChatGPT &amp; Claude</b> <span>questions to your data</span></li>
+          <li class="pcb-lab pcb-r"><svg class="pcb-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#pcbI3"/></svg><b>Bookings</b> <span>Guests 360</span></li>
+          <li class="pcb-lab pcb-l"><svg class="pcb-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#pcbI4"/></svg><b>Team</b> <span>Academy</span></li>
+          <li class="pcb-lab pcb-r"><svg class="pcb-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#pcbI5"/></svg><b>Finance</b> <span>P&amp;L, cash flow</span></li>
+          <li class="pcb-lab pcb-l"><svg class="pcb-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#pcbI6"/></svg><b>Telegram</b> <span>summaries, answers</span></li>
+          <li class="pcb-lab pcb-r"><svg class="pcb-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#pcbI7"/></svg><b>Loyalty</b> <span>Apple Wallet</span></li>
+        </ul>
+        <div class="pcb-tiles" aria-hidden="true">
+          <div class="pcb-tile"><svg class="pcb-whisk"><path d="M-4 13H0M132 13H136M-4 23H0M132 23H136M-4 33H0M132 33H136"/></svg><svg class="pcb-ic" viewBox="0 0 24 24"><use href="#pcbI0"/></svg><span>Syrve</span></div>
+          <div class="pcb-tile"><svg class="pcb-whisk"><path d="M-4 13H0M132 13H136M-4 23H0M132 23H136M-4 33H0M132 33H136"/></svg><svg class="pcb-ic" viewBox="0 0 24 24"><use href="#pcbI1"/></svg><span>Excel</span></div>
+          <div class="pcb-tile"><svg class="pcb-whisk"><path d="M-4 13H0M132 13H136M-4 23H0M132 23H136M-4 33H0M132 33H136"/></svg><svg class="pcb-ic" viewBox="0 0 24 24"><use href="#pcbI2"/></svg><span>ChatGPT</span></div>
+          <div class="pcb-tile"><svg class="pcb-whisk"><path d="M-4 13H0M132 13H136M-4 23H0M132 23H136M-4 33H0M132 33H136"/></svg><svg class="pcb-ic" viewBox="0 0 24 24"><use href="#pcbI3"/></svg><span>Bookings</span></div>
+          <div class="pcb-tile"><svg class="pcb-whisk"><path d="M-4 13H0M132 13H136M-4 23H0M132 23H136M-4 33H0M132 33H136"/></svg><svg class="pcb-ic" viewBox="0 0 24 24"><use href="#pcbI4"/></svg><span>Team</span></div>
+          <div class="pcb-tile"><svg class="pcb-whisk"><path d="M-4 13H0M132 13H136M-4 23H0M132 23H136M-4 33H0M132 33H136"/></svg><svg class="pcb-ic" viewBox="0 0 24 24"><use href="#pcbI5"/></svg><span>Finance</span></div>
+          <div class="pcb-tile"><svg class="pcb-whisk"><path d="M-4 13H0M132 13H136M-4 23H0M132 23H136M-4 33H0M132 33H136"/></svg><svg class="pcb-ic" viewBox="0 0 24 24"><use href="#pcbI6"/></svg><span>Telegram</span></div>
+          <div class="pcb-tile"><svg class="pcb-whisk"><path d="M-4 13H0M132 13H136M-4 23H0M132 23H136M-4 33H0M132 33H136"/></svg><svg class="pcb-ic" viewBox="0 0 24 24"><use href="#pcbI7"/></svg><span>Loyalty</span></div>
+        </div>
+        <div class="pcb-ring" aria-hidden="true"></div>
+        <div class="pcb-chip" aria-hidden="true">
+          <svg viewBox="0 0 280 280">
+            <defs>
+              <linearGradient id="pcbPkgGrad" x1="0" y1="0" x2="280" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" style="stop-color:var(--pcb-lit-l)"/><stop offset=".3" style="stop-color:var(--pcb-lit-l)"/><stop offset=".6" style="stop-color:var(--pcb-lit-m)"/><stop offset="1" style="stop-color:var(--pcb-lit-r)"/></linearGradient>
+              <linearGradient id="pcbRingGrad" x1="30.5" y1="0" x2="249.5" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" style="stop-color:var(--pcb-die-l)"/><stop offset=".3" style="stop-color:var(--pcb-die-l)"/><stop offset=".6" style="stop-color:var(--pcb-die-m)"/><stop offset="1" style="stop-color:var(--pcb-die-r)"/></linearGradient>
+            </defs>
+            <path class="pcb-frame" d="M18 0.75H262A17.25 17.25 0 0 1 279.25 18V262A17.25 17.25 0 0 1 262 279.25H18A17.25 17.25 0 0 1 0.75 262V18A17.25 17.25 0 0 1 18 0.75Z"/>
+            <path class="pcb-edge" d="M18 2.5H262A15.5 15.5 0 0 1 277.5 18V262A15.5 15.5 0 0 1 262 277.5H18A15.5 15.5 0 0 1 2.5 262V18A15.5 15.5 0 0 1 18 2.5Z"/>
+            <path class="pcb-die" d="M44.5 30.5H241.5A8 8 0 0 1 249.5 38.5V241.5A8 8 0 0 1 241.5 249.5H38.5A8 8 0 0 1 30.5 241.5V44.5Z"/>
+            <path class="pcb-bond" d="M1.5 64.25L27 64.25L27 62L33 62L33 68L27 68L27 65.75L1.5 65.75ZM278.5 64.25L253 64.25L253 62L247 62L247 68L253 68L253 65.75L278.5 65.75ZM1.5 114.25L27 114.25L27 112L33 112L33 118L27 118L27 115.75L1.5 115.75ZM278.5 114.25L253 114.25L253 112L247 112L247 118L253 118L253 115.75L278.5 115.75ZM1.5 164.25L27 164.25L27 162L33 162L33 168L27 168L27 165.75L1.5 165.75ZM278.5 164.25L253 164.25L253 162L247 162L247 168L253 168L253 165.75L278.5 165.75ZM1.5 214.25L27 214.25L27 212L33 212L33 218L27 218L27 215.75L1.5 215.75ZM278.5 214.25L253 214.25L253 212L247 212L247 218L253 218L253 215.75L278.5 215.75Z"/>
+            <path class="pcb-on pcb-bl" data-i="0" d="M1.5 64.25L27 64.25L27 62L33 62L33 68L27 68L27 65.75L1.5 65.75Z"/>
+            <path class="pcb-on pcb-br" data-i="1" d="M278.5 64.25L253 64.25L253 62L247 62L247 68L253 68L253 65.75L278.5 65.75Z"/>
+            <path class="pcb-on pcb-bl" data-i="2" d="M1.5 114.25L27 114.25L27 112L33 112L33 118L27 118L27 115.75L1.5 115.75Z"/>
+            <path class="pcb-on pcb-br" data-i="3" d="M278.5 114.25L253 114.25L253 112L247 112L247 118L253 118L253 115.75L278.5 115.75Z"/>
+            <path class="pcb-on pcb-bl" data-i="4" d="M1.5 164.25L27 164.25L27 162L33 162L33 168L27 168L27 165.75L1.5 165.75Z"/>
+            <path class="pcb-on pcb-br" data-i="5" d="M278.5 164.25L253 164.25L253 162L247 162L247 168L253 168L253 165.75L278.5 165.75Z"/>
+            <path class="pcb-on pcb-bl" data-i="6" d="M1.5 214.25L27 214.25L27 212L33 212L33 218L27 218L27 215.75L1.5 215.75Z"/>
+            <path class="pcb-on pcb-br" data-i="7" d="M278.5 214.25L253 214.25L253 212L247 212L247 218L253 218L253 215.75L278.5 215.75Z"/>
+            <path class="pcb-dring" d="M44.5 30.5H241.5A8 8 0 0 1 249.5 38.5V241.5A8 8 0 0 1 241.5 249.5H38.5A8 8 0 0 1 30.5 241.5V44.5Z"/>
+          </svg>
+          <img class="pcb-sign" src="../logo.svg" alt=""><img class="pcb-word" src="../wordmark.svg" alt="">
+        </div>
+      </div>
+    </div>
+    <div class="merge-count" aria-hidden="true"><span><b>8</b> pieces</span><span class="pcb-arrow"><i></i></span><span class="pcb-cell"><span class="pcb-off"><b>1</b> window</span><span class="pcb-to"><b>1</b> window</span></span></div>
+  </div>
+</section>
+
+<section class="show" id="finance" data-scene="logo" data-shift="0.5" data-intensity="0.8">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><span class="kicker mono reveal"><i class="dot"></i>analytics · core + finance &amp; control</span>
+      <h2 class="h2 split">See where your venue <em>earns and loses.</em></h2></div>
+      <p class="reveal">Core shows revenue, plan vs actual and key metrics every day. Finance &amp; Control adds P&amp;L, food cost, the menu and losses. Below are real screens with demo data.</p>
+    </div>
+    <div class="show-grid">
+      <div class="feats" id="feats">
+        <div class="feat" data-i="0"><span class="n">01 · Core</span><h3>Shift result against a usual day</h3><p>Actual revenue of the shift against the plan, a usual same weekday and the sales potential — and what moved it: guests, spend per guest, per table.</p><div class="zoom"><img src="shots/y004.webp" alt="Shift result" data-th="dark" loading="lazy"><img src="shots/light/y004.webp" alt="Shift result" data-th="light" loading="lazy"></div><div class="ip fphone"><div class="ip__lid"><span class="ip__keys" aria-hidden="true"><i></i><i></i><i></i><i></i></span><div class="ip__glass"><span class="ip__island" aria-hidden="true"></span><span class="ip__bar" aria-hidden="true"><svg class="ip__clock" viewBox="0 0 26 12"><text x="13" y="10.5" text-anchor="middle">9:41</text></svg><svg class="ip__ico" viewBox="0 0 64 12"><rect x="0" y="8" width="3" height="4" rx=".8"/><rect x="4.5" y="6" width="3" height="6" rx=".8"/><rect x="9" y="3.5" width="3" height="8.5" rx=".8"/><rect x="13.5" y="1" width="3" height="11" rx=".8"/><path d="M22.6 7.1a5.5 5.5 0 0 1 7.8 0M20.1 4.6a9 9 0 0 1 12.7 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="26.5" cy="10.4" r="1.5"/><rect x="38.5" y="1.5" width="21" height="9" rx="2.6" fill="none" stroke="currentColor" stroke-opacity=".4"/><rect x="40.5" y="3.5" width="17" height="5" rx="1.3"/></svg></span><div class="ip__screen"><img src="shots/y004m.webp" alt="Shift result — on a phone" data-th="dark" loading="lazy"><img src="shots/light/y004m.webp" alt="Shift result — on a phone" data-th="light" loading="lazy"></div><span class="ip__home" aria-hidden="true"></span></div></div></div></div>
+        <div class="feat kz" data-i="1"><span class="n">02 · Finance &amp; Control</span><h3>Losses across six channels</h3><p>Voids after pre-check, cancellations, refunds, discounts and write-offs — broken down by employee.</p><div class="zoom"><img src="shots/t046.webp" alt="Losses: six channels" data-th="dark" loading="lazy"><img src="shots/light/t046.webp" alt="Losses: six channels" data-th="light" loading="lazy"></div><div class="ip fphone"><div class="ip__lid"><span class="ip__keys" aria-hidden="true"><i></i><i></i><i></i><i></i></span><div class="ip__glass"><span class="ip__island" aria-hidden="true"></span><span class="ip__bar" aria-hidden="true"><svg class="ip__clock" viewBox="0 0 26 12"><text x="13" y="10.5" text-anchor="middle">9:41</text></svg><svg class="ip__ico" viewBox="0 0 64 12"><rect x="0" y="8" width="3" height="4" rx=".8"/><rect x="4.5" y="6" width="3" height="6" rx=".8"/><rect x="9" y="3.5" width="3" height="8.5" rx=".8"/><rect x="13.5" y="1" width="3" height="11" rx=".8"/><path d="M22.6 7.1a5.5 5.5 0 0 1 7.8 0M20.1 4.6a9 9 0 0 1 12.7 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="26.5" cy="10.4" r="1.5"/><rect x="38.5" y="1.5" width="21" height="9" rx="2.6" fill="none" stroke="currentColor" stroke-opacity=".4"/><rect x="40.5" y="3.5" width="17" height="5" rx="1.3"/></svg></span><div class="ip__screen"><img src="shots/t046.webp" alt="Losses: six channels — on a phone" data-th="dark" loading="lazy"><img src="shots/light/t046.webp" alt="Losses: six channels — on a phone" data-th="light" loading="lazy"></div><span class="ip__home" aria-hidden="true"></span></div></div></div></div>
+        <div class="feat" data-i="2"><span class="n">03 · Finance &amp; Control</span><h3>Menu matrix and food cost</h3><p>Dishes by sales and margin: what to promote, what to reprice, what to drop. Food cost by menu group against your target.</p><div class="zoom"><img src="shots/t040.webp" alt="Menu matrix" data-th="dark" loading="lazy"><img src="shots/light/t040.webp" alt="Menu matrix" data-th="light" loading="lazy"></div><div class="ip fphone"><div class="ip__lid"><span class="ip__keys" aria-hidden="true"><i></i><i></i><i></i><i></i></span><div class="ip__glass"><span class="ip__island" aria-hidden="true"></span><span class="ip__bar" aria-hidden="true"><svg class="ip__clock" viewBox="0 0 26 12"><text x="13" y="10.5" text-anchor="middle">9:41</text></svg><svg class="ip__ico" viewBox="0 0 64 12"><rect x="0" y="8" width="3" height="4" rx=".8"/><rect x="4.5" y="6" width="3" height="6" rx=".8"/><rect x="9" y="3.5" width="3" height="8.5" rx=".8"/><rect x="13.5" y="1" width="3" height="11" rx=".8"/><path d="M22.6 7.1a5.5 5.5 0 0 1 7.8 0M20.1 4.6a9 9 0 0 1 12.7 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="26.5" cy="10.4" r="1.5"/><rect x="38.5" y="1.5" width="21" height="9" rx="2.6" fill="none" stroke="currentColor" stroke-opacity=".4"/><rect x="40.5" y="3.5" width="17" height="5" rx="1.3"/></svg></span><div class="ip__screen"><img src="shots/t040.webp" alt="Menu matrix — on a phone" data-th="dark" loading="lazy"><img src="shots/light/t040.webp" alt="Menu matrix — on a phone" data-th="light" loading="lazy"></div><span class="ip__home" aria-hidden="true"></span></div></div></div></div>
+      </div>
+      <div class="stage">
+        <div class="glass frame">
+          <div class="frame-bar"><i></i><i></i><i></i><span class="demo-tag">real interface · demo data · multi-venue demo</span></div>
+          <div class="screens" id="screens">
+            <img class="on" src="shots/y004.webp" alt="Shift result" data-th="dark" loading="lazy"><img class="on" src="shots/light/y004.webp" alt="Shift result" data-th="light" loading="lazy">
+            <img src="shots/t046.webp" alt="Losses: six channels" data-th="dark" loading="lazy"><img src="shots/light/t046.webp" alt="Losses: six channels" data-th="light" loading="lazy">
+            <img src="shots/t040.webp" alt="Menu matrix" data-th="dark" loading="lazy"><img src="shots/light/t040.webp" alt="Menu matrix" data-th="light" loading="lazy">
+          </div>
+          <div class="stage-foot"><span class="label" id="stageName">Shift result against a usual day</span><div class="ticks2" id="ticks2"><i class="on"></i><i></i><i></i></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="metrics" id="metrics" data-scene="arc" data-intensity="0.5">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><span class="kicker mono reveal"><i class="dot"></i>in numbers</span>
+      <h2 class="h2 split">What VILAX keeps <em>under control.</em></h2></div>
+      <p class="reveal">You can check all of this on the demo — and on your own venue once Syrve is connected.</p>
+    </div>
+    <div class="mgrid" id="mgrid">
+      <div class="glass metric reveal"><div class="label">revenue of the day from Syrve</div><div class="v" data-count="15">15<small> min</small></div><p>about how often revenue updates — no waiting for the evening report</p></div>
+      <div class="glass metric reveal"><div class="label">loss channels</div><div class="v" data-count="6">6</div><p>every day — the amount and the employee who made the operation</p></div>
+      <div class="glass metric reveal"><div class="label">Coordinator requests a month</div><div class="v" data-count="500">500</div><p>AI reports on your venue are included in Core</p></div>
+      <div class="glass metric reveal"><div class="label">off with annual billing</div><div class="v" data-count="10">10<small> %</small></div><p>and standard onboarding is included</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 7. AI ===== -->
+<section class="ai" id="ai" data-scene="aurora" data-shift="-0.4" data-intensity="0.8">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><span class="kicker mono reveal"><i class="dot"></i>artificial intelligence</span>
+      <h2 class="h2 split">AI that works <em>for your venue.</em></h2></div>
+      <p class="reveal">The Coordinator is included in Core. Connecting ChatGPT and Claude is up to you.</p>
+    </div>
+    <div class="ai-grid">
+      <div class="glass ai-card reveal"><span class="badge">included in Core</span><h3>Coordinator</h3><p>AI reports on your venue: ask about your numbers and the Coordinator answers from your data. 500 requests a month are included, +500 for 100 AED. Summaries arrive in Telegram.</p>
+        <div class="asks" aria-label="Example questions to the Coordinator"><span class="label">for example</span><span class="ask">Why is today behind target?</span><span class="ask">Where did voids after pre-check grow yesterday?</span><span class="ask">Food cost by menu group this month</span></div>
+        <div class="tg" role="img" aria-label="Example Telegram summary: day total for one venue, demo data"><span class="label">Telegram summary · example, demo data</span><div class="tg-msg"><b>📅 Day total · Fri, 31 Oct</b><span>• Revenue: 18,450 AED (+6.2 %)</span><span>• Guests: 214 (+4.9 %)</span><span>• Average check: 86 AED (+1.2 %)</span><span>• Food cost: 29.8 %</span></div></div></div>
+      <div class="glass ai-card reveal"><span class="badge b2">optional</span><h3>Your reports in ChatGPT and Claude</h3><p>If your team already works in ChatGPT or Claude, you can connect VILAX reports to them — read-only, and only if you decide to.</p><span class="label">technically: an MCP connector</span>
+        <div class="asks"><span class="label">for example, in Claude</span><span class="ask">Summarise this week's revenue</span><span class="ask">Compare plan vs actual for October</span><span class="label" style="margin-top:8px">and also</span><span class="ask">Aura — AI replies to guests <span class="soon">in Guests 360</span></span></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="blocks" id="blocks" data-scene="aurora" data-shift="0.45">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><span class="kicker mono reveal"><i class="dot"></i>platform</span>
+      <h2 class="h2 split">Core and four <em>blocks.</em></h2></div>
+      <p class="reveal">Core is required. Add a block when you have a job for it: guests, finance, team, loyalty.</p>
+    </div>
+    <div class="bgrid">
+      <div class="glass blk base reveal"><div class="body"><span class="req">core · required</span><h3>Core</h3><p class="task">Revenue, KPIs and plan vs actual every day</p><div class="price"><b>490 AED</b><span>per venue / month, before VAT</span></div><ul><li>Revenue and checks through the day</li><li>Key metrics of your venue</li><li>Plan vs actual</li><li>Daily summaries in Telegram</li><li>Coordinator — AI reports, 500 requests a month included</li></ul></div><div class="ip"><div class="ip__lid"><span class="ip__keys" aria-hidden="true"><i></i><i></i><i></i><i></i></span><div class="ip__glass"><span class="ip__island" aria-hidden="true"></span><span class="ip__bar" aria-hidden="true"><svg class="ip__clock" viewBox="0 0 26 12"><text x="13" y="10.5" text-anchor="middle">9:41</text></svg><svg class="ip__ico" viewBox="0 0 64 12"><rect x="0" y="8" width="3" height="4" rx=".8"/><rect x="4.5" y="6" width="3" height="6" rx=".8"/><rect x="9" y="3.5" width="3" height="8.5" rx=".8"/><rect x="13.5" y="1" width="3" height="11" rx=".8"/><path d="M22.6 7.1a5.5 5.5 0 0 1 7.8 0M20.1 4.6a9 9 0 0 1 12.7 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="26.5" cy="10.4" r="1.5"/><rect x="38.5" y="1.5" width="21" height="9" rx="2.6" fill="none" stroke="currentColor" stroke-opacity=".4"/><rect x="40.5" y="3.5" width="17" height="5" rx="1.3"/></svg></span><div class="ip__screen"><img src="shots/y004m.webp" alt="VILAX on an iPhone: shift result against a usual day" data-th="dark" loading="lazy"><img src="shots/light/y004m.webp" alt="VILAX on an iPhone: shift result against a usual day" data-th="light" loading="lazy"></div><span class="ip__home" aria-hidden="true"></span></div></div></div></div>
+      <div class="glass blk reveal"><div class="body"><span class="label">block · early access</span><h3>Guests 360</h3><p class="task">The guest journey from first inquiry to the next visit</p><div class="price"><b>800 AED</b><span>per venue / month, before VAT</span></div><ul><li>Tables, orders and floor plan</li><li>Bookings in one window</li><li>Aura — AI replies to guests, 1,500 conversations a month included</li><li>WhatsApp and Instagram for Aura — early access</li></ul></div><div class="ip"><div class="ip__lid"><span class="ip__keys" aria-hidden="true"><i></i><i></i><i></i><i></i></span><div class="ip__glass"><span class="ip__island" aria-hidden="true"></span><span class="ip__bar" aria-hidden="true"><svg class="ip__clock" viewBox="0 0 26 12"><text x="13" y="10.5" text-anchor="middle">9:41</text></svg><svg class="ip__ico" viewBox="0 0 64 12"><rect x="0" y="8" width="3" height="4" rx=".8"/><rect x="4.5" y="6" width="3" height="6" rx=".8"/><rect x="9" y="3.5" width="3" height="8.5" rx=".8"/><rect x="13.5" y="1" width="3" height="11" rx=".8"/><path d="M22.6 7.1a5.5 5.5 0 0 1 7.8 0M20.1 4.6a9 9 0 0 1 12.7 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="26.5" cy="10.4" r="1.5"/><rect x="38.5" y="1.5" width="21" height="9" rx="2.6" fill="none" stroke="currentColor" stroke-opacity=".4"/><rect x="40.5" y="3.5" width="17" height="5" rx="1.3"/></svg></span><div class="ip__screen"><img src="shots/g-bookm.webp" alt="VILAX on an iPhone: bookings by table" data-th="dark" loading="lazy"><img src="shots/light/g-bookm.webp" alt="VILAX on an iPhone: bookings by table" data-th="light" loading="lazy"></div><span class="ip__home" aria-hidden="true"></span></div></div></div></div>
+      <div class="glass blk reveal"><div class="body"><span class="label">block</span><h3>Finance &amp; Control</h3><p class="task">Where the venue earns and where it loses</p><div class="price"><b>549 AED</b><span>per venue / month, before VAT</span></div><ul><li>P&amp;L and cash flow</li><li>Food cost by menu group</li><li>Menu matrix: promote, reprice, drop</li><li>Losses across six channels, by employee</li></ul></div><div class="ip"><div class="ip__lid"><span class="ip__keys" aria-hidden="true"><i></i><i></i><i></i><i></i></span><div class="ip__glass"><span class="ip__island" aria-hidden="true"></span><span class="ip__bar" aria-hidden="true"><svg class="ip__clock" viewBox="0 0 26 12"><text x="13" y="10.5" text-anchor="middle">9:41</text></svg><svg class="ip__ico" viewBox="0 0 64 12"><rect x="0" y="8" width="3" height="4" rx=".8"/><rect x="4.5" y="6" width="3" height="6" rx=".8"/><rect x="9" y="3.5" width="3" height="8.5" rx=".8"/><rect x="13.5" y="1" width="3" height="11" rx=".8"/><path d="M22.6 7.1a5.5 5.5 0 0 1 7.8 0M20.1 4.6a9 9 0 0 1 12.7 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="26.5" cy="10.4" r="1.5"/><rect x="38.5" y="1.5" width="21" height="9" rx="2.6" fill="none" stroke="currentColor" stroke-opacity=".4"/><rect x="40.5" y="3.5" width="17" height="5" rx="1.3"/></svg></span><div class="ip__screen"><img src="shots/t040.webp" alt="VILAX on an iPhone: menu matrix" data-th="dark" loading="lazy"><img src="shots/light/t040.webp" alt="VILAX on an iPhone: menu matrix" data-th="light" loading="lazy"></div><span class="ip__home" aria-hidden="true"></span></div></div></div></div>
+      <div class="glass blk reveal"><div class="body"><span class="label">block · early access</span><h3>People + Academy</h3><p class="task">Train the team and see its work in numbers</p><div class="price"><b>25 AED</b><span>per employee / month, minimum 500 AED</span><small>Academy alone — 11 AED per active employee, no minimum</small></div><ul><li>Team overview and revenue per employee</li><li>Training programs and tests</li><li>Knowledge base and standards</li><li>Badges and a rewards shop</li></ul></div><div class="ip"><div class="ip__lid"><span class="ip__keys" aria-hidden="true"><i></i><i></i><i></i><i></i></span><div class="ip__glass"><span class="ip__island" aria-hidden="true"></span><span class="ip__bar" aria-hidden="true"><svg class="ip__clock" viewBox="0 0 26 12"><text x="13" y="10.5" text-anchor="middle">9:41</text></svg><svg class="ip__ico" viewBox="0 0 64 12"><rect x="0" y="8" width="3" height="4" rx=".8"/><rect x="4.5" y="6" width="3" height="6" rx=".8"/><rect x="9" y="3.5" width="3" height="8.5" rx=".8"/><rect x="13.5" y="1" width="3" height="11" rx=".8"/><path d="M22.6 7.1a5.5 5.5 0 0 1 7.8 0M20.1 4.6a9 9 0 0 1 12.7 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="26.5" cy="10.4" r="1.5"/><rect x="38.5" y="1.5" width="21" height="9" rx="2.6" fill="none" stroke="currentColor" stroke-opacity=".4"/><rect x="40.5" y="3.5" width="17" height="5" rx="1.3"/></svg></span><div class="ip__screen"><img src="shots/t078.webp" alt="VILAX on an iPhone: knowledge base" data-th="dark" loading="lazy"><img src="shots/light/t078.webp" alt="VILAX on an iPhone: knowledge base" data-th="light" loading="lazy"></div><span class="ip__home" aria-hidden="true"></span></div></div></div></div>
+      <div class="glass blk reveal"><div class="body"><span class="label">block</span><h3>Loyalty</h3><p class="task">Your own program and repeat visits</p><div class="price"><b>365 AED</b><span>per venue / month, before VAT</span></div><ul><li>Club guests: spend, visits, last visit</li><li>Card in Apple Wallet, Telegram mini app</li><li>RFM analysis and promo codes</li><li>Card anti-fraud</li></ul></div><div class="ip"><div class="ip__lid"><span class="ip__keys" aria-hidden="true"><i></i><i></i><i></i><i></i></span><div class="ip__glass"><span class="ip__island" aria-hidden="true"></span><span class="ip__bar" aria-hidden="true"><svg class="ip__clock" viewBox="0 0 26 12"><text x="13" y="10.5" text-anchor="middle">9:41</text></svg><svg class="ip__ico" viewBox="0 0 64 12"><rect x="0" y="8" width="3" height="4" rx=".8"/><rect x="4.5" y="6" width="3" height="6" rx=".8"/><rect x="9" y="3.5" width="3" height="8.5" rx=".8"/><rect x="13.5" y="1" width="3" height="11" rx=".8"/><path d="M22.6 7.1a5.5 5.5 0 0 1 7.8 0M20.1 4.6a9 9 0 0 1 12.7 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="26.5" cy="10.4" r="1.5"/><rect x="38.5" y="1.5" width="21" height="9" rx="2.6" fill="none" stroke="currentColor" stroke-opacity=".4"/><rect x="40.5" y="3.5" width="17" height="5" rx="1.3"/></svg></span><div class="ip__screen"><img src="shots/y007.webp" alt="VILAX on an iPhone: club guests" data-th="dark" loading="lazy"><img src="shots/light/y007.webp" alt="VILAX on an iPhone: club guests" data-th="light" loading="lazy"></div><span class="ip__home" aria-hidden="true"></span></div></div></div></div>
+      <div class="glass allin reveal"><div><span class="req">all-in</span><h3>Everything for one venue</h3><p>Core, all four blocks and 50 employees. Each employee above 50 — 25 AED a month.</p></div><div class="price"><b>2,990 AED</b><span>per venue / month, before VAT</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="trust" id="trust" data-scene="arc" data-intensity="0.45">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><span class="kicker mono reveal"><i class="dot"></i>connection and access</span>
+      <h2 class="h2 split">No new POS, <em>no new app.</em></h2></div>
+      <p class="reveal">If you run Syrve in the cloud, you keep your POS. Access goes only to the people who need it.</p>
+    </div>
+    <div class="tgrid">
+      <div class="glass tcard reveal"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></div><h3>Your POS stays</h3><p>Syrve, cloud only. On-premise servers are not supported. Plans are set right in VILAX.</p></div>
+      <div class="glass tcard reveal"><div class="ico"><svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div><h3>Access by role</h3><p>Data is visible only to the people you give access to: a manager sees the shift, the owner sees everything.</p></div>
+      <div class="glass tcard reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg></div><h3>Your data stays yours</h3><p>You decide who sees your venue's numbers, and you can take access away at any time.</p></div>
+      <div class="glass tcard reveal"><div class="ico"><svg viewBox="0 0 24 24"><path d="M21 4 3 11l6 2 2 6 3-4 5 4z"/></svg></div><h3>Browser and Telegram</h3><p>No separate app: VILAX works in the browser on a computer and on a phone, and summaries arrive in Telegram.</p></div>
+    </div>
+    <div class="steps" id="steps">
+      <div class="step reveal"><h4>Request</h4><p>Leave your phone, name, city and venue name.</p></div>
+      <div class="step reveal"><h4>Demo</h4><p>We show the system on demo data and go through your goals.</p></div>
+      <div class="step reveal"><h4>Connect Syrve</h4><p>We connect your Syrve in the cloud.</p></div>
+      <div class="step reveal"><h4>Kick-off</h4><p>Roles and access, reports, Telegram summaries.</p></div>
+      <div class="step reveal"><h4>Daily work</h4><p>Your venue runs in VILAX every day.</p></div>
+    </div>
+    <p class="steps-note reveal">Timing depends on your setup — the manager will name it after the demo. With annual billing, standard onboarding is included.</p>
+  </div>
+</section>
+
+<section class="pricing" id="pricing" data-scene="wave">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><span class="kicker mono reveal"><i class="dot"></i>pricing</span>
+      <h2 class="h2 split">Core — 490 AED <em>a month.</em></h2></div>
+      <p class="reveal">Per venue, before VAT. Core is required; add only the blocks you need. Prices are in dirhams, VAT 5 % is added on top.</p>
+    </div>
+    <div class="glass est reveal">
+      <div class="est-l">
+        <div class="label">your venue</div>
+        <h3>What do you need?</h3>
+        <div class="pick">
+          <div class="pick-row"><div><b>Core <span class="req">required</span></b><small>revenue, KPIs, plan vs actual, Coordinator</small></div><button class="sw" type="button" role="switch" aria-checked="true" disabled aria-label="Core — required" data-k="base"></button></div>
+          <div class="pick-row"><div><b>Guests 360</b><small>tables, floor, bookings, Aura · early access</small></div><button class="sw" type="button" role="switch" aria-checked="false" aria-label="Guests 360" data-k="guests"></button></div>
+          <div class="pick-row"><div><b>Finance &amp; Control</b><small>P&amp;L, cash flow, food cost, menu, losses</small></div><button class="sw" type="button" role="switch" aria-checked="false" aria-label="Finance &amp; Control" data-k="finance"></button></div>
+          <div class="pick-row"><div><b>Loyalty</b><small>your program, Apple Wallet, Telegram mini app</small></div><button class="sw" type="button" role="switch" aria-checked="false" aria-label="Loyalty" data-k="loyalty"></button></div>
+          <div class="pick-row"><div><b>All-in</b><small>Core, all four blocks and 50 employees · 2,990 AED</small></div><button class="sw" type="button" role="switch" aria-checked="false" aria-label="All-in" data-k="bundle"></button></div>
+        </div>
+        <div class="calc-row"><b id="staffLbl">Team</b><div class="seg" id="staffSeg" role="radiogroup" aria-labelledby="staffLbl"><button type="button" role="radio" aria-checked="true" data-v="none">Not needed</button><button type="button" role="radio" aria-checked="false" data-v="academy">Academy only</button><button type="button" role="radio" aria-checked="false" data-v="people">People + Academy</button></div></div>
+        <div class="calc-row" id="empRow" hidden><label for="empN"><b>Employees in your team</b><small id="empHint"></small></label><div class="stepper"><button type="button" data-d="-1" aria-label="Fewer employees">−</button><input id="empN" type="number" inputmode="numeric" min="0" max="20000" step="1" value="20"><button type="button" data-d="1" aria-label="More employees">+</button></div></div>
+        <div class="calc-row"><b id="billLbl">Billing</b><div class="seg" id="billSeg" role="radiogroup" aria-labelledby="billLbl"><button type="button" role="radio" aria-checked="true" data-v="monthly">Monthly</button><button type="button" role="radio" aria-checked="false" data-v="annual">Annual · save 10%</button></div></div>
+        <ul class="terms"><li>AI usage included: the Coordinator handles 500 requests per location per month; Aura in Guests 360 handles 1,500 guest conversations per location per month.</li><li>Telephony, WhatsApp and SMS are billed at your provider's rates and are not included.</li><li>Standard onboarding is included with annual billing: one supported connection, user access set-up and a kick-off session for your team. Anything else is quoted separately.</li><li>Add-ons: Aura +1,000 conversations for 150 AED, Coordinator +500 requests for 100 AED. Packs last until the end of the billing month. No automatic charges, no annual discount.</li><li>Prices before tax. VAT 5% is added on top. Prices valid from 5 Oct 2026. Amounts on screen are rounded to the nearest dirham.</li></ul>
+      </div>
+      <div class="est-r">
+        <div class="quote" id="quote" aria-live="polite"></div>
+        <form class="form" id="leadForm" novalidate>
+          <label class="field"><span>Name</span><input name="name" required autocomplete="name"></label>
+          <label class="field"><span>Phone</span><input name="phone" required type="tel" autocomplete="tel" placeholder="+971 50 000 0000"></label>
+          <label class="field"><span>City</span><input name="city" required autocomplete="address-level2" placeholder="Dubai"></label>
+          <label class="field"><span>Venue name</span><input name="company" required autocomplete="organization"></label>
+          <label class="hp" aria-hidden="true">Website<input name="website" tabindex="-1" autocomplete="off"></label>
+          <label class="consent consent-row"><input type="checkbox" name="consent"><span>I give <a href="./consent.html" target="_blank" rel="noopener">consent to the processing of my personal data</a>.<span class="consent-more">How we handle it — see the <a href="./privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</span></span></label>
+          <button class="btn btn-accent" type="submit">Get a quote and a demo</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="faq-sec" id="faq" data-scene="wave" data-intensity="0.7">
+  <div class="wrap faq-grid">
+    <div><span class="kicker mono reveal"><i class="dot"></i>FAQ</span><h2 class="h2 split">What people ask <em>before a demo.</em></h2></div>
+    <div class="faq reveal">
+      <details><summary>Which POS does VILAX work with?</summary><p>Syrve, cloud only: on-premise servers are not supported. Losses and the shift review are calculated from Syrve. Plans are set right in VILAX, and reports export to Excel.</p></details>
+      <details><summary>How long does connection take?</summary><p>It depends on your setup — the manager will name the timeline after the demo. With annual billing, standard onboarding is included: one supported connection, user access set-up and a kick-off session for your team.</p></details>
+      <details><summary>Who sees my venue's data?</summary><p>Only the people you give access to. Access is set by role: a manager sees the shift, the owner sees everything.</p></details>
+      <details><summary>Can I start with Core only?</summary><p>Yes. Core is required, the blocks are optional — add Guests 360, Finance &amp; Control, Loyalty or a team block when you have a job for it.</p></details>
+      <details><summary>What's in All-in?</summary><p>Core, all four blocks and 50 employees for 2,990 AED a month before VAT. Each employee above 50 costs 25 AED a month.</p></details>
+      <details><summary>How much does VILAX cost?</summary><p>Per venue per month, before VAT: Core — 490 AED, Guests 360 — 800 AED, Finance &amp; Control — 549 AED, Loyalty — 365 AED. Team: Academy — 11 AED per active employee, no minimum; People + Academy — 25 AED per employee, minimum 500 AED a month. All-in — 2,990 AED.</p></details>
+      <details><summary>How does billing work?</summary><p>Monthly or a year in advance. Annual billing saves 10 % and includes standard onboarding. Prices are before VAT; VAT 5 % is added on top. Telephony, WhatsApp and SMS are billed at your provider's rates.</p></details>
+      <details><summary>How much does AI cost?</summary><p>The Coordinator is included in Core with 500 requests a month. Aura in Guests 360 includes 1,500 guest conversations a month. Need more? Aura +1,000 conversations for 150 AED, Coordinator +500 requests for 100 AED. Packs last until the end of the month, with no automatic charges.</p></details>
+      <details><summary>Is there an app?</summary><p>No separate app is needed: VILAX works in the browser on a computer and on a phone, and summaries arrive in Telegram.</p></details>
+    </div>
+  </div>
+</section>
+
+<section class="final" id="demo" data-scene="wave" data-intensity="0.9">
+  <div class="wrap">
+    <div class="f-cta reveal">
+      <img class="ghost" src="../logo.svg" alt="">
+      <div><div class="label">what's next</div><h2>See your venue in <b>VILAX.</b></h2><p>We'll show the system on demo data and price it for your venue.</p></div>
+      <div class="side"><a class="btn btn-dark" href="#pricing" data-scroll>Request a demo</a></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer data-scene="wave" data-intensity="0.5">
+  <div class="wrap">
+    <div class="ticker mono"><span><i class="dot"></i>Syrve in the cloud</span><span><i class="dot"></i>daily summaries</span><span><i class="dot"></i>for a single venue</span></div>
+    <div class="foot">
+      <div class="about"><a class="brand" href="#top" data-scroll aria-label="VILAX"><img class="mark" src="../logo.svg" alt=""><img class="word" src="../wordmark.svg" alt="" style="display:block"></a><p>Management system for your restaurant.</p></div>
+      <div><h4>platform</h4><a href="#blocks" data-scroll>Guests 360</a><a href="#blocks" data-scroll>Finance &amp; Control</a><a href="#blocks" data-scroll>People + Academy</a><a href="#blocks" data-scroll>Loyalty</a></div>
+      <div><h4>company</h4><a href="#trust" data-scroll>How we connect</a><a href="#pricing" data-scroll>Pricing</a><a href="#faq" data-scroll>FAQ</a></div>
+      <div><h4>legal</h4><a href="privacy.html">Privacy Policy</a><a href="consent.html">Consent to data processing</a></div>
+    </div>
+    <div class="legal mono"><span>© 2026 VILAX</span><span>vilax.ai</span></div>
+  </div>
+</footer>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+} }
+</script>
+
+<!--WEBGL-->
+
+<script>
+(() => {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const fmt = (n, dec = 0) => Number(n).toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+  const hasGsap = !!window.gsap;
+  if (hasGsap) gsap.registerPlugin(ScrollTrigger);
+
+  let lenis = null;
+  if (window.Lenis && !reduce) {
+    lenis = new Lenis({ duration: 1.2, easing: t => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t)), smoothWheel: true, wheelMultiplier: 0.9, touchMultiplier: 1.25, syncTouch: true, syncTouchLerp: 0.08 });
+    window.__lenis = lenis;
+    if (hasGsap) {
+      lenis.on('scroll', ScrollTrigger.update);
+      gsap.ticker.add(t => lenis.raf(t * 1000));
+      gsap.ticker.lagSmoothing(0);
+    } else {
+      const raf = t => { lenis.raf(t); requestAnimationFrame(raf); };
+      requestAnimationFrame(raf);
+    }
+  }
+  $$('[data-scroll]').forEach(a => a.addEventListener('click', e => {
+    const id = a.getAttribute('href');
+    if (!id || id === '#') return;
+    const el = $(id); if (!el) return;
+    e.preventDefault();
+    lenis ? lenis.scrollTo(el, { offset: -20, duration: 2, easing: t => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t)) }) : el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
+  }));
+
+  const nav = $('#nav');
+  const onScroll = () => nav.classList.toggle('scrolled', scrollY > 20);
+  addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+  const themeTgl = $('#themeTgl');
+  const zooms = [];
+  const setTheme = t => { document.documentElement.setAttribute('data-theme', t); try { sessionStorage.setItem('vilax-theme', t); } catch (e) {} if (themeTgl) themeTgl.setAttribute('aria-pressed', t === 'light'); if (window.__setLight) window.__setLight(t === 'light');
+    zooms.forEach(a => { const d = a.dataset.dark || (a.dataset.dark = a.getAttribute('href')); a.setAttribute('href', t === 'light' ? d.replace('shots/', 'shots/light/') : d); }); };
+  setTheme(document.documentElement.getAttribute('data-theme') || 'dark');
+  themeTgl && themeTgl.addEventListener('click', () => setTheme(document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light'));
+
+  const hs = $$('#heroScreens img'), ht = $$('#heroTicks i'), hn = ['losses across six channels', 'shift result against a usual day', 'menu matrix'];
+  let hi = 0, heroVisible = true;
+  new IntersectionObserver(es => { heroVisible = es.some(e => e.isIntersecting); }).observe($('#heroMedia'));
+  if (!reduce) setInterval(() => {
+    if (!heroVisible || document.hidden) return;
+    hi = (hi + 1) % ht.length;
+    hs.forEach((im, k) => im.classList.toggle('on', k >> 1 === hi));
+    $$('#heroApp img').forEach((im, k) => im.classList.toggle('on', k >> 1 === hi));
+    ht.forEach((t, k) => t.classList.toggle('on', k === hi));
+    $('#heroName').textContent = hn[hi];
+  }, 4200);
+
+  (function nbsp(root) {
+    // typography: a dash never starts a line, a number stays with its unit (AED, %, min)
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: n =>
+      n.parentElement.closest('script,style,svg,input,textarea') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT });
+    for (let n; (n = w.nextNode());) {
+      let t = n.textContent;
+      t = t.replace(/\s+—/g, '\u00a0—').replace(/(\d)\s+(?=(AED|%|min)\b|%)/gu, '$1\u00a0');
+      if (t !== n.textContent) n.textContent = t;
+    }
+  })(document.body);
+
+  function splitWords(el) {
+    const out = [];
+    [...el.childNodes].forEach(node => {
+      if (node.nodeType === 3) {
+        node.textContent.split(/([ \t\n\r]+)/).forEach(part => {
+          if (!part) return;
+          if (/^[ \t\n\r]+$/.test(part)) { out.push(document.createTextNode(' ')); return; }
+          out.push(wrap(document.createTextNode(part)));
+        });
+      } else out.push(wrap(node.cloneNode(true)));
+    });
+    el.textContent = '';
+    out.forEach(n => el.appendChild(n));
+    function wrap(inner) { const w = document.createElement('span'); w.className = 'word'; const s = document.createElement('span'); s.appendChild(inner); w.appendChild(s); return w; }
+  }
+  $$('.split').forEach(splitWords);
+
+  const feats = $$('.feat'), shots = $$('#screens img'), ticks = $$('#ticks2 i'), stageName = $('#stageName');
+  let active = -1;
+  function setActive(i) {
+    if (i === active) return; active = i;
+    feats.forEach((f, k) => f.classList.toggle('on', k === i));
+    shots.forEach((s, k) => s.classList.toggle('on', k >> 1 === i));
+    ticks.forEach((t, k) => t.classList.toggle('on', k === i));
+    stageName.textContent = feats[i].querySelector('h3').textContent;
+  }
+  setActive(0);
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) setActive(+e.target.dataset.i); }), { rootMargin: '-45% 0px -45% 0px' });
+  feats.forEach(f => io.observe(f));
+
+  // --- calculator v16 for one venue. Numbers: prices.json (en, v16, 2026-10-05); quote(): a copy of src/lib/pricing-v16.js
+  //     (only the item names are English — they are not shown, labels come from pricing.json); input mapping: pricing-calc.ts quoteFor()
+  const PRICES = { base: 490, guests: 800, finance: 549, loyalty: 365, academySeat: 11, peopleSeat: 25, peopleMinimum: 500, bundle: 2990, bundleSeats: 50, annualDiscount: 0.1,
+    auraIncluded: 1500, coordinatorIncluded: 500, auraTopup: { units: 1000, price: 150 }, coordinatorTopup: { units: 500, price: 100 } };
+  const TAX_RATE = 0.05, EMP_MAX = 20000;
+  const VilaxPricing = (function () {
+function create(c){
+ const money=n=>Math.round(n*100)/100;
+ function quote(locations,employees,options={}){
+  const venues=locations.map(v=>{
+   const bundle=!!v.bundle,people=bundle||!!v.people,effective={guests:bundle||!!v.guests,finance:bundle||!!v.finance,loyalty:bundle||!!v.loyalty,people,academy:people||!!v.academy};
+   const items=bundle?[{name:'All-in: Core + 4 blocks + 50 employees',amount:c.bundle}]:[{name:'Core',amount:c.base}];
+   if(!bundle){for(const [key,name] of [['guests','Guests 360'],['finance','Finance & Control'],['loyalty','Loyalty']])if(effective[key])items.push({name,amount:c[key]});}
+   const auraBlocks=effective.guests?Math.max(0,Math.floor(Number(v.auraBlocks)||0)):0,coordBlocks=Math.max(0,Math.floor(Number(v.coordBlocks)||0));
+   return {id:v.id,name:v.name,bundle,effective,items,price:items.reduce((s,i)=>s+i.amount,0),auraBlocks,coordBlocks,topups:auraBlocks*c.auraTopup.price+coordBlocks*c.coordinatorTopup.price};
+  });
+  const uniqueEmployees=Math.max(0,Math.floor(Number(employees)||0)),teamEnabled=venues.some(v=>v.effective.people),academyEnabled=venues.some(v=>v.effective.academy),standaloneAcademy=venues.some(v=>v.effective.academy&&!v.effective.people),bundleCount=venues.filter(v=>v.bundle).length,includedEmployees=bundleCount*c.bundleSeats,overageEmployees=teamEnabled?Math.max(0,uniqueEmployees-includedEmployees):0;
+  const academyOnlyEmployees=standaloneAcademy?(teamEnabled?Math.max(0,Math.floor(Number(options.academyOnlyEmployees)||0)):uniqueEmployees):0;
+  const team=teamEnabled?(bundleCount?overageEmployees*c.peopleSeat:Math.max(c.peopleMinimum,uniqueEmployees*c.peopleSeat)):0,academy=academyOnlyEmployees*c.academySeat,software=venues.reduce((s,v)=>s+v.price,0),monthly=software+team+academy,annual=options.billing==='annual',discountRate=annual?c.annualDiscount:0,monthlyEquivalent=money(monthly*(1-discountRate)),period=annual?12:1,subscriptionDue=money(monthlyEquivalent*period),topups=venues.reduce((s,v)=>s+v.topups,0),total=money(subscriptionDue+topups);
+  return {venues,software,team,academy,total,monthly,monthlyEquivalent,subscriptionDue,annual,annualSaving:money(monthly*12-subscriptionDue),discountRate,topups,teamEnabled,academyEnabled,standaloneAcademy,academyOnlyEmployees,uniqueEmployees,bundleCount,includedEmployees,overageEmployees,coordinatorIncluded:venues.length*c.coordinatorIncluded};
+ }
+ return {quote};
+}
+return {create};
+  })();
+  const LINE = { base: 'Core', bundle: 'All-in', guests: 'Guests 360', finance: 'Finance &amp; Control', loyalty: 'Loyalty', people: 'People + Academy', academy: 'Academy' };
+  const calc = { guests: false, finance: false, loyalty: false, bundle: false, staff: 'none', employees: 20, billing: 'monthly' };
+  // pricing-calc.ts quoteFor(): one venue, employees count only when a team mode or All-in is on
+  const quoteFor = i => VilaxPricing.create(PRICES).quote([{ id: 1, bundle: i.bundle, guests: i.guests, finance: i.finance, loyalty: i.loyalty, people: i.staff === 'people', academy: i.staff === 'academy', auraBlocks: 0, coordBlocks: 0 }],
+    i.staff === 'none' && !i.bundle ? 0 : i.employees, { billing: i.billing });
+  // pricing-calc.ts lines(): breakdown per month before the annual discount
+  const linesOf = q => { const v = q.venues[0], out = [];
+    if (v.bundle) out.push(['bundle', PRICES.bundle]); else { out.push(['base', PRICES.base]); for (const k of ['guests', 'finance', 'loyalty']) if (v.effective[k]) out.push([k, PRICES[k]]); }
+    if (q.team) out.push(['people', q.team]); if (q.academy) out.push(['academy', q.academy]); return out; };
+  const aed = n => fmt(Math.round(n)) + '\u00a0AED';
+  // VAT 5 % is not part of pricing-v16.js: added on the amount due, everything rounded to the dirham
+  const withVat = due => { const d = Math.round(due), vat = Math.round(d * TAX_RATE); return { d, vat, total: d + vat }; };
+  let lastQuote = null;
+  const row = (l, v, cls = '') => `<div class="q-line ${cls}"><span>${l}</span><b>${v}</b></div>`;
+  function upd() {
+    const q = lastQuote = quoteFor(calc);
+    let h = '<span class="label">per month, before VAT</span>' + linesOf(q).map(([k, a]) => row(LINE[k], aed(a))).join('') + '<div class="q-sep"></div>';
+    if (q.annual) {
+      const t = withVat(q.subscriptionDue);
+      h += row('Per month, discounted', aed(q.monthlyEquivalent)) + row('Due annually (before VAT)', aed(t.d)) + row('You save with annual billing', aed(q.annualSaving), 'q-save') + row('VAT 5\u00a0%', aed(t.vat)) + row('Total due incl. VAT', aed(t.total), 'q-total');
+    } else {
+      const t = withVat(q.monthly);
+      h += row('Per month (before VAT)', aed(t.d)) + row('VAT 5\u00a0%', aed(t.vat)) + row('Total incl. VAT', aed(t.total), 'q-total');
+    }
+    $('#quote').innerHTML = h;
+    $$('.sw[data-k]').forEach(sw => { const k = sw.dataset.k; if (k === 'base') return;
+      if (k === 'bundle') sw.setAttribute('aria-checked', calc.bundle);
+      else { sw.setAttribute('aria-checked', calc.bundle || calc[k]); sw.disabled = calc.bundle; } });
+    $$('#staffSeg button').forEach(b => b.setAttribute('aria-checked', b.dataset.v === calc.staff));
+    $$('#billSeg button').forEach(b => b.setAttribute('aria-checked', b.dataset.v === calc.billing));
+    $('#empRow').hidden = calc.staff === 'none' && !calc.bundle;
+    $('#empHint').textContent = calc.bundle ? `${PRICES.bundleSeats} included in All-in, then ${PRICES.peopleSeat} AED each`
+      : calc.staff === 'people' ? `${PRICES.peopleSeat} AED each, minimum ${PRICES.peopleMinimum} AED a month` : `${PRICES.academySeat} AED per active employee, no minimum`;
+  }
+  $$('.sw[data-k]').forEach(sw => sw.addEventListener('click', () => { const k = sw.dataset.k; if (k === 'base' || sw.disabled) return; calc[k] = !(k === 'bundle' ? calc.bundle : calc[k]); upd(); }));
+  const segKeys = (seg, key) => { const bs = $$('button', seg);
+    bs.forEach((b, k) => { b.addEventListener('click', () => { calc[key] = b.dataset.v; upd(); });
+      b.addEventListener('keydown', e => { const d = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
+        if (!d) return; e.preventDefault(); const nb = bs[(k + d + bs.length) % bs.length]; calc[key] = nb.dataset.v; upd(); nb.focus(); }); }); };
+  segKeys($('#staffSeg'), 'staff'); segKeys($('#billSeg'), 'billing');
+  const empN = $('#empN');
+  const setEmp = v => { calc.employees = Math.min(EMP_MAX, Math.max(0, Math.floor(+v || 0))); upd(); };
+  empN.addEventListener('input', () => { if (empN.value !== '') setEmp(empN.value); });
+  empN.addEventListener('change', () => { setEmp(empN.value); empN.value = calc.employees; });
+  $$('.stepper button').forEach(b => b.addEventListener('click', () => { setEmp(calc.employees + +b.dataset.d); empN.value = calc.employees; }));
+  upd();
+
+  const burger = $('#navBurger'), sheet = $('#navSheet');
+  const setSheet = open => {
+    sheet.hidden = !open;
+    burger.setAttribute('aria-expanded', open);
+    burger.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+  };
+  burger.addEventListener('click', e => { e.stopPropagation(); setSheet(sheet.hidden); });
+  sheet.addEventListener('click', () => setSheet(false));
+  addEventListener('click', e => { if (!sheet.hidden && !sheet.contains(e.target)) setSheet(false); });
+  addEventListener('keydown', e => { if (e.key === 'Escape') setSheet(false); });
+
+  const LEAD_URL = 'https://tracker.vilax.ai/api/site/demo-request', CONSENT_VERSION = 'en-ae-2026-11-draft';
+  const toast = $('#toast'), leadForm = $('#leadForm');
+  const say = t => { toast.textContent = t; toast.classList.add('show'); clearTimeout(say.t); say.t = setTimeout(() => toast.classList.remove('show'), 5000); };
+  const leadPhone = v => {
+    if (!/^[+\d\s().-]{1,32}$/.test(v)) return null;
+    let d = v.replace(/\D+/g, '');
+    if (!v.trim().startsWith('+')) {                 // UAE local formats: 050 123 4567 or 50 123 4567
+      if (d.startsWith('00')) d = d.slice(2);
+      else if (/^0[1-9]\d{8}$/.test(d)) d = '971' + d.slice(1);
+      else if (/^[1-9]\d{8}$/.test(d)) d = '971' + d;
+    }
+    if (d.startsWith('971')) return d.length === 12 ? d : null;
+    return d.length >= 10 && d.length <= 15 && d[0] !== '0' ? d : null;
+  };
+  const leadText = (v, min, max, letters) => {
+    const t = v.replace(/\s+/g, ' ').trim();
+    return t.length >= min && t.length <= max && !/[<>{}]|https?:|www\.|:\/\//i.test(t) && (letters ? /\p{L}/u : /[\p{L}\p{N}]/u).test(t) ? t : null;
+  };
+  let leadStart = 0, leadRef = '', leadBusy = false;
+  leadForm.addEventListener('focusin', () => { leadStart = leadStart || Date.now(); });
+  leadForm.addEventListener('submit', async e => {
+    e.preventDefault();
+    if (leadBusy) return;
+    const f = leadForm.elements;
+    const vals = { name: leadText(f.name.value, 2, 120, true), phone: leadPhone(f.phone.value), city: leadText(f.city.value, 2, 80, true), company: leadText(f.company.value, 2, 160, false) };
+    let ok = true;
+    for (const k in vals) { const bad = !vals[k]; f[k].closest('.field').classList.toggle('bad', bad); if (bad) ok = false; }
+    f.consent.closest('.consent-row').classList.toggle('bad', !f.consent.checked);
+    if (!ok) return say('Please check the fields: name, phone with country code, city and venue name.');
+    if (!f.consent.checked) return say('We can only send the request with your consent to data processing.');
+    const utm = {};
+    new URLSearchParams(location.search).forEach((v, k) => { if (/^utm_(source|medium|campaign|content|term)$/.test(k)) utm[k] = v.slice(0, 100); });
+    leadRef = leadRef || Array.from(crypto.getRandomValues(new Uint8Array(12)), b => b.toString(16).padStart(2, '0')).join('');
+    const body = {
+      phone: '+' + vals.phone, name: vals.name, city: vals.city, venue: vals.company, consent: true, consent_version: CONSENT_VERSION, request_ref: leadRef,
+      site: 'en', region: 'AE', section: 'pricing', page: location.pathname, website: f.website.value, elapsed_ms: Date.now() - (leadStart || Date.now()),
+      calc: (() => { const q = lastQuote || quoteFor(calc), o = { locations: 1, all_in: calc.bundle, staff: calc.staff === 'people' ? 'hr' : calc.staff,
+        staff_n: calc.staff === 'none' && !calc.bundle ? 0 : calc.employees, period: calc.billing === 'annual' ? 'year' : 'month', month_total: Math.round(q.monthlyEquivalent * 100) / 100, cur: 'AED' };
+        if (!calc.bundle) o.modules = ['guests', 'finance', 'loyalty'].filter(k => calc[k]);
+        return o; })(),
+    };
+    if (Object.keys(utm).length) body.utm = utm;
+    const btn = leadForm.querySelector('button[type=submit]');
+    leadBusy = btn.disabled = true;
+    try {
+      const r = await fetch(LEAD_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      if (!r.ok) throw new Error(r.status);
+      leadForm.outerHTML = '<div class="form-ok" role="status"><h3>Request received</h3><p>A manager will contact you and send a quote for your venue.</p></div>';
+    } catch (err) {
+      say('The request was not sent. Your details are kept: please try again or write to us at [—].');
+    } finally { leadBusy = btn.disabled = false; }
+  });
+
+  const pcbEl = $('#pcb'), pcbStage = $('#mergeStage'), pcbScene = $('.pcb-scene'), pcbBase = $('.pcb-base'), pcbLabsEl = $('.pcb-labs'), pcbChipBoxes = $$('.pcb-pins, .pcb-ring, .pcb-chip');
+  const pcbLit = $$('.pcb-lit'), pcbLabs = $$('.pcb-lab'), pcbTiles = $$('.pcb-tile'), pcbWhisk = $$('.pcb-whisk path');
+  const pcbOn = pcbLit.map((_, i) => $$(`.pcb-on[data-i="${i}"]`));
+  const PCB_PIN = [-75, -25, 25, 75], PCB_ENTRY = [-230, -100, 100, 230];
+  const pcbClamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+  const pcbGeo = { wide: true, s: 1, k: 1, C: 280, T: 0, mir: 1440, tw: 132, th: 46, snap: 1, legend: 'labels', rows: [] };
+  const pcbP = { v: !hasGsap || reduce ? 1 : 0 };
+
+  const pcbTail = (r, d, hw, hh) => {
+    if (d < r.a) return hw;
+    const e = Math.max(0, d - r.a - r.b);
+    if (e >= hw) return hw;
+    const sl = Math.min(r.b, d - r.a), u = Math.SQRT2 * Math.min(hw - e, hh);
+    return u <= sl ? e + u : sl + hw - sl / Math.SQRT2;
+  };
+
+  const pcbLitPath = (r, b, mir) => {
+    const mx = x => (r.right ? mir - x : x), head = `M${mx(r.x0)} ${r.entry}`;
+    if (b <= r.a) return `${head}H${mx(r.x0 + b)}`;
+    const knee = `${head}H${mx(r.bend)}L`;
+    if (b <= r.a + r.b) { const t = (b - r.a) / r.b; return `${knee}${mx(r.bend + r.dy * t)} ${r.entry + (r.pin - r.entry) * t}`; }
+    return `${knee}${mx(r.bend + r.dy)} ${r.pin}H${mx(r.bend + r.dy + b - r.a - r.b)}`;
+  };
+
+  function renderPcb(p) {
+    const { wide, mir, tw, th, snap, rows } = pcbGeo;
+    rows.forEach((r, i) => {
+      const q = pcbClamp((p - i * .075) / .42);
+      if (q === r.q) return;
+      r.q = q;
+      const d = q * r.len;
+      let x, y;
+      if (d < r.a) { x = r.x0 + d; y = r.entry; }
+      else if (d < r.a + r.b) { const t = (d - r.a) / r.b; x = r.bend + r.dy * t; y = r.entry + (r.pin - r.entry) * t; }
+      else { x = r.bend + r.dy + d - r.a - r.b; y = r.pin; }
+      if (r.right) x = mir - x;
+      pcbTiles[i].style.transform = `translate3d(${Math.round((x - tw / 2) * snap) / snap}px, ${Math.round((y - th / 2) * snap) / snap}px, 0)`;
+      pcbTiles[i].style.visibility = q > 0 && q < 1 ? 'visible' : 'hidden';
+      const burn = pcbClamp(d - pcbTail(r, d, tw / 2, th / 2) + 1, 0, r.lenTrace);
+      pcbLit[i].setAttribute('d', pcbLitPath(r, burn, mir));
+      pcbLit[i].style.opacity = burn > 0 ? 1 : 0;
+      const on = pcbClamp((d - r.lenTrace) / r.onSpan);
+      pcbOn[i].forEach(el => { el.style.opacity = on; });
+      pcbLabs[i].style.opacity = wide ? on : .38 + .62 * on;
+    });
+  }
+
+  const pcbSizeKey = () => `${pcbStage.offsetWidth}x${pcbStage.offsetHeight}@${devicePixelRatio}`;
+  let pcbLaidOut = '';
+
+  function layoutPcb() {
+    pcbLaidOut = pcbSizeKey();
+    const W = pcbStage.offsetWidth, H = pcbStage.offsetHeight, count = $('.merge-count');
+    const top = $('.merge-titles').offsetTop + Math.max($('.mt1').offsetHeight, $('.mt2').offsetHeight) + 16;
+    const avail = (count.offsetHeight ? count.offsetTop - 12 : H - 16) - top;
+    const wide = W >= 1095 && H >= 560;
+    pcbEl.classList.toggle('pcb-narrow', !wide);
+    pcbEl.classList.remove('pcb-no-notes', 'pcb-no-legend');
+    let s = 1, k = 1, C = 280, T = 0, tx = 0, cy, chipX = 580, w = 1440, legend = 'labels', rowOf;
+    if (wide) {
+      const sW = W / 1440;
+      k = pcbClamp((avail / (2 * sW) - 98) / 155, .62, 1);
+      const hh = Math.max(150, 75 + 155 * k + 23);
+      s = Math.min(sW, avail / (2 * hh), 1.5);
+      tx = Math.round(W / 2 - 720 * s);
+      cy = Math.round(top + avail / 2);
+      const x0 = 720 - W / (2 * s) - 170;
+      rowOf = row => { const pin = PCB_PIN[row]; return { pin, entry: pin + (PCB_ENTRY[row] - pin) * k, x0, bend: 340, edge: 580, under: 80, lead: 18, onSpan: 40 }; };
+      pcbEl.style.setProperty('--pcb-lab-fs', Math.max(12, 11 / s) + 'px');
+      pcbEl.style.setProperty('--pcb-name-fs', Math.max(13, 11 / s) + 'px');
+      ['--pcb-c', '--pcb-rad', '--pcb-gap', '--pcb-sign-h', '--pcb-word-h', '--pcb-t', '--pcb-u'].forEach(v => pcbEl.style.removeProperty(v));
+      pcbEl.classList.remove('pcb-sparse');
+      pcbLabs.forEach((el, i) => { const r = i >> 1, pin = PCB_PIN[r]; el.style.top = pin + (PCB_ENTRY[r] - pin) * k + (r < 2 ? -23 : 7) + 'px'; });
+      pcbLabsEl.style.top = '';
+    } else {
+      w = W;
+      pcbScene.style.width = W + 'px';
+      pcbEl.style.removeProperty('--pcb-lab-fs');
+      pcbEl.style.removeProperty('--pcb-name-fs');
+      C = 2 * Math.round(Math.min(pcbClamp(W * .31, 108, pcbClamp(avail * .36, 200, 300)), avail * .72) / 2);
+      T = pcbClamp(W * .085, 30, 44);
+      const gapOf = () => Math.max(T + 10, C * .28), zoneOf = () => Math.max(C, 3 * gapOf() + T);
+      pcbLabs.forEach(el => { el.style.top = ''; });
+      let lh = pcbLabsEl.offsetHeight;
+      if (zoneOf() + 20 + lh > avail) { pcbEl.classList.add('pcb-no-notes'); lh = pcbLabsEl.offsetHeight; legend = 'names'; }
+      if (zoneOf() + 20 + lh > avail) { pcbEl.classList.add('pcb-no-legend'); lh = 0; legend = 'none'; }
+      if (zoneOf() > avail) T = Math.max(22, (avail - 30) / 4);
+      const zone = zoneOf(), start = top + (avail - zone - (lh ? 20 + lh : 0)) / 2;
+      cy = Math.round(start + zone / 2);
+      pcbLabsEl.style.top = start + zone + 20 - cy + 'px';
+      chipX = Math.round((W - C) / 2);
+      const unit = C / 280, gap = gapOf(), lead = 18 * unit;
+      const dy0 = Math.abs(1.5 * gap - 75 * unit);
+      const bend = chipX - dy0 - Math.max(10, lead + 2);
+      rowOf = row => ({ pin: PCB_PIN[row] * unit, entry: (row - 1.5) * gap, x0: -T, bend, edge: chipX, under: 30, lead, onSpan: 24 });
+      pcbEl.style.setProperty('--pcb-t', T + 'px');
+      pcbEl.style.setProperty('--pcb-c', C + 'px');
+      pcbEl.style.setProperty('--pcb-u', unit);
+      pcbEl.style.setProperty('--pcb-rad', 18 * unit + 'px');
+      pcbEl.style.setProperty('--pcb-gap', 16 * unit + 'px');
+      pcbEl.style.setProperty('--pcb-sign-h', 96 * unit + 'px');
+      pcbEl.style.setProperty('--pcb-word-h', Math.max(9, 14 * unit) + 'px');
+      pcbEl.classList.toggle('pcb-sparse', 25 * unit < 12);
+    }
+    const mir = 2 * chipX + C;
+    pcbScene.style.width = w + 'px';
+    pcbScene.style.transform = `translate(${tx}px, ${cy}px) scale(${s})`;
+    pcbChipBoxes.forEach(el => { el.style.left = chipX + 'px'; el.style.top = -C / 2 + 'px'; });
+    let base = '';
+    const rows = pcbTiles.map((_, i) => {
+      const right = i % 2 === 1, r = rowOf(i >> 1), dy = Math.abs(r.entry - r.pin), mx = x => (right ? mir - x : x);
+      const route = `M${mx(r.x0)} ${r.entry}H${mx(r.bend)}L${mx(r.bend + dy)} ${r.pin}H`;
+      base += route + mx(r.edge - r.lead);
+      const a = r.bend - r.x0, b = dy * Math.SQRT2, lenTrace = a + b + r.edge - r.bend - dy;
+      return { ...r, right, dy, a, b, lenTrace, len: lenTrace + r.under, q: -1 };
+    });
+    pcbBase.setAttribute('d', base);
+    const tw = wide ? 132 : T, th = wide ? 46 : T;
+    const whisk = [.283, .5, .717].map(f => { const y = Math.round(th * f); return `M-4 ${y}H0M${tw} ${y}H${tw + 4}`; }).join('');
+    pcbWhisk.forEach(el => el.setAttribute('d', whisk));
+    Object.assign(pcbGeo, { wide, s, k, C, T, mir, tw, th, snap: s * devicePixelRatio, legend, rows });
+    renderPcb(pcbP.v);
+  }
+  if (!hasGsap || reduce) $('#merge').classList.add('static');
+  layoutPcb();
+  addEventListener('resize', () => { if (pcbSizeKey() !== pcbLaidOut) layoutPcb(); });
+  document.fonts.ready.then(layoutPcb);
+  if (hasGsap) ScrollTrigger.addEventListener('refresh', layoutPcb);
+  window.__pcb = { layout: layoutPcb, render: renderPcb, geo: pcbGeo, p: pcbP };
+
+  if (!hasGsap || reduce) {
+    $$('.step').forEach(s => s.style.setProperty('--p', '100%'));
+    return;
+  }
+
+  const LINE_SEL = ['.sec-head p', '.hero .lead', '.pain h3', '.pain p', '.feat h3', '.feat p', '.metric p',
+    '.ai-card h3', '.ai-card > p', '.blk h3', '.blk .task', '.blk li', '.tcard h3', '.tcard p', '.step h4', '.step p',
+    '.steps-note', '.terms li', '.points li', '.f-cta h2', '.f-cta p', '.foot .about p', '.pick-row small', '.est h3'].join(',');
+  const SELF_SEL = ['.metric .v', '.blk .price b', '.blk .price span', '.allin .price b'].join(',');
+  const skip = el => el.closest('.ip, .screens, .stage, nav, form, details, .zoom');
+  const lineEls = $$(LINE_SEL).filter(el => !skip(el) && el.textContent.trim());
+  const selfEls = $$(SELF_SEL).filter(el => !skip(el));
+  lineEls.forEach(el => el.classList.remove('reveal'));
+
+  function splitLines(el) {
+    if (el._orig == null) el._orig = el.innerHTML; else el.innerHTML = el._orig;
+    const units = [];
+    [...el.childNodes].forEach(n => {
+      if (n.nodeType === 3) n.textContent.split(/([ \t\n\r]+)/).forEach(part => {
+        if (!part) return;
+        if (/^[ \t\n\r]+$/.test(part)) { units.push(document.createTextNode(' ')); return; }
+        const w = document.createElement('span'); w.textContent = part; w.style.whiteSpace = 'nowrap'; units.push(w);
+      });
+      else if (n.nodeType === 1) units.push(n);
+    });
+    el.textContent = ''; units.forEach(u => el.appendChild(u));
+    const lines = []; let cur = null, top = null;
+    units.forEach(u => {
+      if (u.nodeType === 3) { if (cur) cur.push(u); return; }
+      const t = u.offsetTop;
+      if (top === null || Math.abs(t - top) > 4) { cur = []; lines.push(cur); top = t; }
+      cur.push(u);
+    });
+    el.textContent = '';
+    const box = document.createElement('span'); box.className = 'lns';
+    lines.forEach(ln => {
+      while (ln.length && ln[ln.length - 1].nodeType === 3) ln.pop();
+      const o = document.createElement('span'); o.className = 'ln';
+      const i = document.createElement('span'); i.className = 'ln-in';
+      ln.forEach(n => i.appendChild(n)); o.appendChild(i); box.appendChild(o);
+    });
+    el.appendChild(box);
+    return [...box.querySelectorAll('.ln-in')];
+  }
+  function wrapSelf(el) {
+    const o = document.createElement('span'); o.className = 'ln';
+    const i = document.createElement('span'); i.className = 'ln-in';
+    el.parentNode.insertBefore(o, el); o.appendChild(i); i.appendChild(el);
+    return [i];
+  }
+  function arm(el, ins) {
+    if (el._done) { gsap.set(ins, { yPercent: 0, opacity: 1 }); return; }
+    gsap.set(ins, { yPercent: 110, opacity: 0 });
+    if (el._st) el._st.kill();
+    el._st = ScrollTrigger.create({ trigger: el, start: 'top 98%', end: 'max', once: true, onEnter: () => {
+      el._done = true;
+      gsap.to(ins, { yPercent: 0, opacity: 1, duration: 1.2, ease: 'expo.out', stagger: .085, overwrite: true });
+    }});
+  }
+  document.fonts.ready.then(() => {
+    lineEls.forEach(el => arm(el, splitLines(el)));
+    selfEls.forEach(el => arm(el, wrapSelf(el)));
+    ScrollTrigger.refresh();
+    let lastW = innerWidth, t;
+    addEventListener('resize', () => { clearTimeout(t); t = setTimeout(() => {
+      if (innerWidth === lastW) return; lastW = innerWidth;
+      lineEls.forEach(el => arm(el, splitLines(el)));
+      ScrollTrigger.refresh();
+    }, 250); });
+  });
+
+  $$('.split').forEach(h => gsap.from(h.querySelectorAll('.word>span'), {
+    yPercent: 110, rotate: 3, duration: 1.3, ease: 'expo.out', stagger: 0.07,
+    scrollTrigger: { trigger: h, start: 'top 88%' }
+  }));
+  $$('.reveal').forEach(el => gsap.from(el, {
+    y: 30, opacity: 0, filter: 'blur(6px)', duration: 1.3, ease: 'expo.out',
+    scrollTrigger: { trigger: el, start: 'top 98%' }
+  }));
+  gsap.from('#heroFrame', { opacity: 0, x: 60, rotateY: -12, transformPerspective: 1400, duration: 1.8, ease: 'expo.out', delay: .25 });
+  gsap.matchMedia().add('(min-width: 961px)', () => {
+    gsap.to('#heroMedia', { yPercent: -8, scale: .96, opacity: .45, ease: 'none',
+      scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 1.2 } });
+  });
+
+  gsap.matchMedia().add({ desk: '(min-width: 601px)', phone: '(max-width: 600px)' }, ctx => {
+    gsap.fromTo('.merge-titles', { opacity: 0, y: 40, filter: 'blur(10px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', ease: 'power2.out',
+      scrollTrigger: { trigger: '#merge', start: 'top 70%', end: 'top 15%', scrub: 1.2 } });
+    gsap.fromTo('.pcb, .merge-count', { opacity: 0, y: 40 }, { opacity: 1, y: 0, ease: 'power2.out',
+      scrollTrigger: { trigger: '#merge', start: 'top 85%', end: 'top 15%', scrub: 1.2 } });
+
+    pcbP.v = 0;
+    const titleRoom = () => $('.merge-titles').offsetTop - 68;
+    const tl = gsap.timeline({ scrollTrigger: { trigger: '#merge', start: 'top top', end: ctx.conditions.phone ? '+=170%' : '+=240%', scrub: 1.4, pin: true, anticipatePin: 1, invalidateOnRefresh: true } });
+    tl.to(pcbP, { v: 1, duration: 1, ease: 'none', lazy: false, onUpdate: () => renderPcb(pcbP.v) })
+      .to('.mt1', { opacity: 0, y: () => -pcbClamp(titleRoom(), 0, 30), duration: .1, ease: 'power1.in' }, .94)
+      .fromTo('.mt2', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: .12, ease: 'power1.out' }, 1.04)
+      .fromTo('.pcb-ring, .pcb-dring', { opacity: 0 }, { opacity: 1, duration: .16, ease: 'none' }, 1)
+      .fromTo('.pcb-arrow i', { scaleX: 0 }, { scaleX: 1, duration: .16, ease: 'none' }, 1)
+      .fromTo('.pcb-off', { opacity: 1 }, { opacity: 0, duration: .07, ease: 'none' }, 1.05)
+      .fromTo('.pcb-to', { opacity: 0 }, { opacity: 1, duration: .07, ease: 'none' }, 1.09)
+      .addLabel('hold')
+      .to({}, { duration: .3 });
+    if (!ctx.conditions.phone) tl.to('#mergeStage', { opacity: 0, scale: .94, y: () => -pcbClamp(titleRoom() + .06 * (pcbStage.offsetHeight / 2 - $('.merge-titles').offsetTop), 0, 40), duration: .35, ease: 'power2.in' });
+    renderPcb(pcbP.v);
+  });
+
+  $$('.metric .v').forEach(v => ScrollTrigger.create({ trigger: v, start: 'top 88%', once: true, onEnter: () => {
+    const to = +v.dataset.count, tail = v.querySelector('small'), o = { v: 0 };
+    const dec = +(v.dataset.dec || 0);
+    gsap.to(o, { v: to, duration: 1.8, ease: 'expo.out', onUpdate: () => { v.firstChild.textContent = fmt(o.v, dec); } });
+    if (tail) v.appendChild(tail);
+  }}));
+  $$('.step').forEach((s, i) => gsap.to(s, { '--p': '100%', ease: 'none',
+    scrollTrigger: { trigger: '#steps', start: `top ${82 - i * 5}%`, end: `top ${62 - i * 5}%`, scrub: 1.2 } }));
+  if (matchMedia('(min-width: 601px)').matches) $$('.blk .ip').forEach(ph => gsap.fromTo(ph, { y: 50 }, { y: -10, ease: 'none',
+    scrollTrigger: { trigger: ph.parentElement, start: 'top bottom', end: 'bottom top', scrub: 1.5 } }));
+})();
+</script>
+</body>
+</html>

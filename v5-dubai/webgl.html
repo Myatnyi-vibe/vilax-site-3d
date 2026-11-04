@@ -1,0 +1,547 @@
+
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+const canvas = document.getElementById('gl');
+const mobile = matchMedia('(max-width: 760px)').matches;
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance' });
+} catch (e) {
+  document.documentElement.classList.add('no-webgl');
+  canvas.remove();
+}
+
+if (renderer) {
+  const DPR = Math.min(devicePixelRatio, mobile ? 1.5 : 1.75);
+  renderer.setPixelRatio(DPR);
+  renderer.setClearColor(0x000000, 1);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 50);
+  camera.position.set(0, 0, 4);
+
+  const CURVES = /* glsl */`
+    uniform float uTime;
+    uniform vec4  uW;
+    uniform vec3  uVPos;
+    uniform float uStory;
+    uniform float uGrow;
+    uniform vec4  uText;
+    uniform vec4  uHead;
+    uniform float uLight;
+    uniform float uVGain;
+    uniform float uLeave;
+    uniform vec4  uFrame;
+    uniform vec2  uHalf;
+    uniform float uShiftX;
+    uniform float uDrift;
+
+    vec3 arcP(float s, float k, float seed){
+      float fan = k - 0.5;
+      vec2 V = vec2(-0.06 + fan*0.16, -0.40);
+      vec2 A = vec2(0.30, 1.18) * (1.0 + fan*0.40);
+      vec2 B = vec2(1.08, 0.24) * (1.0 + fan*1.10);
+      vec2 p = V + A*s + B*s*s;
+      float amp = 0.015 + 0.07*abs(s);
+      p.x += sin(s*4.0 + uTime*0.45 + seed*6.283)*amp;
+      p.y += cos(s*3.0 + uTime*0.38 + seed*4.0)*amp*0.6;
+      return vec3(p, fan*0.9);
+    }
+    vec3 auroraP(float s, float k, float seed){
+      float fan = k - 0.5;
+      float y = s*1.35;
+      float x = uShiftX + fan*0.85
+              + 0.24*sin(y*1.5 + uTime*0.22 + fan*3.0)
+              + 0.05*sin(y*4.2 - uTime*0.5 + seed*6.283);
+      return vec3(x, y, -0.7 + fan*0.7);
+    }
+    vec3 waveP(float s, float k, float seed){
+      float fan = k - 0.5;
+      float x = s*1.4;
+      float y = 0.28 + fan*0.6 + x*0.22
+              + 0.16*sin(x*2.1 + uTime*0.33 + fan*1.8)
+              + 0.045*sin(x*6.0 - uTime*0.7 + seed*6.283);
+      return vec3(x, y, fan*0.8);
+    }
+    const vec2 VB0[8] = vec2[8](vec2(-1.067, 0.276), vec2(-1.129, 0.477), vec2(-1.145, 0.648), vec2(-1.162, 0.845), vec2(-1.129, 0.980), vec2(-1.003, 0.882), vec2(-0.882, 0.842), vec2(-0.727, 0.770));
+    const vec2 VB1[8] = vec2[8](vec2(-0.651, -0.112), vec2(-0.767, -0.018), vec2(-0.811, 0.080), vec2(-0.853, 0.199), vec2(-0.849, 0.291), vec2(-0.632, 0.320), vec2(-0.475, 0.362), vec2(-0.319, 0.372));
+    const vec2 VB2[8] = vec2[8](vec2(-0.196, -0.465), vec2(-0.120, -0.298), vec2(-0.104, -0.203), vec2(-0.083, -0.106), vec2(-0.043, -0.040), vec2(-0.005, -0.075), vec2(-0.015, -0.071), vec2(-0.009, -0.089));
+    const vec2 VB3[8] = vec2[8](vec2(-0.001, -0.993), vec2(0.014, -0.961), vec2(0.033, -0.921), vec2(0.055, -0.878), vec2(0.074, -0.839), vec2(0.095, -0.796), vec2(0.147, -0.709), vec2(0.199, -0.622));
+    vec2 vBez(int i, float u, float drain){
+      float a = 1.0 - u;
+      vec2 p2 = mix(VB2[i], mix(VB2[i], vec2(-0.12, -0.55), 0.5), drain);
+      vec2 p3 = mix(VB3[i], vec2(0.0, -0.993), drain);
+      return a*a*a*VB0[i] + 3.0*a*a*u*VB1[i] + 3.0*a*u*u*p2 + u*u*u*p3;
+    }
+    vec2 vStrand(float q, float u, float drain){
+      int i = int(clamp(floor(q), 0.0, 6.0));
+      return mix(vBez(i, u, drain), vBez(i + 1, u, drain), q - float(i));
+    }
+    float gV, gA, gB, gX, gP, gD, gAur;
+    float p3o(float x){ x = clamp(x, 0.0, 1.0); return 1.0 - (1.0 - x)*(1.0 - x)*(1.0 - x); }   // power3.out
+    vec2 vSign(float i, float g, float c, float u, float side, float spread, float drain, float fluff){
+      vec2 q = vStrand(i + mix(c*spread, g, fluff), u, drain);
+      q.x *= -side;
+      return q;
+    }
+    vec3 curtainP(float side, float F, float y, float seed){
+      return vec3(side*0.56 + F*0.62 + 0.22*sin(y*1.5 + uTime*0.22 + side*1.3 + F*3.0) + 0.05*sin(y*4.2 - uTime*0.5 + seed*6.283),
+                  y, -0.5 + F*0.5);
+    }
+    vec3 logoP(float s, float k, float seed, float l){
+      float side = l < 0.5 ? -1.0 : 1.0;
+      float m = (side < 0.0 ? l : 1.0 - l) * 16.0;            // 0…8
+      float i = min(floor(m), 7.0), g = m - i - 0.5;
+      float fw = m / 8.0;
+      float u = 0.5 - s*0.5;
+      float taper = sin(3.14159*u);
+      float c = sign(g) * pow(abs(2.0*g), 3.2) * 0.5;
+      float st = uStory, y = s*1.3;
+      float cB = mix(0.11, 0.3, uLight);
+      gA = 1.0; gB = 1.0; gV = 0.0; gX = 0.0; gAur = 0.0;
+      gP = smoothstep(0.2, 1.2, st);
+      gD = 1.0 - gP;
+      if (st > 2.999) { gAur = 1.0; gB = 1.0 / 1.85; return auroraP(s, k, seed); }
+      vec3 p;
+      if (st < 2.0) {
+        float gr = 1.0, tight = 0.0, over = 0.0, wq = 0.0, pz = 1.0, tipF = 1.0;
+        if (uGrow < 4.0) {
+          float dl = 0.25 + (7.0 - i)*0.035 + (side > 0.0 ? 0.06 : 0.0) + 0.04*seed;
+          float gt = uGrow - dl;
+          gr = p3o(gt / 1.35);
+          float uf = mix(1.0, -0.05, gr);
+          gA = smoothstep(uf - 0.02, uf + 0.06, u) * smoothstep(0.0, 0.3, uGrow) * (0.15 + 0.85 * smoothstep(0.1, 0.7, gr));
+          tight = 1.0 - smoothstep(1.2, 1.9, uGrow);
+          float set = gt - 1.35;
+          over = set > 0.0 ? 0.025 * exp(-set / 0.14) * sin(set * 16.0) : 0.0;
+          float whip = exp(-pow((u - uf) / 0.2, 2.0)) * (1.0 - smoothstep(0.6, 1.5, gt)) * step(0.0, gt);
+          wq = sin(u*11.0 - uGrow*9.0 + seed*3.0) * whip * 0.04 / uVPos.z;
+          pz = 1.0 + 0.1 * sin(3.14159 * smoothstep(1.5, 2.1, uGrow));
+          tipF = 1.0 + 0.8 * (1.0 - smoothstep(0.0, 0.2, u)) * smoothstep(1.3, 1.7, uGrow) * (1.0 - smoothstep(1.8, 2.4, uGrow));
+        }
+        float a = smoothstep(0.0, 1.0, clamp(st, 0.0, 1.0));
+        float fl = smoothstep(0.6, 1.4, st);
+        float spread = (0.28 + 0.62 * (1.0 - smoothstep(0.0, 0.4, u))) * (1.0 + 2.0*tight);
+        vec2 q = vSign(i, g, c, u, side, spread, a, fl);
+        vec2 v0 = vec2(0.0, -0.993);
+        q = v0 + (q - v0) * (mix(0.04, 1.0, gr) + over * (1.0 - u));
+        float br = 0.004 / uVPos.z;
+        q.y += sin(uTime*0.785 + side*0.6) * br;
+        float wa = (0.006 + 0.010*taper) * (1.0 + 2.5*a);
+        q.x += sin(u*7.0 - uTime*0.9 + seed*6.283) * wa + wq;
+        q.y += cos(u*5.0 - uTime*0.7 + seed*4.0) * wa * 0.6;
+        gX = q.x / 1.16;
+        vec2 dv = (q - vec2(0.0, -0.86)) * vec2(3.0, 2.3);
+        gV = exp(-dot(dv, dv)) * (1.0 - a) * pz;
+        p = vec3(uVPos.xy + vec2(q.x * uHalf.y / uHalf.x, q.y) * uVPos.z, 0.06*c + 0.03*side);
+        p.x += side * 0.03 * a;
+        gB *= tipF;
+        gB *= mix(mix(0.9, 2.15, uLight) * uVGain, 1.0, gP);
+        gB *= mix(1.0, 0.55, smoothstep(0.12, 0.45, abs(c)));
+        if (uText.x < 1.5) {
+          vec2 te = smoothstep(uText.xy - 0.03, uText.xy + 0.03, p.xy) * (1.0 - smoothstep(uText.zw - 0.03, uText.zw + 0.03, p.xy));
+          gB *= 1.0 - 0.5 * (1.0 - a) * te.x * te.y;
+        }
+        if (uHead.x < 1.5) {
+          vec2 th = smoothstep(uHead.xy - 0.03, uHead.xy + 0.03, p.xy) * (1.0 - smoothstep(uHead.zw - 0.03, uHead.zw + 0.03, p.xy));
+          gB *= 1.0 - mix(0.33, 0.67, uLight) * (1.0 - a) * th.x * th.y;
+        }
+        gB *= 1.0 - 0.3 * smoothstep(0.72, 0.95, u);
+        if (uFrame.x < 1.5) {
+          vec2 fe = smoothstep(uFrame.xy - 0.02, uFrame.xy + 0.02, p.xy) * (1.0 - smoothstep(uFrame.zw - 0.02, uFrame.zw + 0.02, p.xy));
+          gB *= 1.0 - 0.55 * fe.x * fe.y;
+        }
+        gB *= (1.0 - 0.7 * uLeave * smoothstep(0.5, 0.9, u)) * (1.0 - 0.5 * smoothstep(0.15, 0.8, st));
+        gV *= 1.0 - 0.8 * uLeave;
+        if (st > 1.0) {
+          float b = smoothstep(1.0, 2.0, st);
+          p = mix(p, curtainP(side, side * (0.5 - fw), y, seed), b);
+          gV *= 1.0 - b; gB = mix(gB, cB, b);
+        }
+      } else {
+        float f = clamp((st - 2.0) * 1.6 - abs(l - 0.5) * 0.6, 0.0, 1.0);
+        f = f*f*(3.0 - 2.0*f);
+        p = mix(curtainP(side, side * (0.5 - fw), y, seed), auroraP(s, k, seed), f);
+        gAur = f; gB = mix(cB, 1.0 / 1.85, f);
+      }
+      return p;
+    }
+    vec3 curve(float t, float k, float seed, float l){
+      float s = t*2.0 - 1.0;
+      vec3 p = vec3(0.0); gV = 0.0; gA = 1.0; gB = 1.0; gX = 0.0; gP = 1.0; gD = 0.0; gAur = 0.0;
+      if (uW.x > 0.0005) p += arcP(s,k,seed)*uW.x;
+      if (uW.y > 0.0005) p += auroraP(s,k,seed)*uW.y;
+      if (uW.z > 0.0005) p += waveP(s,k,seed)*uW.z;
+      if (uW.w > 0.0005) p += logoP(s,k,seed,l)*uW.w;
+      p.y += uDrift * (1.0 - uW.w * (1.0 - smoothstep(2.0, 3.0, uStory)));
+      return vec3(p.x*uHalf.x, p.y*uHalf.y, p.z);
+    }
+  `;
+
+  const uniforms = {
+    uTime: { value: 0 },
+    uW: { value: new THREE.Vector4(0, 0, 0, 1) },
+    uVPos: { value: new THREE.Vector3(-0.06, -0.056, 0.87) },
+    uStory: { value: 0 },
+    uGrow: { value: 99 },
+    uSG: { value: new THREE.Vector4(0, 0, 0.03, mobile ? 1.35 : 1) },
+    uLeave: { value: 0 },
+    uFrame: { value: new THREE.Vector4(2, 2, 2, 2) },
+    uSky: { value: new THREE.Color('#18f2df') },
+    uMid: { value: new THREE.Color('#18f2df') },
+    uTip: { value: new THREE.Color('#18f2df') },
+    uDip: { value: 1 },
+    uText: { value: new THREE.Vector4(2, 2, 2, 2) },
+    uHead: { value: new THREE.Vector4(2, 2, 2, 2) },
+    uVGain: { value: mobile ? 1.5 : 1 },
+    uHalf: { value: new THREE.Vector2(1, 1) },
+    uShiftX: { value: 0 },
+    uDrift: { value: 0 },
+    uIntensity: { value: 1 },
+    uDpr: { value: DPR },
+    uRes: { value: new THREE.Vector2(1, 1) },
+    uLime: { value: new THREE.Color('#18f2df') },
+    uTeal: { value: new THREE.Color('#2297ff') },
+    uViolet: { value: new THREE.Color('#7a5cc7') },
+    uBase: { value: new THREE.Color('#081532') },
+    uLight: { value: 0 },
+  };
+  let veil, lines, dust;
+
+  {
+    const m = new THREE.ShaderMaterial({
+      uniforms, depthTest: false, depthWrite: false, transparent: true, blending: THREE.AdditiveBlending,
+      vertexShader: `void main(){ gl_Position = vec4(position.xy, 0.0, 1.0); }`,
+      fragmentShader: /* glsl */`
+        uniform float uTime; uniform vec4 uW; uniform float uShiftX; uniform vec2 uRes; uniform float uIntensity;
+        uniform vec3 uLime; uniform vec3 uTeal; uniform vec3 uBase;
+        uniform vec4 uSG;
+        uniform float uStory;
+        float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+        float n(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.0-2.0*f);
+          return mix(mix(h(i), h(i+vec2(1,0)), f.x), mix(h(i+vec2(0,1)), h(i+vec2(1,1)), f.x), f.y); }
+        float fbm(vec2 p){ float v = 0.0, a = 0.5; for(int i=0;i<5;i++){ v += a*n(p); p *= 2.03; a *= 0.5; } return v; }
+        vec3 aurora(vec2 p, float x, float t){
+          vec3 col = vec3(0.0);
+          for (int i = 0; i < 3; i++) {
+            float fi = float(i);
+            float w = fbm(vec2(p.y * 1.3 + t + fi * 3.1, t * 0.7 + fi));
+            float off = (w - 0.5) * 0.9 + (fi - 1.0) * 0.22;
+            float band = exp(-pow((x + off) * (5.5 + fi*1.5), 2.0));
+            band *= 0.55 + 0.45 * fbm(vec2(x * 3.0 + fi, p.y * 6.0 - t * 4.0));
+            col += band * mix(uLime, uTeal, smoothstep(0.35, 0.75, fbm(p * 1.5 + fi + t)));
+          }
+          return min(col, vec3(1.2));
+        }
+        vec3 storyGlow(vec2 p, float ar, float t){
+          float xn = 2.0 * p.x / ar / uSG.w, yn = 2.0 * p.y;
+          float cur = uSG.y;
+          float g = 0.0;
+          for (int k = 0; k < 2; k++) {
+            float sd = k == 0 ? -1.0 : 1.0;
+            float y = yn / 0.9;
+            float cx = uSG.x + sd * mix(0.16, 0.5, cur) + cur * 0.2 * sin(y * 1.5 + uTime * 0.22 + sd * 1.3);
+            float band = exp(-pow((xn - cx) / mix(0.2, 0.155, cur), 2.0));
+            band *= 0.5 + 0.5 * fbm(vec2(xn * 2.2 + sd * 3.7, yn * 3.0 - t * 4.0));
+            g += band;
+          }
+          g *= 1.0 - smoothstep(2.0, 3.0, uStory);
+          vec3 c3 = mix(uLime, uTeal, smoothstep(0.35, 0.75, fbm(p * 1.5 + t)));
+          return min(g * c3, vec3(1.2));
+        }
+        void main(){
+          vec2 uv = gl_FragCoord.xy / uRes;
+          float ar = uRes.x / uRes.y;
+          vec2 p = vec2((uv.x - 0.5) * ar, uv.y - 0.5);
+          float t = uTime * 0.06;
+          float vfade = smoothstep(-0.65, 0.1, p.y) * smoothstep(0.75, 0.15, p.y);
+          float aT = (uW.y * 0.16 + uW.x * 0.025 + uW.z * 0.035 + uW.w * 0.16 * smoothstep(2.0, 3.0, uStory)) * uIntensity * vfade;
+          float aS = uW.w * uW.w * uSG.z * uIntensity * vfade;
+          vec3 col = vec3(0.0);
+          if (aT > 0.0002) col += aurora(p, p.x - uShiftX * 0.5 * ar, t) * aT;
+          if (aS > 0.0002 && uStory < 2.99) col += storyGlow(p, ar, t) * aS;
+          gl_FragColor = vec4(col + uBase, 1.0);
+        }`,
+    });
+    veil = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), m);
+    veil.frustumCulled = false; veil.renderOrder = -1;
+    scene.add(veil);
+  }
+
+  const STRANDS = mobile ? 150 : 320;
+  const SEG = mobile ? 90 : 150;
+  {
+    const n = STRANDS * SEG * 2;
+    const aT = new Float32Array(n), aK = new Float32Array(n), aSeed = new Float32Array(n), aL = new Float32Array(n);
+    const ks = Array.from({ length: STRANDS }, Math.random);
+    const rank = new Float32Array(STRANDS);
+    ks.map((k, s) => [k, s]).sort((a, b) => a[0] - b[0]).forEach(([, s], r) => { rank[s] = (r + 0.5) / STRANDS; });
+    let i = 0;
+    for (let s = 0; s < STRANDS; s++) {
+      const k = ks[s], seed = Math.random();
+      for (let j = 0; j < SEG; j++) {
+        for (const d of [0, 1]) { aT[i] = (j + d) / SEG; aK[i] = k; aSeed[i] = seed; aL[i] = rank[s]; i++; }
+      }
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(n * 3), 3));
+    g.setAttribute('aT', new THREE.BufferAttribute(aT, 1));
+    g.setAttribute('aK', new THREE.BufferAttribute(aK, 1));
+    g.setAttribute('aSeed', new THREE.BufferAttribute(aSeed, 1));
+    g.setAttribute('aL', new THREE.BufferAttribute(aL, 1));
+    const m = new THREE.ShaderMaterial({
+      uniforms, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+      vertexShader: CURVES + /* glsl */`
+        attribute float aT; attribute float aK; attribute float aSeed; attribute float aL;
+        uniform float uIntensity; uniform vec3 uLime; uniform vec3 uTeal; uniform vec3 uViolet; uniform float uDip;
+        uniform vec3 uSky; uniform vec3 uMid; uniform vec3 uTip;
+        varying float vA; varying vec3 vC;
+        void main(){
+          vec3 p = curve(aT, aK, aSeed, aL);
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
+          float s = aT*2.0 - 1.0;
+          float edge = smoothstep(0.0, 0.16, aT) * smoothstep(1.0, 0.84, aT);
+          float core = 1.0 + uW.x * 4.5 * exp(-s*s*12.0) + uW.w * 2.0 * gV;
+          float pulse = smoothstep(0.93, 1.0, fract(aT*1.3 - uTime*0.12 + aSeed*5.0));
+          float pulseV = smoothstep(0.93, 1.0, fract(-aT*1.3 - uTime*0.12 + aSeed*5.0));
+          pulse = mix(pulse, pulseV, uW.w * gD);
+          float shimmer = 0.6 + 0.4*sin(uTime*0.7 + aSeed*40.0 + aT*5.0);
+          vA = edge * core * shimmer * (1.0 + 2.2*pulse) * uIntensity * (0.3 + 0.7*fract(aSeed*7.13)) * (1.0 - mix(0.72, 0.4, uLight)*(uW.y + uW.w*gAur));
+          vA *= mix(1.0, 1.85 * gA * gB * uDip, uW.w);
+          vA *= 1.0 + 0.5 * uLight * uW.w * (1.0 - gP);
+          vC = mix(uLime, uTeal, step(0.62, aSeed));
+          vC = mix(vC, uViolet, step(0.9, aSeed));
+          float gx = gX + (aSeed - 0.5) * 0.2;
+          vec3 cL = mix(mix(uSky, uTeal, 0.3 * uLight), uMid, smoothstep(-0.05, 0.4, gx));
+          cL = mix(cL, uTip, smoothstep(0.4, 0.95, gx));
+          vC = mix(vC, cL, uW.w * (1.0 - gP));
+          vC = mix(vC, uLight > 0.5 ? vC * 0.6 : vec3(1.0), pulse*0.35);
+        }`,
+      fragmentShader: /* glsl */`
+        uniform float uLight;
+        varying float vA; varying vec3 vC;
+        void main(){ gl_FragColor = uLight > 0.5 ? vec4(vC, 1.0 - exp(-vA * 0.5)) : vec4(vC * vA * 0.085, 1.0); }`,
+    });
+    lines = new THREE.LineSegments(g, m);
+    scene.add(lines);
+  }
+
+  {
+    const N = mobile ? 600 : 1500;
+    const aT = new Float32Array(N), aK = new Float32Array(N), aSeed = new Float32Array(N), aOff = new Float32Array(N * 3);
+    for (let i = 0; i < N; i++) {
+      aT[i] = Math.random(); aK[i] = Math.random(); aSeed[i] = Math.random();
+      aOff[i * 3] = (Math.random() - .5) * .22; aOff[i * 3 + 1] = (Math.random() - .5) * .22; aOff[i * 3 + 2] = (Math.random() - .5) * .6;
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(N * 3), 3));
+    g.setAttribute('aT', new THREE.BufferAttribute(aT, 1));
+    g.setAttribute('aK', new THREE.BufferAttribute(aK, 1));
+    g.setAttribute('aSeed', new THREE.BufferAttribute(aSeed, 1));
+    g.setAttribute('aOff', new THREE.BufferAttribute(aOff, 3));
+    const m = new THREE.ShaderMaterial({
+      uniforms, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+      vertexShader: CURVES + /* glsl */`
+        attribute float aT; attribute float aK; attribute float aSeed; attribute vec3 aOff;
+        uniform float uDpr; uniform float uIntensity;
+        varying float vA;
+        void main(){
+          float t = fract(aT + uTime*0.01*(0.5 + aSeed));
+          vec3 p = curve(t, aK, aSeed, aK) + aOff * vec3(uHalf, 1.0);
+          vec4 mv = modelViewMatrix * vec4(p, 1.0);
+          gl_Position = projectionMatrix * mv;
+          gl_PointSize = (1.0 + 2.6*fract(aSeed*13.7)) * uDpr * (3.5 / -mv.z);
+          vA = (0.35 + 0.65*sin(uTime*1.3 + aSeed*60.0)*0.5 + 0.5) * smoothstep(0.0,0.2,t) * smoothstep(1.0,0.8,t) * uIntensity;
+          vA *= mix(1.0, gA, uW.w);
+        }`,
+      fragmentShader: /* glsl */`
+        uniform vec3 uLime; uniform float uLight; varying float vA;
+        void main(){
+          float d = length(gl_PointCoord - 0.5);
+          float a = smoothstep(0.5, 0.0, d);
+          gl_FragColor = uLight > 0.5 ? vec4(uLime, a * vA * 0.2) : vec4(mix(uLime, vec3(1.0), 0.5) * a * vA * 0.35, 1.0);
+        }`,
+    });
+    dust = new THREE.Points(g, m);
+    scene.add(dust);
+  }
+
+  const composer = new EffectComposer(renderer);
+  composer.addPass(new RenderPass(scene, camera));
+  const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), mobile ? 0.75 : 0.95, 0.45, 0.35);
+  composer.addPass(bloom);
+  composer.addPass(new OutputPass());
+  window.__three = { scene, uniforms, bloom, composer };
+
+  const INK = { uSky: '#2d84c6', uMid: '#4a57a8', uTip: '#5a2a90', uLime: '#2d84c6', uTeal: '#3f68d6', uViolet: '#6a37a6' }, GLOW = {};
+  for (const k in INK) { GLOW[k] = uniforms[k].value.clone(); INK[k] = new THREE.Color(INK[k]); }
+  window.__setLight = on => {
+    uniforms.uLight.value = on ? 1 : 0;
+    for (const k in INK) uniforms[k].value.copy(on ? INK[k] : GLOW[k]);
+    bloom.enabled = !on; veil.visible = !on;
+    lines.material.blending = dust.material.blending = on ? THREE.NormalBlending : THREE.AdditiveBlending;
+    renderer.setClearColor(on ? 0xffffff : 0x000000, 1);
+  };
+  window.__setLight(document.documentElement.getAttribute('data-theme') === 'light');
+
+  let cw = 0, ch = 0;
+  function resize() {
+    const w = canvas.clientWidth || innerWidth, h = canvas.clientHeight || innerHeight;
+    if (w === cw && h === ch) return;
+    cw = w; ch = h;
+    renderer.setSize(w, h, false);
+    composer.setSize(w, h);
+    renderer.getDrawingBufferSize(uniforms.uRes.value);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    const halfH = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.position.z;
+    uniforms.uHalf.value.set(halfH * camera.aspect * (mobile ? 1.35 : 1), halfH);
+    placeSign();
+  }
+  let frameRect = null, textRect = null, headRect = null, colRect = null, capTop = 0, vyPx = 0;
+  function placeSign() {
+    const w = cw, h = ch, xs = mobile ? 1.35 : 1, y0 = scrollY;
+    const col = document.querySelector('.hero .wrap > div'), media = document.getElementById('heroMedia'), fr = document.getElementById('heroFrame');
+    if (!mobile && col && media && fr && matchMedia('(min-width: 961px)').matches) {
+      const wl = col.parentElement.getBoundingClientRect().left;
+      const axPx = (wl + col.offsetLeft + col.offsetWidth + wl + media.offsetLeft) / 2 - 22;
+      const S = Math.min(0.87, 0.95 * w / (1.16 * h));
+      uniforms.uVPos.value.set((axPx / w * 2 - 1) / xs, -0.92 + 0.993 * S, S);
+      const f = fr.getBoundingClientRect();
+      frameRect = { l: f.left, r: f.right, t: f.top + y0, b: f.bottom + y0 };
+      const t = document.querySelector('.hero h1').getBoundingClientRect();
+      textRect = { l: t.left - 16, r: t.right + 16, t: t.top + y0 - 16, b: t.bottom + y0 + 16 };
+      headRect = colRect = null;
+    } else {
+      const ct = document.querySelector('.hero .ctas');
+      const below = [...document.querySelectorAll('.hero-phone, #heroFrame')].find(e => e.offsetParent);
+      const S = Math.min(0.42, 0.8 * w / (1.16 * h));
+      const vy = below ? below.getBoundingClientRect().top + y0 - 12 : h * 0.58;
+      uniforms.uVPos.value.set(0, 1 - 2 * vy / h + 0.993 * S, S);
+      frameRect = null; vyPx = vy;
+      uniforms.uFrame.value.set(2, 2, 2, 2);
+      const cap = document.querySelector('.integr .label');
+      if (cap) { const r = cap.getBoundingClientRect(); capTop = r.top + y0; textRect = { l: r.left - 16, r: r.right + 16, t: r.top + y0 - 12, b: r.bottom + y0 + 12 }; }
+      const hd = document.querySelector('.hero h1');
+      if (hd) { const r = hd.getBoundingClientRect(); headRect = { l: r.left - 12, r: r.right + 12, t: r.top + y0 - 10, b: r.bottom + y0 + 10 }; }
+      if (col) { const r = col.getBoundingClientRect(); colRect = { l: r.left - 12, r: r.right + 12, t: r.top + y0 - 10, b: r.bottom + y0 + 10 }; }
+    }
+  }
+  resize();
+  addEventListener('resize', resize);
+
+  const SHAPES = { arc: [1, 0, 0, 0], aurora: [0, 1, 0, 0], wave: [0, 0, 1, 0], logo: [0, 0, 0, 1] };
+  const sections = [...document.querySelectorAll('[data-scene]')];
+  const target = { w: new THREE.Vector4(1, 0, 0, 0), shift: 0, intensity: 1, drift: 0 };
+  function pickScene() {
+    const vh = innerHeight, mid = vh * 0.5;
+    const w = new THREE.Vector4(0, 0, 0, 0); let shift = 0, inten = 0, drift = 0, sum = 0;
+    for (const s of sections) {
+      const r = s.getBoundingClientRect();
+      const cover = Math.max(0, Math.min(r.bottom, vh) - Math.max(r.top, 0)) / vh;
+      if (cover <= 0) continue;
+      const c = cover * cover;
+      w.addScaledVector(new THREE.Vector4().fromArray(SHAPES[s.dataset.scene] || SHAPES.arc), c);
+      shift += parseFloat(s.dataset.shift || 0) * c;
+      inten += parseFloat(s.dataset.intensity || 1) * c;
+      const p = Math.min(1, Math.max(0, (mid - r.top) / r.height));
+      drift += (0.5 - p) * 0.3 * c;
+      sum += c;
+    }
+    if (!sum) return;
+    target.w.copy(w.divideScalar(sum));
+    target.shift = shift / sum; target.intensity = inten / sum; target.drift = drift / sum;
+  }
+  addEventListener('scroll', pickScene, { passive: true });
+  pickScene();
+  uniforms.uW.value.copy(target.w);
+
+  const heroEl = document.querySelector('.hero'), todayEl = document.getElementById('today'), finEl = document.getElementById('finance');
+  const ease = x => x * x * (3 - 2 * x), seg = (x, a, b) => Math.min(1, Math.max(0, (x - a) / (b - a)));
+  let hh = 1, tTop = 1, finTop = Infinity;
+  const anchors = () => {
+    if (heroEl && todayEl) { hh = heroEl.offsetHeight; tTop = todayEl.getBoundingClientRect().top + scrollY; }
+    if (finEl) finTop = finEl.getBoundingClientRect().top + scrollY;
+  };
+  anchors();
+  addEventListener('resize', anchors);
+  window.ScrollTrigger?.addEventListener('refresh', () => { anchors(); placeSign(); });
+  const leaveTarget = () => mobile && capTop ? seg(scrollY, capTop - vyPx - 170, capTop - vyPx - 30) : seg(scrollY, hh * 0.02, hh * 0.3);
+  function storyTarget() {
+    if (!heroEl || !todayEl) return 0;
+    const y = scrollY, vh = innerHeight;
+    const plain = reduce || !window.ScrollTrigger;
+    if (plain) return y + vh * 0.5 > finTop ? 3 : (y < hh * 0.4 ? 0 : 2);
+    if (y > finTop - vh) return 2 + ease(seg(y, finTop - vh, finTop - vh * 0.45));
+    const u0 = hh * (mobile ? 0.55 : 0.25), u1 = hh * (mobile ? 0.8 : 0.6);
+    return y < u1 ? ease(seg(y, u0, u1)) : 1 + ease(seg(y, u1, Math.max(u1 + 1, tTop)));
+  }
+  let story = storyTarget(), dip = 1, boot = 0, jumpT = -9, wasJump = false, jumpDim = 1, inten = target.intensity, lastY = scrollY;
+  addEventListener('click', e => { if (!reduce && e.target.closest && e.target.closest('a[data-scroll]')) jumpT = 1.85; }, true);
+  uniforms.uStory.value = story;
+  if (!reduce && scrollY < innerHeight * 0.3) uniforms.uGrow.value = 0;
+  function glowFor(st) {
+    const cur = seg(st, 0.6, 2);
+    uniforms.uSG.value.set(uniforms.uVPos.value.x * (1 - seg(st, 1, 2)), cur, st < 2.99 ? 0.17 * (reduce ? 1 : ease(seg(boot, 0, 1.2))) : 0, mobile ? 1.35 : 1);
+  }
+
+  const mouse = new THREE.Vector2();
+  addEventListener('pointermove', e => mouse.set(e.clientX / innerWidth - .5, e.clientY / innerHeight - .5), { passive: true });
+
+  const clock = new THREE.Clock();
+  function frame() {
+    requestAnimationFrame(frame);
+    if (document.hidden) return;
+    const dt = Math.min(clock.getDelta(), 0.05);
+    if (!reduce) uniforms.uTime.value += dt;
+    jumpT -= dt;
+    if (jumpT > 0 && jumpT < 1.35 && Math.abs(scrollY - lastY) < 1.5) jumpT = 0;
+    lastY = scrollY;
+    const jump = jumpT > 0;
+    if (uniforms.uGrow.value < 99) uniforms.uGrow.value = uniforms.uGrow.value > 4 ? 99 : uniforms.uGrow.value + dt;
+    if (boot < 1.5) { boot += dt; if (scrollY > innerHeight * 0.3) { uniforms.uGrow.value = 99; story = storyTarget(); } }
+    const tgt = storyTarget();
+    if (wasJump && !jump) {
+      story = tgt; uniforms.uW.value.copy(target.w); inten = target.intensity;
+      uniforms.uShiftX.value = target.shift; uniforms.uDrift.value = target.drift; uniforms.uLeave.value = leaveTarget();
+      if (tgt < 0.3 && !reduce) uniforms.uGrow.value = 0.75;
+    }
+    wasJump = jump;
+    jumpDim += ((jump ? 0.1 : 1) - jumpDim) * (1 - Math.exp(-dt / (jump ? 0.04 : 0.15)));
+    if (!reduce) { if (!jump) story += (tgt - story) * (1 - Math.exp(-dt / 0.3)); }
+    else {
+      if (Math.abs(tgt - story) > 0.001) { dip = Math.max(0.25, dip - dt / 0.3 * 0.75); if (dip <= 0.25) story = tgt; }
+      else dip = Math.min(1, dip + dt / 0.4 * 0.75);
+      uniforms.uDip.value = dip;
+    }
+    uniforms.uStory.value = story;
+    glowFor(story);
+    uniforms.uLeave.value += (leaveTarget() - uniforms.uLeave.value) * (1 - Math.exp(-dt / 0.4));
+    {
+      const y = scrollY, xs = mobile ? 1.35 : 1;
+      const r = (o, u) => { if (!o || o.b - y < 0 || o.t - y > ch) { u.set(2, 2, 2, 2); return; }
+        u.set((o.l / cw * 2 - 1) / xs, 1 - 2 * (o.b - y) / ch, (o.r / cw * 2 - 1) / xs, 1 - 2 * (o.t - y) / ch); };
+      r(frameRect, uniforms.uFrame.value); r(textRect, uniforms.uText.value); r(uniforms.uLight.value > 0.5 ? headRect : colRect, uniforms.uHead.value);
+    }
+    const k = jump ? 0 : 1 - Math.exp(-dt / 1.4);
+    uniforms.uW.value.lerp(target.w, k);
+    uniforms.uShiftX.value += (target.shift - uniforms.uShiftX.value) * k;
+    inten += (target.intensity - inten) * k;
+    uniforms.uIntensity.value = inten * jumpDim;
+    uniforms.uDrift.value += (target.drift - uniforms.uDrift.value) * k;
+    const km = 1 - Math.exp(-dt / 0.6);
+    camera.position.x += (mouse.x * 0.14 - camera.position.x) * km;
+    camera.position.y += (-mouse.y * 0.1 - camera.position.y) * km;
+    camera.lookAt(0, 0, 0);
+    composer.render();
+  }
+  frame();
+}
+</script>
