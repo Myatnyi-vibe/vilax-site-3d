@@ -646,6 +646,7 @@ section{position:relative}
     <a href="#pricing" data-scroll>Pricing</a>
     <a href="#trust" data-scroll>How to connect</a>
     <a href="#faq" data-scroll>FAQ</a>
+    <a class="tel" href="mailto:info@vilax.ai">info@vilax.ai</a>
   </nav>
 </header>
 
@@ -973,7 +974,7 @@ section{position:relative}
     <div class="f-cta reveal">
       <img class="ghost" src="../logo.svg" alt="">
       <div><div class="label">what's next</div><h2>See your venue in <b>VILAX.</b></h2><p>We'll show the system on demo data and price it for your venue.</p></div>
-      <div class="side"><a class="btn btn-dark" href="#pricing" data-scroll>Request a demo</a></div>
+      <div class="side"><a class="btn btn-dark" href="#pricing" data-scroll>Request a demo</a><small>or write to <a class="tel" href="mailto:info@vilax.ai">info@vilax.ai</a></small></div>
     </div>
   </div>
 </section>
@@ -988,7 +989,7 @@ section{position:relative}
       <div><h4>company</h4><a href="#trust" data-scroll>How we connect</a><a href="#pricing" data-scroll>Pricing</a><a href="#faq" data-scroll>FAQ</a></div>
       <div><h4>legal</h4><a href="privacy.html">Privacy Policy</a><a href="consent.html">Consent to data processing</a></div>
     </div>
-    <div class="legal mono"><span>© 2026 VILAX</span><span>vilax.ai</span></div>
+    <div class="legal mono"><span>© 2026 VILAX</span><span>vilax.ai · <a href="mailto:info@vilax.ai">info@vilax.ai</a></span></div>
   </div>
 </footer>
 <div class="toast" id="toast" role="status"></div>
@@ -1231,7 +1232,7 @@ return {create};
       if (!r.ok) throw new Error(r.status);
       leadForm.outerHTML = '<div class="form-ok" role="status"><h3>Request received</h3><p>A manager will contact you and send a quote for your venue.</p></div>';
     } catch (err) {
-      say('The request was not sent. Your details are kept: please try again or write to us at [—].');
+      say('The request was not sent. Your details are kept: please try again or write to us at info@vilax.ai.');
     } finally { leadBusy = btn.disabled = false; }
   });
 
